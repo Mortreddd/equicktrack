@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345678
+      MYSQL_DATABASE: equicktrack
+      MYSQL_USER: emmanuel
+      MYSQL_PASSWORD: 12345678
+    ports:
+      - "3307:3306"  # Changed the host port to avoid conflicts
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  springboot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: equicktrack-container
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/equicktrack?allowPublicKeyRetrieval=true&createDatabaseIfNotExists=true
+      SPRING_DATASOURCE_USERNAME: emmanuel
+      SPRING_DATASOURCE_PASSWORD: 12345678
+      SPRING_HIBERNATE_DDL_AUTO: update
+    depends_on:
+      - mysql
+
+volumes:
+  mysql-data:
