@@ -2,9 +2,10 @@ package com.it43.equicktrack.transaction;
 
 
 import com.it43.equicktrack.equipment.Equipment;
-import com.it43.equicktrack.user.User;
+import com.it43.equicktrack.borrower.Borrower;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "transactions")
@@ -24,7 +26,7 @@ public class Transaction {
     private Long id;
 
     @OneToMany
-    private List<User> borrower;
+    private List<Borrower> borrower;
 
     @ManyToOne
     private Equipment equipment;

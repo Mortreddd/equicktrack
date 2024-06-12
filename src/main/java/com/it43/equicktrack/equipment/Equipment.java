@@ -2,14 +2,17 @@ package com.it43.equicktrack.equipment;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Data
+@Builder
 @Table(name="equipments")
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,9 +29,9 @@ public class Equipment {
     private String image;
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime createdAt;
+    private Date createdAt;
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime updatedAt;
+    private Date updatedAt;
 
 }

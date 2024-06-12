@@ -12,7 +12,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(path = "/api/v1/transactions", method = {RequestMethod.DELETE, RequestMethod.GET, RequestMethod.POST})
+@RequestMapping(path = "/api/v1/transactions")
 public class TransactionController {
 
     private final TransactionService transactionService;

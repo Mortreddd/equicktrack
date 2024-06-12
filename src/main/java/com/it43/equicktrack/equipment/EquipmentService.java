@@ -24,7 +24,7 @@ public class EquipmentService {
         return equipmentRepository.save(_equipment);
     }
 
-    public Optional<Equipment> getEquipmentByQrCode(String qrcode){
-        return equipmentRepository.findEquipmentByQrCode(qrcode);
+    public Optional<Equipment> getEquipmentByQrcode(String qrcode){
+        return equipmentRepository.findEquipmentByQrcode(qrcode);
     }
 }
