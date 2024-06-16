@@ -20,6 +20,8 @@ public class JwtService {
     @Value("${security.jwt.secret-key}") // Use proper property placeholder syntax
     private String secretKey;
 
+//    private static final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+
     private final long expirationTime = 604800000; // 7 days
 
     public String generateToken(String username){
@@ -34,13 +36,14 @@ public class JwtService {
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime)) // Fix expiration time
-                .signWith(getSignKey(), SignatureAlgorithm.HS256)
+                .signWith(getSignKey(), SignatureAlgorithm.HS512)
                 .compact();
     }
 
     private Key getSignKey(){
         byte[] keyBytes = Decoders.BASE64.decode(secretKey); // Fix BASE64 decoding
         return Keys.hmacShaKeyFor(keyBytes);
+//        return secretKey;
     }
 
     public String extractUsername(String token) {

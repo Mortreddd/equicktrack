@@ -5,6 +5,7 @@ import com.it43.equicktrack.borrower.BorrowerService;
 import com.it43.equicktrack.jwt.JwtRequest;
 import com.it43.equicktrack.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping( path = "/api/v1/auth")
+@RequestMapping(path = "/api/v1/auth")
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationController {
@@ -47,10 +48,16 @@ public class AuthenticationController {
 
 
     @PostMapping(path = "/register")
-    public ResponseEntity<String> createBorrower(@RequestBody RegisterAuthenticationRequest requestBorrower){
+    public ResponseEntity<String> createBorrower(@RequestBody Borrower requestBorrower){
         borrowerService.createNewBorrower(requestBorrower);
-        return ResponseEntity.ok().body(jwtService.generateToken(requestBorrower.getEmail()));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(jwtService.generateToken(requestBorrower.getEmail()));
     }
+
+//    @PostMapping(path = "/logout")
+//    public ResponseEntity<String> removeBorrower(){
+//
+//    }
 
 
 

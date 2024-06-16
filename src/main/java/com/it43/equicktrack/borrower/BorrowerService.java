@@ -1,13 +1,13 @@
 package com.it43.equicktrack.borrower;
 
-import com.it43.equicktrack.auth.RegisterAuthenticationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,21 +27,36 @@ public class BorrowerService {
     }
 
     // * Forced to use the request as parameter since it has role name in request body
-    public void createNewBorrower(RegisterAuthenticationRequest registerAuthenticationRequest){
+    public Borrower createNewBorrower(Borrower _borrower){
         Borrower borrower = Borrower.builder()
-                .firstName(registerAuthenticationRequest.getFirstName())
-                .lastName(registerAuthenticationRequest.getLastName())
-                .email(registerAuthenticationRequest.getEmail())
-                .password(passwordEncoder.encode(registerAuthenticationRequest.getPassword()))
+                .firstName(_borrower.getFirstName())
+                .lastName(_borrower.getLastName())
+                .email(_borrower.getEmail())
+                .roles(_borrower.getRoles())
+                .password(passwordEncoder.encode(_borrower.getPassword()))
+                .createdAt(Timestamp.from(Instant.now()))
                 .build();
-        Role role = roleRepository.findRoleByName(registerAuthenticationRequest.getRoleName())
-                .orElseThrow(() -> new RuntimeException("Role not found"));
-        borrower.setRoles(Set.of(role));
-
         borrowerRepository.save(borrower);
+
+        return borrower;
     }
 
     public void deleteBorrowerById(Long _id){
         borrowerRepository.deleteById(_id);
     }
+
+
+    public List<Borrower> saveBorrowers(List<Borrower> borrowers){
+        borrowerRepository.saveAll(borrowers);
+
+        return borrowers;
+    }
+
+
+    public void removeAll(){
+        borrowerRepository.deleteAll();
+    }
+
+
+
 }
