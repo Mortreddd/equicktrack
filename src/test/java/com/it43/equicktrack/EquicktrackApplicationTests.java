@@ -3,7 +3,7 @@ package com.it43.equicktrack;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(classes = EquicktrackApplicationTests.class)
 class EquicktrackApplicationTests {
 
 	@Test

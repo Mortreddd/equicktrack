@@ -11,7 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(path="/api/v1/equipments", method = {RequestMethod.POST, RequestMethod.GET, RequestMethod.DELETE})
+@RequestMapping(path="/api/v1/equipments")
 public class EquipmentController {
 
     private final EquipmentService equipmentService;
@@ -22,7 +22,7 @@ public class EquipmentController {
     }
 
     @GetMapping(path = "/{equipment_id}")
-    public ResponseEntity<Equipment> findEquipment(@PathVariable("equipment_id") Long _equipmentId){
+    public ResponseEntity<Equipment> getEquipmentById(@PathVariable("equipment_id") Long _equipmentId){
         Optional<Equipment> equipment = equipmentService.getEquipmentById(_equipmentId);
         return equipment.map(value -> ResponseEntity.ok().body(value))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
@@ -34,11 +34,13 @@ public class EquipmentController {
         return ResponseEntity.ok().body(equipmentService.createEquipment(equipment));
     }
 
-    @GetMapping(path = "/{qrcode}")
-    public ResponseEntity<Equipment> findEquipmentByQr(@PathVariable("qrcode") String _qrcode){
-        Optional<Equipment> equipment = equipmentService.getEquipmentByQrCode(_qrcode);
+    @GetMapping(path = "/qrcode/{qrcode}")
+    public ResponseEntity<Equipment> findEquipmentByQrcode(@PathVariable("qrcode") String _qrcode){
+        Optional<Equipment> equipment = equipmentService.getEquipmentByQrcode(_qrcode);
 
-        return equipment.map(_equipment -> ResponseEntity.ok().body(_equipment))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        return equipment.map(_equipment ->
+                ResponseEntity.ok().body(_equipment)
+        ).orElseGet(() ->
+                ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 }

@@ -1,4 +1,4 @@
-package com.it43.equicktrack.user;
+package com.it43.equicktrack.borrower;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -7,8 +7,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>, CrudRepository<User, Long> {
-    Optional<User> findByEmail(String email);
-
+public interface BorrowerRepository extends JpaRepository<Borrower, Long>, CrudRepository<Borrower, Long> {
+    Optional<Borrower> findByEmail(String email);
 }
 
