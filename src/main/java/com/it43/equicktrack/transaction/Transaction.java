@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import java.util.List;
 import java.time.LocalDateTime;
 
 @Entity
@@ -25,10 +24,12 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany
-    private List<Borrower> borrower;
+    @ManyToOne
+    @JoinColumn(name = "borrower_id")
+    private Borrower borrower;
 
     @ManyToOne
+    @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
     @Column(nullable = true)

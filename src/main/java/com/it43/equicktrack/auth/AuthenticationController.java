@@ -2,7 +2,6 @@ package com.it43.equicktrack.auth;
 
 import com.it43.equicktrack.borrower.Borrower;
 import com.it43.equicktrack.borrower.BorrowerService;
-import com.it43.equicktrack.jwt.JwtRequest;
 import com.it43.equicktrack.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,14 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final JwtService jwtService;
-    private final JwtRequest jwtRequest;
     private final BorrowerService borrowerService;
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
 
 
     @PostMapping(path = "/login")
     public ResponseEntity<String> authenticateAndGenerateToken(
-            @RequestBody JwtRequest jwtRequest
+            @RequestBody JwtLoginRequest jwtRequest
     ){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -48,7 +46,7 @@ public class AuthenticationController {
 
 
     @PostMapping(path = "/register")
-    public ResponseEntity<String> createBorrower(@RequestBody Borrower requestBorrower){
+    public ResponseEntity<String> createBorrower(@RequestBody JwtRegisterRequest requestBorrower){
         borrowerService.createNewBorrower(requestBorrower);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(jwtService.generateToken(requestBorrower.getEmail()));

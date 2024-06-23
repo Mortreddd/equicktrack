@@ -9,6 +9,5 @@ import java.util.Optional;
 @Repository
 public interface BorrowerRepository extends JpaRepository<Borrower, Long>, CrudRepository<Borrower, Long> {
     Optional<Borrower> findByEmail(String email);
-
 }
 

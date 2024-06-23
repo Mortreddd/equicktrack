@@ -1,12 +1,11 @@
 package com.it43.equicktrack.borrower;
 
+import com.it43.equicktrack.dto.BorrowerTransactionsDTO;
+import com.it43.equicktrack.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,14 +24,25 @@ public class BorrowerController {
     @GetMapping(path = "/{borrower_id}")
 
     public ResponseEntity<Borrower> getBorrowerById(@PathVariable("borrower_id") Long _id){
-        Optional<Borrower> borrower = borrowerService.getBorrowerById(_id);
-
-        return borrower.map(value ->
-                ResponseEntity.ok().body(value)
-        ).orElseGet(() ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(null)
-        );
+        Borrower borrower = borrowerService.getBorrowerById(_id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return ResponseEntity.ok().body(borrower);
     }
 
+    @DeleteMapping(path = "/{borrower_id}/delete")
+    public ResponseEntity<Borrower> deleteBorrowerById(@PathVariable("borrower_id") Long _id){
+        return ResponseEntity.ok().body(borrowerService.deleteBorrowerById(_id));
+    }
+//    "borrower" : {
+//    transactions : [
+//      "borrower_id" : 1
+//      "equipment_id" : int
+//      ]
+//    }
+    @GetMapping(path = "/{borrowerId}/transactions")
+    public ResponseEntity<BorrowerTransactionsDTO> getBorrowerTransactions(@PathVariable("borrowerId") Long _id){
+        return ResponseEntity.ok()
+                .body(borrowerService.getBorrowerTransactionsById(_id));
+    }
 
 }
