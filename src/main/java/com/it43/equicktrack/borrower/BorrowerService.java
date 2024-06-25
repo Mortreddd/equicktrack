@@ -37,14 +37,18 @@ public class BorrowerService {
 
     // * Forced to use the request as parameter since it has role name in request body
     public Borrower createNewBorrower(JwtRegisterRequest _borrower){
+        Role borrowerRole = roleRepository.findById(2)
+                .orElseThrow(() -> new ResourceNotFoundException("Role user not found"));
+
         Borrower borrower = Borrower.builder()
                 .firstName(_borrower.getFirstName())
                 .lastName(_borrower.getLastName())
                 .email(_borrower.getEmail())
-                .roles(Set.of(Role.builder().name("BORROWER").build()))
+                .roles(Set.of(borrowerRole))
                 .password(passwordEncoder.encode(_borrower.getPassword()))
                 .createdAt(LocalDateTime.now())
                 .build();
+
         borrowerRepository.save(borrower);
         return borrower;
     }
@@ -58,7 +62,6 @@ public class BorrowerService {
 
     public List<Borrower> saveBorrowers(List<Borrower> borrowers){
         borrowerRepository.saveAll(borrowers);
-
         return borrowers;
     }
 
@@ -79,7 +82,5 @@ public class BorrowerService {
                 .orElseThrow(() -> new ResourceNotFoundException("Borrower doesn't have transactions history"));
         return new BorrowerTransactionsDTO(borrower, transactions);
     }
-
-
 
 }

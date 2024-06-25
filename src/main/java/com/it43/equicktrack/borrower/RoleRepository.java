@@ -7,5 +7,11 @@ import java.util.Optional;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer> {
-    Optional<Role> findRoleByName(String name);
+    Optional<Role> findRoleByName(RoleName name);
+
+    default void saveIfNotExists(Role role){
+        if(findRoleByName(role.getName()).isEmpty()){
+            save(role);
+        }
+    }
 }

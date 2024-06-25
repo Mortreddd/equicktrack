@@ -4,6 +4,7 @@ import com.it43.equicktrack.borrower.Borrower;
 import com.it43.equicktrack.borrower.BorrowerService;
 import com.it43.equicktrack.jwt.JwtService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "/api/v1/auth")
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationController {
 
     private final JwtService jwtService;
@@ -29,6 +31,7 @@ public class AuthenticationController {
     public ResponseEntity<String> authenticateAndGenerateToken(
             @RequestBody JwtLoginRequest jwtRequest
     ){
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         jwtRequest.getEmail(),
@@ -36,10 +39,13 @@ public class AuthenticationController {
                 )
         );
 
+
         if(authentication.isAuthenticated()){
+            log.info("Logged in: {authentication.getDetails()}");
             return ResponseEntity.ok(jwtService.generateToken(jwtRequest.getEmail()));
         }
         else {
+            log.error("Failed to login");
             throw new UsernameNotFoundException("Credentials not found");
         }
     }
@@ -51,12 +57,5 @@ public class AuthenticationController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(jwtService.generateToken(requestBorrower.getEmail()));
     }
-
-//    @PostMapping(path = "/logout")
-//    public ResponseEntity<String> removeBorrower(){
-//
-//    }
-
-
 
 }
