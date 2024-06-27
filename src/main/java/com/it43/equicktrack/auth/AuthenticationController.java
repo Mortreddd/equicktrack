@@ -41,11 +41,11 @@ public class AuthenticationController {
 
 
         if(authentication.isAuthenticated()){
-            log.info("Logged in: {authentication.getDetails()}");
+            log.info("Logged in: {}", authentication.getDetails());
             return ResponseEntity.ok(jwtService.generateToken(jwtRequest.getEmail()));
         }
         else {
-            log.error("Failed to login");
+            log.error("Login failed: {}", authentication.getDetails());
             throw new UsernameNotFoundException("Credentials not found");
         }
     }

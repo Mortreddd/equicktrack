@@ -35,9 +35,8 @@ public class BorrowerService {
         return borrowerRepository.findById(id);
     }
 
-    // * Forced to use the request as parameter since it has role name in request body
     public Borrower createNewBorrower(JwtRegisterRequest _borrower){
-        Role borrowerRole = roleRepository.findById(2)
+        Role borrowerRole = roleRepository.findById(_borrower.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role user not found"));
 
         Borrower borrower = Borrower.builder()
@@ -54,7 +53,8 @@ public class BorrowerService {
     }
 
     public Borrower deleteBorrowerById(Long _id){
-        Borrower borrower = borrowerRepository.findById(_id).orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Borrower borrower = borrowerRepository.findById(_id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         borrowerRepository.delete(borrower);
         return borrower;
     }
@@ -65,16 +65,10 @@ public class BorrowerService {
         return borrowers;
     }
 
-
-    public void removeAll(){
-        borrowerRepository.deleteAll();
-    }
-
     public Borrower updateBorrower(Borrower _borrower){
         borrowerRepository.save(_borrower);
         return _borrower;
     }
-
     public BorrowerTransactionsDTO getBorrowerTransactionsById(Long _id){
         Borrower borrower = borrowerRepository.findById(_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Borrower does not exists"));
