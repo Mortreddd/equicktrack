@@ -20,8 +20,8 @@ RUN mvn clean package -DskipTests
 # Stage 2: Run the application using a JDK
 FROM eclipse-temurin:17-jdk-alpine
 
-# Set the working directory
-WORKDIR /usr/src/app
+## Set the working directory
+#WORKDIR /usr/src/app
 
 # Copy the jar file from the build stage
 COPY --from=build /usr/src/app/target/equicktrack-0.0.1-SNAPSHOT.jar app.jar
