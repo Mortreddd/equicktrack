@@ -1,7 +1,11 @@
 package com.it43.equicktrack.configuration;
 
 import com.it43.equicktrack.borrower.BorrowerRepository;
+import com.it43.equicktrack.borrower.Role;
+import com.it43.equicktrack.borrower.RoleName;
+import com.it43.equicktrack.borrower.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,5 +51,19 @@ public class ApplicationConfiguration {
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
 
         return daoAuthenticationProvider;
+    }
+
+    @Bean
+    CommandLineRunner init(RoleRepository roleRepository){
+        return args -> {
+            roleRepository.saveIfNotExists(Role.builder()
+                    .name(RoleName.ADMIN)
+                    .build());
+
+            roleRepository.saveIfNotExists(Role.builder()
+                    .name(RoleName.BORROWER)
+                    .build());
+
+        };
     }
 }
