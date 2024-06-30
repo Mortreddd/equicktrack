@@ -47,7 +47,6 @@ public class Borrower implements UserDetails{
     @Length(min = 8, message = "Must be valid and 8 characters long")
     @JsonIgnore
     private String password;
-
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "borrower_roles",
@@ -66,8 +65,7 @@ public class Borrower implements UserDetails{
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "borrower")
-    @JsonIgnore
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = List.of();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

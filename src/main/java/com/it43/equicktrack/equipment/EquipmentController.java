@@ -4,6 +4,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,11 +30,6 @@ public class EquipmentController {
 
     }
 
-    @PostMapping(path = "/create")
-    public ResponseEntity<Equipment> createEquipment(@RequestBody Equipment equipment){
-        return ResponseEntity.ok().body(equipmentService.createEquipment(equipment));
-    }
-
     @GetMapping(path = "/qrcode/{qrcode}")
     public ResponseEntity<Equipment> findEquipmentByQrcode(@PathVariable("qrcode") String _qrcode){
         Optional<Equipment> equipment = equipmentService.getEquipmentByQrcode(_qrcode);
@@ -43,4 +39,12 @@ public class EquipmentController {
         ).orElseGet(() ->
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
+
+
+    @PostMapping(path = "/create")
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public ResponseEntity<Equipment> createEquipment(@RequestBody Equipment equipment){
+        return ResponseEntity.ok().body(equipmentService.createEquipment(equipment));
+    }
+
 }
