@@ -1,5 +1,6 @@
 package com.it43.equicktrack.auth;
 
+import com.it43.equicktrack.borrower.RoleName;
 import lombok.Builder;
 import lombok.Data;
 
@@ -10,4 +11,6 @@ public class JwtRegisterRequest {
     private String lastName;
     private String email;
     private String password;
+    private Integer roleId = null;
+
 }

@@ -1,12 +1,12 @@
-package com.it43.equicktrack.security;
+package com.it43.equicktrack.configuration;
 
 
 import com.it43.equicktrack.borrower.BorrowerRepository;
-import com.it43.equicktrack.configuration.ApplicationConfiguration;
 import com.it43.equicktrack.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;

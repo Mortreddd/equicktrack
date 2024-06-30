@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,15 +47,14 @@ public class Borrower implements UserDetails{
     @Length(min = 8, message = "Must be valid and 8 characters long")
     @JsonIgnore
     private String password;
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "borrower_roles",
             joinColumns = @JoinColumn(name = "borrower_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
 
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -65,13 +65,13 @@ public class Borrower implements UserDetails{
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "borrower")
-    private List<Transaction> transactions;
+    private List<Transaction> transactions = List.of();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles
                 .stream()
-                .map(_role -> new SimpleGrantedAuthority(_role.getName()))
+                .map(_role -> new SimpleGrantedAuthority(_role.getName().toString()))
                 .collect(Collectors.toList());
     }
 
