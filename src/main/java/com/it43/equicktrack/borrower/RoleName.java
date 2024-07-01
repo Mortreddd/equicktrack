@@ -1,5 +1,5 @@
 package com.it43.equicktrack.borrower;
 
 public enum RoleName {
-    ADMIN, BORROWER
+    ROLE_ADMIN, ROLE_BORROWER
 }

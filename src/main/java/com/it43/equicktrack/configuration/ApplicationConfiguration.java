@@ -57,11 +57,11 @@ public class ApplicationConfiguration {
     CommandLineRunner init(RoleRepository roleRepository){
         return args -> {
             roleRepository.saveIfNotExists(Role.builder()
-                    .name(RoleName.ADMIN)
+                    .name(RoleName.ROLE_ADMIN)
                     .build());
 
             roleRepository.saveIfNotExists(Role.builder()
-                    .name(RoleName.BORROWER)
+                    .name(RoleName.ROLE_BORROWER)
                     .build());
 
         };

@@ -34,6 +34,19 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<?> invalidTokenException(
+            InvalidTokenException invalidTokenException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidTokenException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+    }
 
     @Data
     @AllArgsConstructor

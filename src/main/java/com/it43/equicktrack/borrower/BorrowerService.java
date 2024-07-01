@@ -45,6 +45,7 @@ public class BorrowerService {
                 .email(_borrower.getEmail())
                 .roles(Set.of(borrowerRole))
                 .password(passwordEncoder.encode(_borrower.getPassword()))
+                .emailVerifiedAt(null)
                 .createdAt(LocalDateTime.now())
                 .build();
 

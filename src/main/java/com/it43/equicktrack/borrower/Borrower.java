@@ -55,6 +55,10 @@ public class Borrower implements UserDetails{
     )
 
     private Set<Role> roles = new HashSet<>();
+
+    @Column(nullable = true)
+    private LocalDateTime emailVerifiedAt = null;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -64,7 +68,7 @@ public class Borrower implements UserDetails{
     @Column(nullable = true)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "borrower")
+    @OneToMany(mappedBy = "borrower", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     private List<Transaction> transactions = List.of();
 
     @Override
