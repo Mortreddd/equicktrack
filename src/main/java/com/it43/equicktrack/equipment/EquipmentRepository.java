@@ -9,5 +9,5 @@ import java.util.Optional;
 @Repository
 public interface EquipmentRepository extends JpaRepository<Equipment, Long>, CrudRepository<Equipment, Long> {
 
-    Optional<Equipment> findEquipmentByQrcode(String qrcode);
+    Optional<Equipment> findEquipmentByQrcodeData(String qrcode);
 }

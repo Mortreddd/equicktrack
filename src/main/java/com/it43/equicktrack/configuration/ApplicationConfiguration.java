@@ -1,9 +1,9 @@
 package com.it43.equicktrack.configuration;
 
-import com.it43.equicktrack.borrower.BorrowerRepository;
-import com.it43.equicktrack.borrower.Role;
-import com.it43.equicktrack.borrower.RoleName;
-import com.it43.equicktrack.borrower.RoleRepository;
+import com.it43.equicktrack.user.UserRepository;
+import com.it43.equicktrack.user.Role;
+import com.it43.equicktrack.user.RoleName;
+import com.it43.equicktrack.user.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -21,12 +21,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfiguration {
 
-    private final BorrowerRepository borrowerRepository;
+    private final UserRepository userRepository;
 
     @Bean
     public UserDetailsService userDetailsService(){
         return username ->
-                borrowerRepository.findByEmail(username)
+                userRepository.findByEmail(username)
                         .orElseThrow(() ->
                                 new UsernameNotFoundException("Username not found")
                         );
@@ -59,11 +59,12 @@ public class ApplicationConfiguration {
             roleRepository.saveIfNotExists(Role.builder()
                     .name(RoleName.ROLE_ADMIN)
                     .build());
-
             roleRepository.saveIfNotExists(Role.builder()
-                    .name(RoleName.ROLE_BORROWER)
+                    .name(RoleName.ROLE_PROFESSOR)
                     .build());
-
+            roleRepository.saveIfNotExists(Role.builder()
+                    .name(RoleName.ROLE_STUDENT)
+                    .build());
         };
     }
 }

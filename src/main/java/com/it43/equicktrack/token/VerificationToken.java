@@ -1,6 +1,6 @@
 package com.it43.equicktrack.token;
 
-import com.it43.equicktrack.borrower.Borrower;
+import com.it43.equicktrack.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,9 +22,9 @@ public class VerificationToken {
     @GeneratedValue(strategy= GenerationType.SEQUENCE)
     private Integer id;
 
-    @OneToOne(targetEntity = Borrower.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "borrower")
-    private Borrower borrower;
+    private User user;
 
     private UUID token;
 

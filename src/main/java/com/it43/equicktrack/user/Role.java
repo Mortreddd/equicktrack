@@ -1,4 +1,4 @@
-package com.it43.equicktrack.borrower;
+package com.it43.equicktrack.user;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

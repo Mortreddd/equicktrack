@@ -2,7 +2,7 @@ package com.it43.equicktrack.transaction;
 
 
 import com.it43.equicktrack.equipment.Equipment;
-import com.it43.equicktrack.borrower.Borrower;
+import com.it43.equicktrack.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,8 +25,8 @@ public class Transaction {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "borrower_id")
-    private Borrower borrower;
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "equipment_id")

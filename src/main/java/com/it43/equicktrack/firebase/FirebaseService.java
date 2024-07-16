@@ -2,59 +2,68 @@ package com.it43.equicktrack.firebase;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.StorageOptions;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
+import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.util.FileService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-//
-//        https://console.firebase.google.com/u/0/project/equicktrack-api-service/storage/equicktrack-api-service.appspot.com/files
+
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class FirebaseService {
     private final ResourceLoader resourceLoader;
     private final FileService fileService;
-    public String uploadFile(File file, String fileName) throws IOException {
-        final String DOWNLOAD_URL = "https://console.firebase.google.com/u/0/project/equicktrack-api-service/storage/equicktrack-api-service.appspot.com/files?alt=media";
-        final InputStream CREDENTIALS_FILE_PATH = resourceLoader
-                .getResource("equicktrack-api-service-firebase-adminsdk.json")
-                .getInputStream();
+    private static final String DOWNLOAD_URL = "https://storage.googleapis.com/equicktrack-api-service.appspot.com/qr-images/%s?alt=media";
 
-        BlobInfo blobInfo = BlobInfo.newBuilder(
-                BlobId.of("equicktrack-api-service.appspot.com", fileName))
-                .setContentType("media")
-                .build();
+    public String uploadFile(File file, String fileName) throws IOException, Exception {
+        try {
+            InputStream credentialsStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+            Credentials credentials = GoogleCredentials.fromStream(credentialsStream);
 
-        Credentials credentials = GoogleCredentials.fromStream(CREDENTIALS_FILE_PATH);
-        Blob storage = StorageOptions.newBuilder()
-                .setCredentials(credentials)
-                .build()
-                .getService()
-                .create(blobInfo, Files.readAllBytes(file.toPath()));
+            BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of("equicktrack-api-service.appspot.com", "qr-images/" + fileName))
+                    .setContentType("image/png")
+                    .build();
 
-        return String.format(DOWNLOAD_URL, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+            StorageOptions.newBuilder().setCredentials(credentials).build().getService().create(blobInfo, Files.readAllBytes(file.toPath()));
+
+            return String.format(DOWNLOAD_URL, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            log.error("Error uploading file to Firebase", e);
+            throw new FirebaseFileUploadException("Unable to upload file into firebase");
+        }
+
+
     }
 
-    public String upload(MultipartFile multipartFile) throws IOException{
-        try{
-            String fileName = multipartFile.getOriginalFilename();
-            File file = fileService.convertMultipartFileIntoFile(multipartFile, fileName);
-            String url = uploadFile(file, fileName);
-            if(!file.delete()){
-                return "File couldn't be deleted";
-            }
-            return url;
-
+    public String upload(MultipartFile multipartFile) throws IOException {
+        String fileName = multipartFile.getOriginalFilename();
+        File file = null;
+        try {
+            file = fileService.convertMultipartFileIntoFile(multipartFile, fileName);
+            return uploadFile(file, fileName);
         } catch (Exception e) {
-            throw new ConvertMultipartFileException(e.getMessage());
+            log.error("Error uploading multipart file", e);
+            throw new ConvertMultipartFileException("Failed to upload file");
+        } finally {
+            if (file != null && file.exists() && !file.delete()) {
+                log.warn("Failed to delete temporary file: {}", file.getAbsolutePath());
+            }
         }
     }
 }

@@ -1,9 +1,6 @@
 package com.it43.equicktrack.auth;
 
-import com.google.api.Http;
-import com.it43.equicktrack.borrower.Borrower;
-import com.it43.equicktrack.borrower.BorrowerService;
-import com.it43.equicktrack.exception.InvalidTokenException;
+import com.it43.equicktrack.user.UserService;
 import com.it43.equicktrack.jwt.JwtService;
 import com.it43.equicktrack.token.VerificationService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +22,7 @@ import java.util.UUID;
 public class AuthenticationController {
 
     private final JwtService jwtService;
-    private final BorrowerService borrowerService;
+    private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private VerificationService verificationService;
 
@@ -54,11 +51,11 @@ public class AuthenticationController {
 
 
     @PostMapping(path = "/register")
-    public ResponseEntity<String> createBorrower(@RequestBody JwtRegisterRequest requestBorrower){
-        borrowerService.createNewBorrower(requestBorrower);
+    public ResponseEntity<String> createBorrower(@RequestBody JwtRegisterRequest requestUser) throws Exception {
+        userService.createUser(requestUser);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Verify email");
+                .body(jwtService.generateToken(requestUser.getEmail()));
     }
 
     @GetMapping(path = "/verify-email")

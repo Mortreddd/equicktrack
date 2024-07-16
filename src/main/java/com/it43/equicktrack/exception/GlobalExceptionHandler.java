@@ -48,6 +48,34 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
     }
 
+    @ExceptionHandler(EmailExistsException.class)
+    public ResponseEntity<?> invalidTokenException(
+            EmailExistsException invalidTokenException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidTokenException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(FirebaseFileUploadException.class)
+    public ResponseEntity<?> invalidTokenException(
+            FirebaseFileUploadException invalidTokenException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidTokenException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
     @Data
     @AllArgsConstructor
     private static class ErrorDetails{
