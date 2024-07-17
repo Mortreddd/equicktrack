@@ -1,7 +1,12 @@
 package com.it43.equicktrack.equipment;
 
+import com.google.zxing.WriterException;
+import com.it43.equicktrack.dto.request.CreateEquipmentRequestDTO;
+import com.it43.equicktrack.firebase.FirebaseFolder;
+import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,6 +20,7 @@ import java.util.Optional;
 @RequestMapping(path="/api/v1/equipments")
 public class EquipmentController {
 
+    private final QuickResponseCode quickResponseCode;
     private final EquipmentService equipmentService;
 
     @GetMapping
@@ -40,15 +46,18 @@ public class EquipmentController {
                 ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
-    @PostMapping(path = "/create")
-    public ResponseEntity<String> createEquipment(@RequestParam("file") MultipartFile file) throws IOException {
-        return ResponseEntity.status(HttpStatus.CREATED).body(equipmentService.createEquipment(file));
+    @GetMapping(path = "/qrcode/generate")
+    public ResponseEntity<byte[]> generateQrcodeImage() throws IOException, WriterException {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header("Content-Type", MediaType.IMAGE_PNG_VALUE)
+                .body(equipmentService.generateQrcode());
     }
-//
-//    @PostMapping(path = "/create")
-//    @PreAuthorize("hasAuthority('ADMIN')")
-//    public ResponseEntity<Equipment> createEquipment(@RequestBody Equipment equipment){
-//        return ResponseEntity.ok().body(equipmentService.createEquipment(equipment));
-//    }
+
+
+    @PostMapping(path = "/create", consumes = "multipart/form-data")
+    public ResponseEntity<Equipment> createEquipment(@ModelAttribute CreateEquipmentRequestDTO equipment) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(equipmentService.createEquipment(equipment));
+    }
 
 }

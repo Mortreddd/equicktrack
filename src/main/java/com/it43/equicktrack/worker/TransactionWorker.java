@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TransactionWorker {
     private final TransactionService transactionService;
-    @Scheduled(fixedRate = Constant.TIME_CHECK)
+//    @Scheduled(fixedRate = Constant.TIME_CHECK)
     public void checkLateReturnEquipments(){
         List<Transaction> lateReturnees = transactionService.getTransactions()
                 .stream()

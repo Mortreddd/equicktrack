@@ -29,9 +29,11 @@ import java.nio.file.Files;
 public class FirebaseService {
     private final ResourceLoader resourceLoader;
     private final FileService fileService;
-    private static final String DOWNLOAD_URL = "https://storage.googleapis.com/equicktrack-api-service.appspot.com/qr-images/%s?alt=media";
+//    FIRST PARAMETER  : FOLDER NAME OF FIREBASE
+//    SECOND PARAMETER : THE FILE NAME
+    private static String DOWNLOAD_URL = "https://storage.googleapis.com/equicktrack-api-service.appspot.com/%s/%s?alt=media";
 
-    public String uploadFile(File file, String fileName) throws IOException, Exception {
+    public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
             InputStream credentialsStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
             Credentials credentials = GoogleCredentials.fromStream(credentialsStream);
@@ -42,21 +44,20 @@ public class FirebaseService {
 
             StorageOptions.newBuilder().setCredentials(credentials).build().getService().create(blobInfo, Files.readAllBytes(file.toPath()));
 
-            return String.format(DOWNLOAD_URL, URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+            return getFirebaseFileUrl(firebaseFolder, fileName);
         } catch (IOException e) {
             log.error("Error uploading file to Firebase", e);
             throw new FirebaseFileUploadException("Unable to upload file into firebase");
         }
 
-
     }
 
-    public String upload(MultipartFile multipartFile) throws IOException {
+    public String upload(MultipartFile multipartFile, FirebaseFolder firebaseFolder) throws IOException {
         String fileName = multipartFile.getOriginalFilename();
         File file = null;
         try {
             file = fileService.convertMultipartFileIntoFile(multipartFile, fileName);
-            return uploadFile(file, fileName);
+            return uploadFile(file, firebaseFolder, fileName);
         } catch (Exception e) {
             log.error("Error uploading multipart file", e);
             throw new ConvertMultipartFileException("Failed to upload file");
@@ -65,5 +66,13 @@ public class FirebaseService {
                 log.warn("Failed to delete temporary file: {}", file.getAbsolutePath());
             }
         }
+    }
+
+    private String getFirebaseFileUrl(FirebaseFolder firebaseFolder, String fileName){
+        return switch(firebaseFolder){
+            case AVATAR -> String.format(DOWNLOAD_URL, "avatars", URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+            case QR_IMAGE -> String.format(DOWNLOAD_URL, "qr-images", URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+            case EQUIPMENT -> String.format(DOWNLOAD_URL, "equipments", URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+        };
     }
 }
