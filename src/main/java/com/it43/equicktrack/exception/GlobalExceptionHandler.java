@@ -19,6 +19,62 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
     }
 
+    @ExceptionHandler(ConvertMultipartFileException.class)
+    public ResponseEntity<?> multipartFileNotConvertedException(
+            ConvertMultipartFileException convertMultipartFileException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                convertMultipartFileException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(errorDetails);
+
+    }
+
+    @ExceptionHandler(InvalidTokenException.class)
+    public ResponseEntity<?> invalidTokenException(
+            InvalidTokenException invalidTokenException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidTokenException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
+    }
+
+    @ExceptionHandler(EmailExistsException.class)
+    public ResponseEntity<?> invalidTokenException(
+            EmailExistsException invalidTokenException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidTokenException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(FirebaseFileUploadException.class)
+    public ResponseEntity<?> invalidTokenException(
+            FirebaseFileUploadException invalidTokenException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidTokenException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
 
     @Data
     @AllArgsConstructor

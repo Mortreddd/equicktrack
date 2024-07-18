@@ -2,6 +2,7 @@ package com.it43.equicktrack.equipment;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,18 +27,26 @@ public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank
     @NotNull(message = "Name of equipment is required")
     private String name;
     @Column(nullable = true)
     private String description;
 
+    @NotBlank
     @NotNull(message = "Qrcode data is required")
-    @Column(nullable = true, unique = true)
-    @JsonIgnore
-    private String qrcode;
+    @Column(nullable = false, unique = true)
+    private String qrcodeData;
 
+    @NotBlank
+    @NotNull(message = "Qr image is required")
+    @Column(nullable = false)
+    private String qrcodeImage;
+
+    @NotNull(message = "Image of equipment is required")
     @Column(nullable = true)
-    private String image;
+    @NotBlank
+    private String equipmentImage;
 
     private boolean available = true;
 

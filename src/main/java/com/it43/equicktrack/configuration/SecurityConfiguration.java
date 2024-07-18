@@ -1,8 +1,7 @@
-package com.it43.equicktrack.security;
+package com.it43.equicktrack.configuration;
 
 
-import com.it43.equicktrack.borrower.BorrowerRepository;
-import com.it43.equicktrack.configuration.ApplicationConfiguration;
+import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,7 +20,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final BorrowerRepository borrowerRepository;
+    private final UserRepository userRepository;
     private final ApplicationConfiguration applicationConfiguration;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
