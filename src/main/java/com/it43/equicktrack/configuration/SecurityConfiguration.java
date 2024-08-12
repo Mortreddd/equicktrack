@@ -20,7 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfiguration {
 
-    private final UserRepository userRepository;
     private final ApplicationConfiguration applicationConfiguration;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 

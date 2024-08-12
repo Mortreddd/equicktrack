@@ -1,6 +1,8 @@
 package com.it43.equicktrack.user;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.transaction.Transaction;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -66,7 +68,8 @@ public class User implements UserDetails{
     @Column(nullable = true)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JsonManagedReference
     private List<Transaction> transactions = List.of();
 
     @Override

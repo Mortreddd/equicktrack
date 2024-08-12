@@ -1,5 +1,8 @@
 package com.it43.equicktrack.exception;
 
+import com.google.zxing.WriterException;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.http.HttpStatus;
@@ -76,6 +79,33 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(WriterException.class)
+    public ResponseEntity<?> invalidTokenException(
+            WriterException writerException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                writerException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<?> invalidTokenException(
+            ExpiredJwtException expiredJwtException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                expiredJwtException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
     @Data
     @AllArgsConstructor
     private static class ErrorDetails{

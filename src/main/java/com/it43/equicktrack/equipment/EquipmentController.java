@@ -2,18 +2,19 @@ package com.it43.equicktrack.equipment;
 
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.request.CreateEquipmentRequestDTO;
-import com.it43.equicktrack.firebase.FirebaseFolder;
+import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class EquipmentController {
 
     private final QuickResponseCode quickResponseCode;
     private final EquipmentService equipmentService;
+    private final TransactionService transactionService;
 
     @GetMapping
     public ResponseEntity<List<Equipment>> getEquipments(){
@@ -38,19 +40,20 @@ public class EquipmentController {
 
     @GetMapping(path = "/qrcode/{qrcode}")
     public ResponseEntity<Equipment> findEquipmentByQrcodeData(@PathVariable("qrcode") String _qrcode){
-        Optional<Equipment> equipment = equipmentService.getEquipmentByQrcodeData(_qrcode);
-
-        return equipment.map(_equipment ->
-                ResponseEntity.ok().body(_equipment)
-        ).orElseGet(() ->
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        Equipment equipment = equipmentService.getEquipmentByQrcodeData(_qrcode);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipment);
     }
 
     @GetMapping(path = "/qrcode/generate")
-    public ResponseEntity<byte[]> generateQrcodeImage() throws IOException, WriterException {
+    public ResponseEntity<File> generateQrcodeImage() throws IOException, WriterException {
+        File qrcodeImageFile = equipmentService.generateQrCode();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.IMAGE_JPEG);
+        headers.setContentDispositionFormData("attachment", qrcodeImageFile.getName());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header("Content-Type", MediaType.IMAGE_PNG_VALUE)
-                .body(equipmentService.generateQrcode());
+                .headers(headers)
+                .body(qrcodeImageFile);
     }
 
 
@@ -60,4 +63,9 @@ public class EquipmentController {
                 .body(equipmentService.createEquipment(equipment));
     }
 
+    @GetMapping(path = "/{equipmentId}/transactions")
+    public ResponseEntity<Equipment> getTransactionsByEquipment(@PathVariable("equipmentId") Long equipmentId){
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(transactionService.getTransactionsByEquipment(equipmentId));
+    }
 }

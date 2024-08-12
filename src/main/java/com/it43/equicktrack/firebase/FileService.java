@@ -1,4 +1,4 @@
-package com.it43.equicktrack.util;
+package com.it43.equicktrack.firebase;
 
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import org.springframework.stereotype.Service;

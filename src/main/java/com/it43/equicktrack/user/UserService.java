@@ -69,12 +69,11 @@ public class UserService {
         userRepository.save(_user);
         return _user;
     }
-    public BorrowerTransactionsDTO getUserTransactionsById(Long _id){
-        User user = userRepository.findById(_id)
-                .orElseThrow(() -> new ResourceNotFoundException("Borrower does not exists"));
-        List<Transaction> transactions = transactionRepository.findTransactionsByUser(user)
-                .orElseThrow(() -> new ResourceNotFoundException("Borrower doesn't have transactions history"));
-        return new BorrowerTransactionsDTO(user, transactions);
+    public List<Transaction> getUserTransactionsById(Long _id){
+        return userRepository.findById(_id)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .getTransactions();
+
     }
 
 }

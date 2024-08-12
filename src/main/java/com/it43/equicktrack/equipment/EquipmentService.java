@@ -8,18 +8,15 @@ import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.QuickResponseCode;
-import jakarta.mail.Multipart;
+
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +26,7 @@ public class EquipmentService {
     private final UserRepository userRepository;
     private final QuickResponseCode quickResponseCode;
     private final FirebaseService firebaseService;
+
 
     public List<Equipment> getEquipments(){
         return equipmentRepository.findAll();
@@ -40,8 +38,9 @@ public class EquipmentService {
     }
 
 
-    public Optional<Equipment> getEquipmentByQrcodeData(String qrcodeData){
-        return equipmentRepository.findEquipmentByQrcodeData(qrcodeData);
+    public Equipment getEquipmentByQrcodeData(String qrcodeData){
+        return equipmentRepository.findEquipmentByQrcodeData(qrcodeData)
+                .orElseThrow(() -> new ResourceNotFoundException("Qrcode not found"));
     }
 
 
@@ -68,14 +67,15 @@ public class EquipmentService {
     }
 
 
-    public byte[] generateQrcode() throws IOException, WriterException {
+    public File generateQrCode() throws IOException, WriterException {
 
-        BufferedImage qrcodeImage = quickResponseCode.generateQrCodeImage("projector");
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ImageIO.write(qrcodeImage, "png", baos);
-        byte[] imageBytes = baos.toByteArray();
-
-        return imageBytes;
-
+        return quickResponseCode.generateQrCodeImage();
     }
+
+//
+//    public ImageIO convertByteToImage(byte[] qrcodeByte) throws IOException {
+//
+//        BufferedImage qrcodeImage = ImageIO.read(new ByteArrayInputStream(qrcodeByte));
+//
+//    }
 }
