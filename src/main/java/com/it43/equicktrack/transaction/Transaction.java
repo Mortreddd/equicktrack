@@ -1,8 +1,10 @@
 package com.it43.equicktrack.transaction;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.equipment.Equipment;
-import com.it43.equicktrack.borrower.Borrower;
+import com.it43.equicktrack.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,12 +26,14 @@ public class Transaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "borrower_id")
-    private Borrower borrower;
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
+    @JoinColumn(name = "user_id")
+    @JsonBackReference
+    private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "equipment_id")
+    @JsonBackReference
     private Equipment equipment;
 
     @Column(nullable = true)

@@ -1,4 +1,4 @@
-package com.it43.equicktrack.borrower;
+package com.it43.equicktrack.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

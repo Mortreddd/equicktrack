@@ -1,7 +1,10 @@
 package com.it43.equicktrack.equipment;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +15,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import com.it43.equicktrack.transaction.Transaction;
 
@@ -26,18 +30,26 @@ public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @NotBlank
     @NotNull(message = "Name of equipment is required")
     private String name;
     @Column(nullable = true)
     private String description;
 
+    @NotBlank
     @NotNull(message = "Qrcode data is required")
-    @Column(nullable = true, unique = true)
-    @JsonIgnore
-    private String qrcode;
+    @Column(nullable = false, unique = true)
+    private String qrcodeData;
 
+    @NotBlank
+    @NotNull(message = "Qr image is required")
+    @Column(nullable = false)
+    private String qrcodeImage;
+
+    @NotNull(message = "Image of equipment is required")
     @Column(nullable = true)
-    private String image;
+    @NotBlank
+    private String equipmentImage;
 
     private boolean available = true;
 
@@ -49,6 +61,7 @@ public class Equipment {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "equipment")
-    private Set<Transaction> transactions;
+    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Transaction> transactions;
 }

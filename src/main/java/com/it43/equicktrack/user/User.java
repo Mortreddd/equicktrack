@@ -1,6 +1,8 @@
-package com.it43.equicktrack.borrower;
+package com.it43.equicktrack.user;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.transaction.Transaction;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -25,13 +27,14 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Table(name="borrowers")
+@Table(name="users")
 @Builder
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Borrower implements UserDetails{
+
+public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -49,12 +52,13 @@ public class Borrower implements UserDetails{
     private String password;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
-            name = "borrower_roles",
-            joinColumns = @JoinColumn(name = "borrower_id"),
+            name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
 
     private Set<Role> roles = new HashSet<>();
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
@@ -64,7 +68,8 @@ public class Borrower implements UserDetails{
     @Column(nullable = true)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "borrower")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @JsonManagedReference
     private List<Transaction> transactions = List.of();
 
     @Override
