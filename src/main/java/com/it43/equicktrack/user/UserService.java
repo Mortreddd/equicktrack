@@ -1,12 +1,12 @@
 package com.it43.equicktrack.user;
 
 import com.it43.equicktrack.auth.JwtRegisterRequest;
-import com.it43.equicktrack.dto.BorrowerTransactionsDTO;
 import com.it43.equicktrack.exception.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +17,7 @@ import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -52,10 +53,11 @@ public class UserService {
         return user;
     }
 
-    public User deleteBorrowerById(Long _id){
+    public User deleteUserById(Long _id){
         User user = userRepository.findById(_id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         userRepository.delete(user);
+        log.info("User {} was deleted at {}", user.getId(), LocalDateTime.now());
         return user;
     }
 
@@ -75,5 +77,7 @@ public class UserService {
                 .getTransactions();
 
     }
+
+
 
 }

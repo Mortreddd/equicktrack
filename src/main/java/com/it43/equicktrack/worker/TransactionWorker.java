@@ -31,6 +31,7 @@ public class TransactionWorker {
 
         log.info("Executed at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         // TODO : block code of push notification for the mobile application
+
     }
 
 

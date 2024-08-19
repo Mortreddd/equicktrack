@@ -19,7 +19,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class VerificationToken {
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Integer id;
 
     @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
