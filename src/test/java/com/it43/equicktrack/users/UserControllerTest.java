@@ -12,6 +12,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(classes = UserController.class)
+
 public class UserControllerTest {
 
     @Autowired

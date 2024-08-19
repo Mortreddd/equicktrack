@@ -1,4 +1,5 @@
 application.properties
 application-prod.properties
 equicktrack-api-service-firebase-adminsdk.json
+application-dev.properties
 initialize.sql
