@@ -36,8 +36,8 @@ public class FirebaseService {
             Credentials credentials = GoogleCredentials.fromStream(credentialsStream);
 
             BlobInfo blobInfo = BlobInfo.newBuilder(
-                    BlobId.of(BUCKET_URL, getFirebaseFolder(firebaseFolder) + "/" + fileName)
-                    ).setContentType("image/png")
+                    BlobId.of(BUCKET_URL, getFirebaseFolder(firebaseFolder) + "/" + fileName))
+                    .setContentType("image/png")
                     .build();
 
             StorageOptions.newBuilder()

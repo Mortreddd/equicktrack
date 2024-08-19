@@ -27,7 +27,8 @@ public class EquipmentController {
 
     @GetMapping
     public ResponseEntity<List<Equipment>> getEquipments(){
-        return ResponseEntity.ok().body(equipmentService.getEquipments());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipmentService.getEquipments());
     }
 
     @GetMapping(path = "/{equipment_id}")
