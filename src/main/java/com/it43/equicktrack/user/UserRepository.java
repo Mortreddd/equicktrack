@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long>, CrudRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
+    Optional<User> findByGoogleUid(String uuid);
     default boolean emailExists(String email){
         return findByEmail(email).isPresent();
     };

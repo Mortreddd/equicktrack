@@ -28,8 +28,7 @@ public class UserController {
 
     @GetMapping(path = "/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable("userId") Long _id){
-        User user = userService.getBorrowerById(_id)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        User user = userService.getUserById(_id);
         return ResponseEntity.ok().body(user);
     }
 

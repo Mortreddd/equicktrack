@@ -38,6 +38,8 @@ public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(nullable = true, name="google_uuid")
+    private String googleUid;
     @NotEmpty(message = "First Name is required")
     private String firstName;
     @NotEmpty
@@ -46,8 +48,7 @@ public class User implements UserDetails{
     @Column(name = "email", unique = true)
     @NotNull(message = "Email is required")
     private String email;
-    @NotEmpty
-    @Length(min = 8, message = "Must be valid and 8 characters long")
+    @Column(nullable = true)
     @JsonIgnore
     private String password;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)

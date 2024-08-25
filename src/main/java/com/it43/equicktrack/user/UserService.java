@@ -30,8 +30,13 @@ public class UserService {
                 .findAll();
     }
 
-    public Optional<User> getBorrowerById(Long id){
-        return userRepository.findById(id);
+    public User getUserById(Long id){
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+    }
+
+    public Optional<User> getUserByUid(String _uuid) {
+        return userRepository.findByGoogleUid(_uuid);
     }
 
     public User createUser(JwtRegisterRequest _user) throws Exception{
@@ -61,7 +66,6 @@ public class UserService {
         return user;
     }
 
-
     public List<User> saveUsers(List<User> users){
         userRepository.saveAll(users);
         return users;
@@ -77,6 +81,7 @@ public class UserService {
                 .getTransactions();
 
     }
+
 
 
 

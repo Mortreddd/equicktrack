@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Example;
 
 import java.util.List;
 import java.util.Optional;
@@ -58,10 +59,12 @@ public class UserRepositoryTest {
 
         userRepository.save(userEmmanuel);
 
-        assertThat(userEmmanuel).isNotNull();
-        assertThat(userEmmanuel.getFirstName()).isEqualTo("Emmanuel");
-        assertThat(userEmmanuel.getPassword()).isNotEqualTo("1234567");
+        Optional<User> userFromDatabase = userRepository.findOne(Example.of(userEmmanuel));
 
+        assertThat(userFromDatabase).isNotNull();
+        assertThat(userFromDatabase.get().getFirstName()).isEqualTo("Emmanuel");
+        assertThat(userFromDatabase.get().getEmail()).isEqualTo("emmanmale@gmail.com");
+        assertThat(userFromDatabase.isPresent()).isTrue();
     }
 
     @Test

@@ -14,8 +14,11 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,25 +26,39 @@ public class QuickResponseCode {
 
     private static final String CHARSET = "UTF-8";
     private final FirebaseService firebaseService;
-    public File generateQrCodeImage() throws IOException, WriterException {
+    private final String DIRECTORY = "storage/images/qr-images";
 
-        final String RANDOM_FILE_NAME = "%s-%s.jpeg"
+    public File generateQrCodeImage(String fileName) throws IOException, WriterException {
+
+        // Generate random file name with a .png extension
+        final String RANDOM_FILE_NAME = "%s-%s-%s.png"
                 .formatted(
-                        new SimpleDateFormat("MM-dd-yyyy_HHmmss")
-                                .format(new Date())
-                        , RandomStringUtils.randomAscii(8));
-        final String QRCODE_DATA = RandomStringUtils.randomAlphabetic(18);
+                        fileName,
+                        new SimpleDateFormat("MM-dd-yyyy_HHmmss").format(new Date()),
+                        RandomStringUtils.randomNumeric(10));
 
-        // Create QR code
+        final String QRCODE_DATA = UUID.randomUUID().toString();
+
+        // Create the QR code
         BitMatrix bitMatrix = new QRCodeWriter().encode(QRCODE_DATA, BarcodeFormat.QR_CODE, 200, 200);
         BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
-        File generatedQrcodeImageFile = new File(RANDOM_FILE_NAME);
 
-        if (!ImageIO.write(bufferedImage, "jpeg", generatedQrcodeImageFile)) {
+        // Ensure the directory exists
+        File directory = new File(DIRECTORY);
+        if (!directory.exists()) {
+            Files.createDirectories(directory.toPath());
+        }
+
+        // Save the QR code image to the directory
+        File generatedQrcodeImageFile = new File(directory, RANDOM_FILE_NAME);
+        if (!ImageIO.write(bufferedImage, "png", generatedQrcodeImageFile)) {
             throw new WriterException("Couldn't generate QR code");
         }
 
         return generatedQrcodeImageFile;
     }
 
+    public String generateQrcodeData() {
+        return UUID.randomUUID().toString();
+    }
 }

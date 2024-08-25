@@ -1,5 +1,8 @@
 package com.it43.equicktrack.auth;
 
+import com.it43.equicktrack.dto.request.GoogleAuthenticationRequestDTO;
+import com.it43.equicktrack.user.User;
+import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.user.UserService;
 import com.it43.equicktrack.jwt.JwtService;
 import com.it43.equicktrack.token.VerificationService;
@@ -13,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @RequestMapping(path = "/api/v1/auth")
@@ -24,6 +28,7 @@ public class AuthenticationController {
     private final JwtService jwtService;
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
+    private final UserRepository userRepository;
     private VerificationService verificationService;
 
     @PostMapping(path = "/login")
@@ -66,5 +71,27 @@ public class AuthenticationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Invalid token");
         }
         return ResponseEntity.ok().body("Successfully verified");
+    }
+
+    @PostMapping(path = "/google")
+    public ResponseEntity<String> authenticateUsingGoogle(@ModelAttribute GoogleAuthenticationRequestDTO googleAuthenticationRequestDTO) {
+        Optional<User> user = userService.getUserByUid(googleAuthenticationRequestDTO.getUid());
+
+        if(user.isPresent()) {
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(jwtService.generateToken(user.get().getEmail()));
+        }
+
+        User newUser = User.builder()
+                .email(googleAuthenticationRequestDTO.getEmail())
+                .googleUid(googleAuthenticationRequestDTO.getUid())
+                .firstName(googleAuthenticationRequestDTO.getDisplayName())
+                .lastName(googleAuthenticationRequestDTO.getDisplayName())
+                .build();
+
+        userRepository.save(newUser);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(jwtService.generateToken(newUser.getEmail()));
     }
 }
