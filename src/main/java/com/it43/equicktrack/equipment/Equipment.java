@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
+
 import com.it43.equicktrack.transaction.Transaction;
 
 @Entity
@@ -39,6 +41,7 @@ public class Equipment {
     @NotBlank
     @NotNull(message = "Qrcode data is required")
     @Column(nullable = false, unique = true)
+    @JsonIgnore
     private String qrcodeData;
 
     @NotBlank

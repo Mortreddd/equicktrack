@@ -14,9 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class CreateEquipmentRequestDTO {
     private String name;
-    private String qrcodeData = null;
-    private MultipartFile qrcodeImage = null;
     private String description = null;
     private MultipartFile equipmentImage = null;
-
 }

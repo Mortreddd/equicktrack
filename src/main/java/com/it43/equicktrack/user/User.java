@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Table(name="users")
+@Table(name = "`users`")
 @Builder
 @Data
-@Entity
+@Entity(name = "`users`")
 @AllArgsConstructor
 @NoArgsConstructor
 
@@ -38,26 +38,30 @@ public class User implements UserDetails{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NotEmpty(message = "First Name is required")
-    private String firstName;
-    @NotEmpty
-    private String lastName;
+    @Column(nullable = true, name="google_uuid")
+    private String googleUid;
+    @NotEmpty(message = "Full Name is required")
+    private String fullName;
     @Email(message = "Email must be valid")
     @Column(name = "email", unique = true)
     @NotNull(message = "Email is required")
     private String email;
-    @NotEmpty
-    @Length(min = 8, message = "Must be valid and 8 characters long")
+    @Column(nullable = true)
     @JsonIgnore
     private String password;
+    @Column(nullable = true)
+    private String photoUrl;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-
     private Set<Role> roles = new HashSet<>();
+
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime emailVerifiedAt = null;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
