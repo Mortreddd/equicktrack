@@ -41,6 +41,7 @@ public class Equipment {
     @NotBlank
     @NotNull(message = "Qrcode data is required")
     @Column(nullable = false, unique = true)
+    @JsonIgnore
     private String qrcodeData;
 
     @NotBlank

@@ -26,16 +26,20 @@ public class UserRepositoryTest {
 
     @BeforeEach
     void setUp() throws Exception {
+        Role roleSuperAdmin = Role.builder()
+                .name(RoleName.SUPER_ADMIN)
+                .build();
+
         Role roleAdmin = Role.builder()
-                .name(RoleName.ROLE_ADMIN)
+                .name(RoleName.ADMIN)
                 .build();
 
         Role roleProfessor = Role.builder()
-                .name(RoleName.ROLE_PROFESSOR)
+                .name(RoleName.PROFESSOR)
                 .build();
 
         Role roleStudent = Role.builder()
-                .name(RoleName.ROLE_STUDENT)
+                .name(RoleName.STUDENT)
                 .build();
 
 
@@ -47,11 +51,10 @@ public class UserRepositoryTest {
     @Transactional
     void testCanCreateUser() throws Exception{
 
-        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+        Role adminRole = roleRepository.findByName(RoleName.ADMIN)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin role not found"));
         User userEmmanuel = User.builder()
-                .firstName("Emmanuel")
-                .lastName("Male")
+                .fullName("Emmanuel")
                 .roles(Set.of(adminRole))
                 .email("emmanmale@gmail.com")
                 .password("12345678")
@@ -62,7 +65,7 @@ public class UserRepositoryTest {
         Optional<User> userFromDatabase = userRepository.findOne(Example.of(userEmmanuel));
 
         assertThat(userFromDatabase).isNotNull();
-        assertThat(userFromDatabase.get().getFirstName()).isEqualTo("Emmanuel");
+        assertThat(userFromDatabase.get().getFullName()).isEqualTo("Emmanuel");
         assertThat(userFromDatabase.get().getEmail()).isEqualTo("emmanmale@gmail.com");
         assertThat(userFromDatabase.isPresent()).isTrue();
     }
@@ -70,36 +73,33 @@ public class UserRepositoryTest {
     @Test
     @Transactional
     void testStoreMultipleUsers() throws Exception {
-        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+        Role adminRole = roleRepository.findByName(RoleName.ADMIN)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin role not found"));
 
-        Role studentRole = roleRepository.findByName(RoleName.ROLE_STUDENT)
+        Role studentRole = roleRepository.findByName(RoleName.STUDENT)
                 .orElseThrow(() -> new ResourceNotFoundException("Student role not found"));
 
-        Role professorRole = roleRepository.findByName(RoleName.ROLE_PROFESSOR)
+        Role professorRole = roleRepository.findByName(RoleName.PROFESSOR)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor role not found"));
 
 
         List<User> users = List.of(
                 User.builder()
-                        .firstName("Emmanuel")
-                        .lastName("Male")
+                        .fullName("Emmanuel")
                         .roles(Set.of(adminRole))
                         .email("emmanmale@gmail.com")
                         .password("12345678")
                         .build(),
 
                 User.builder()
-                        .firstName("Red Hair")
-                        .lastName("Shanks")
+                        .fullName("Shanks")
                         .roles(Set.of(professorRole))
                         .email("redhairshanks@gmail.com")
                         .password("1234567890")
                         .build(),
 
                 User.builder()
-                        .firstName("Monkey D")
-                        .lastName("Luffy")
+                        .fullName("Luffy")
                         .roles(Set.of(studentRole))
                         .email("luffy@gmail.com")
                         .password("123456789")
@@ -118,8 +118,7 @@ public class UserRepositoryTest {
             var userFromDatabase = usersFromDatabase.get(index);
 
 
-            assertThat(user.getFirstName()).isEqualTo(userFromDatabase.getFirstName());
-            assertThat(user.getLastName()).isEqualTo(userFromDatabase.getLastName());
+            assertThat(user.getFullName()).isEqualTo(userFromDatabase.getFullName());
             assertThat(user.getId()).isEqualTo(userFromDatabase.getId());
             assertThat(user.getEmail()).isEqualTo(userFromDatabase.getEmail());
 
@@ -129,35 +128,32 @@ public class UserRepositoryTest {
     @Test
     @Transactional
     void testCanDeleteUser() throws Exception {
-        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+        Role adminRole = roleRepository.findByName(RoleName.ADMIN)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin role not found"));
 
-        Role studentRole = roleRepository.findByName(RoleName.ROLE_STUDENT)
+        Role studentRole = roleRepository.findByName(RoleName.STUDENT)
                 .orElseThrow(() -> new ResourceNotFoundException("Student role not found"));
 
-        Role professorRole = roleRepository.findByName(RoleName.ROLE_PROFESSOR)
+        Role professorRole = roleRepository.findByName(RoleName.PROFESSOR)
                 .orElseThrow(() -> new ResourceNotFoundException("Professor role not found"));
 
         List<User> users = List.of(
                 User.builder()
-                        .firstName("Emmanuel")
-                        .lastName("Male")
+                        .fullName("Emmanuel")
                         .roles(Set.of(adminRole))
                         .email("emmanmale@gmail.com")
                         .password("12345678")
                         .build(),
 
                 User.builder()
-                        .firstName("Red Hair")
-                        .lastName("Shanks")
+                        .fullName("Shanks")
                         .roles(Set.of(professorRole))
                         .email("redhairshanks@gmail.com")
                         .password("1234567890")
                         .build(),
 
                 User.builder()
-                        .firstName("Monkey D")
-                        .lastName("Luffy")
+                        .fullName("Luffy")
                         .roles(Set.of(studentRole))
                         .email("luffy@gmail.com")
                         .password("123456789")
@@ -182,12 +178,11 @@ public class UserRepositoryTest {
     @Test
     @Transactional
     void testCanUpdateUser() throws Exception {
-        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+        Role adminRole = roleRepository.findByName(RoleName.ADMIN)
                 .orElseThrow(() -> new ResourceNotFoundException("Admin role not found"));
         User user = User.builder()
                 .id(1L)
-                .firstName("Emmanuel")
-                .lastName("Male")
+                .fullName("Emmanuel")
                 .roles(Set.of(adminRole))
                 .email("emmanmale@gmail.com")
                 .password("12345678")
@@ -198,8 +193,7 @@ public class UserRepositoryTest {
 
         User updatedUser = User.builder()
                 .id(1L)
-                .firstName("Monkey D.")
-                .lastName("Luffy")
+                .fullName("Luffy")
                 .roles(Set.of(adminRole))
                 .email("emmanmale@gmail.com")
                 .password("12345678")
@@ -212,7 +206,7 @@ public class UserRepositoryTest {
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
 
-        assertThat(user.getFirstName()).isNotEqualTo(userFromDatabase.getFirstName());
+        assertThat(user.getFullName()).isNotEqualTo(userFromDatabase.getFullName());
         assertThat(user.getEmail()).isEqualTo(userFromDatabase.getEmail());
     }
 

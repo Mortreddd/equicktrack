@@ -79,6 +79,7 @@ public class ApplicationConfiguration {
                 .setStorageBucket(BUCKET_URL)
                 .build();
 
+
         return FirebaseApp.initializeApp(firebaseOptions);
     }
 
@@ -87,13 +88,16 @@ public class ApplicationConfiguration {
     CommandLineRunner init(RoleRepository roleRepository){
         return args -> {
             roleRepository.saveIfNotExists(Role.builder()
-                    .name(RoleName.ROLE_ADMIN)
+                    .name(RoleName.SUPER_ADMIN)
                     .build());
             roleRepository.saveIfNotExists(Role.builder()
-                    .name(RoleName.ROLE_PROFESSOR)
+                    .name(RoleName.ADMIN)
                     .build());
             roleRepository.saveIfNotExists(Role.builder()
-                    .name(RoleName.ROLE_STUDENT)
+                    .name(RoleName.PROFESSOR)
+                    .build());
+            roleRepository.saveIfNotExists(Role.builder()
+                    .name(RoleName.STUDENT)
                     .build());
         };
     }

@@ -40,10 +40,8 @@ public class User implements UserDetails{
     private Long id;
     @Column(nullable = true, name="google_uuid")
     private String googleUid;
-    @NotEmpty(message = "First Name is required")
-    private String firstName;
-    @NotEmpty
-    private String lastName;
+    @NotEmpty(message = "Full Name is required")
+    private String fullName;
     @Email(message = "Email must be valid")
     @Column(name = "email", unique = true)
     @NotNull(message = "Email is required")
@@ -51,6 +49,8 @@ public class User implements UserDetails{
     @Column(nullable = true)
     @JsonIgnore
     private String password;
+    @Column(nullable = true)
+    private String photoUrl;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(
             name = "user_roles",
@@ -58,6 +58,10 @@ public class User implements UserDetails{
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
     private Set<Role> roles = new HashSet<>();
+
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime emailVerifiedAt = null;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

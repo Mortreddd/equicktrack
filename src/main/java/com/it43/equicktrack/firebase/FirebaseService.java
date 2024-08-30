@@ -6,6 +6,7 @@ import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
+import com.it43.equicktrack.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,7 +26,7 @@ import java.nio.file.Files;
 @Slf4j
 public class FirebaseService {
     private final ResourceLoader resourceLoader;
-    private final FileService fileService;
+    private final FileUtil fileUtil;
 //    FIRST PARAMETER  : FOLDER NAME OF FIREBASE
 //    SECOND PARAMETER : THE FILE NAME
     @Value("${firebase.storage.download-url}")
@@ -59,12 +60,13 @@ public class FirebaseService {
 
     }
 
-    public String upload(MultipartFile multipartFile, FirebaseFolder firebaseFolder) throws IOException {
-        String fileName = multipartFile.getOriginalFilename();
+    public String uploadMultipartFile(MultipartFile multipartFile, FirebaseFolder firebaseFolder) throws IOException {
+        String originalFileName = multipartFile.getOriginalFilename();
+        String randomFileName = fileUtil.generateRandomFileName(originalFileName);
         File file = null;
         try {
-            file = fileService.convertMultipartFileIntoFile(multipartFile, fileName);
-            return uploadFile(file, firebaseFolder, fileName);
+            file = fileUtil.convertMultipartFileIntoFile(multipartFile, randomFileName);
+            return uploadFile(file, firebaseFolder, randomFileName);
         } catch (Exception e) {
             log.error("Error uploading multipart file", e);
             throw new ConvertMultipartFileException("Failed to upload file");
@@ -81,6 +83,7 @@ public class FirebaseService {
             Bucket bucket = StorageClient.getInstance().bucket(BUCKET_URL);
             String extractedFile = extractFileFromFirebaseUrl(filePath);
             Blob blob = bucket.get(extractedFile);
+
             if(blob == null) {
                 throw new FirebaseFileUploadException("Unable to find the file using path");
             }
@@ -110,7 +113,7 @@ public class FirebaseService {
     }
 
 //    returns the file along with its folder from firebase ex. equipments/Projector.png
-    private String extractFileFromFirebaseUrl(String fileUrl) {
+    public String extractFileFromFirebaseUrl(String fileUrl) {
         String[] splittedFile = fileUrl.split("/");
 
         return splittedFile[4] + "/" + splittedFile[5].replace("?alt=media", "");

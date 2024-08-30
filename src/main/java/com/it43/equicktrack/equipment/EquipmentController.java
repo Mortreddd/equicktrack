@@ -1,6 +1,5 @@
 package com.it43.equicktrack.equipment;
 
-import com.it43.equicktrack.dto.response.ResponseDTO;
 import com.it43.equicktrack.dto.request.CreateEquipmentRequestDTO;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
@@ -57,9 +56,10 @@ public class EquipmentController {
 
     @DeleteMapping(path = "/{equipmentId}/delete")
     public ResponseEntity deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
-        if(!equipmentService.deleteEquipmentById(equipmentId)){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        if(equipmentService.deleteEquipmentById(equipmentId)){
+            return ResponseEntity.status(HttpStatus.OK).build();
         }
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     }
 }

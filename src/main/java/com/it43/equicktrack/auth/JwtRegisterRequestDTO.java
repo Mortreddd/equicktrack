@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class JwtRegisterRequest {
+public class JwtRegisterRequestDTO {
     @NotBlank
     @NotNull(message = "Full Name is required")
     @Min(value = 2, message = "Full Name must at least 3 more characters")

@@ -7,9 +7,11 @@ import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.user.UserRepository;
+import com.it43.equicktrack.util.FileUtil;
 import com.it43.equicktrack.util.QuickResponseCode;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
@@ -26,7 +28,7 @@ public class EquipmentService {
     private final UserRepository userRepository;
     private final QuickResponseCode quickResponseCode;
     private final FirebaseService firebaseService;
-
+    private final FileUtil fileUtil;
 
     public List<Equipment> getEquipments() {
         return equipmentRepository.findAll();
@@ -45,9 +47,10 @@ public class EquipmentService {
 
     public Equipment createEquipment(CreateEquipmentRequestDTO createEquipmentRequestDTO) throws IOException {
         try {
+
             File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequestDTO.getName());
             MultipartFile equipmentFile = createEquipmentRequestDTO.getEquipmentImage();
-            String equipmentDownloadUrl = firebaseService.upload(equipmentFile, FirebaseFolder.EQUIPMENT);
+            String equipmentDownloadUrl = firebaseService.uploadMultipartFile(equipmentFile, FirebaseFolder.EQUIPMENT);
             String qrcodeDownloadUrl = firebaseService.uploadFile(qrcodeFile, FirebaseFolder.QR_IMAGE, qrcodeFile.getName());
 
             Equipment equipment = Equipment.builder()
@@ -72,14 +75,23 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
-        if(firebaseService.delete(equipment.getQrcodeImage()) && firebaseService.delete(equipment.getEquipmentImage())){
-            equipmentRepository.deleteById(equipmentId);
-            return true;
+
+        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
+        if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
+            return false;
         }
 
-        return false;
+        if(!firebaseService.delete(equipment.getEquipmentImage())) {
+            return false;
+        }
 
+        if(!firebaseService.delete(equipment.getQrcodeImage())){
+            return false;
+        }
+        equipmentRepository.deleteById(equipmentId);
 
-
+        return true;
     }
+
+
 }
