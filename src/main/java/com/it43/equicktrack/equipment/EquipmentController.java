@@ -1,18 +1,14 @@
 package com.it43.equicktrack.equipment;
 
-import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.request.CreateEquipmentRequestDTO;
-import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -46,18 +42,6 @@ public class EquipmentController {
                 .body(equipment);
     }
 
-    @GetMapping(path = "/qrcode/generate")
-    public ResponseEntity<File> generateQrcodeImage() throws IOException, WriterException {
-        File qrcodeImageFile = equipmentService.generateQrCode();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.IMAGE_JPEG);
-        headers.setContentDispositionFormData("attachment", qrcodeImageFile.getName());
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .headers(headers)
-                .body(qrcodeImageFile);
-    }
-
-
     @PostMapping(path = "/create", consumes = "multipart/form-data")
     public ResponseEntity<Equipment> createEquipment(@ModelAttribute CreateEquipmentRequestDTO equipment) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -68,5 +52,14 @@ public class EquipmentController {
     public ResponseEntity<Equipment> getTransactionsByEquipment(@PathVariable("equipmentId") Long equipmentId){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.getTransactionsByEquipment(equipmentId));
+    }
+
+    @DeleteMapping(path = "/{equipmentId}/delete")
+    public ResponseEntity deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
+        if(equipmentService.deleteEquipmentById(equipmentId)){
+            return ResponseEntity.status(HttpStatus.OK).build();
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+
     }
 }

@@ -2,13 +2,14 @@ package com.it43.equicktrack.firebase;
 
 import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.StorageOptions;
+import com.google.cloud.storage.*;
+import com.google.firebase.cloud.StorageClient;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
+import com.it43.equicktrack.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,11 +26,16 @@ import java.nio.file.Files;
 @Slf4j
 public class FirebaseService {
     private final ResourceLoader resourceLoader;
-    private final FileService fileService;
+    private final FileUtil fileUtil;
 //    FIRST PARAMETER  : FOLDER NAME OF FIREBASE
 //    SECOND PARAMETER : THE FILE NAME
-    private static String DOWNLOAD_URL = "https://storage.googleapis.com/equicktrack-api-service.appspot.com/%s/%s?alt=media";
-    private static final String BUCKET_URL = "equicktrack-api-service.appspot.com";
+    @Value("${firebase.storage.download-url}")
+    private String DOWNLOAD_URL;
+
+    @Value("${firebase.storage.bucket-url}")
+    private String BUCKET_URL;
+
+
     public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
             InputStream credentialsStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
@@ -54,12 +60,13 @@ public class FirebaseService {
 
     }
 
-    public String upload(MultipartFile multipartFile, FirebaseFolder firebaseFolder) throws IOException {
-        String fileName = multipartFile.getOriginalFilename();
+    public String uploadMultipartFile(MultipartFile multipartFile, FirebaseFolder firebaseFolder) throws IOException {
+        String originalFileName = multipartFile.getOriginalFilename();
+        String randomFileName = fileUtil.generateRandomFileName(originalFileName);
         File file = null;
         try {
-            file = fileService.convertMultipartFileIntoFile(multipartFile, fileName);
-            return uploadFile(file, firebaseFolder, fileName);
+            file = fileUtil.convertMultipartFileIntoFile(multipartFile, randomFileName);
+            return uploadFile(file, firebaseFolder, randomFileName);
         } catch (Exception e) {
             log.error("Error uploading multipart file", e);
             throw new ConvertMultipartFileException("Failed to upload file");
@@ -69,6 +76,25 @@ public class FirebaseService {
             }
         }
     }
+
+
+    public boolean delete(String filePath) throws IOException, FirebaseFileUploadException {
+        try {
+            Bucket bucket = StorageClient.getInstance().bucket(BUCKET_URL);
+            String extractedFile = extractFileFromFirebaseUrl(filePath);
+            Blob blob = bucket.get(extractedFile);
+
+            if(blob == null) {
+                throw new FirebaseFileUploadException("Unable to find the file using path");
+            }
+
+            return blob.delete();
+        } catch ( Exception e ) {
+            log.error("Error Message: {}", e);
+            throw new FirebaseFileUploadException("Unable to delete image of equipment");
+        }
+    }
+
 
     private String getFirebaseFileUrl(FirebaseFolder firebaseFolder, String fileName){
         return switch(firebaseFolder){
@@ -84,5 +110,12 @@ public class FirebaseService {
             case EQUIPMENT -> "equipments";
             case QR_IMAGE -> "qr-images";
         };
+    }
+
+//    returns the file along with its folder from firebase ex. equipments/Projector.png
+    public String extractFileFromFirebaseUrl(String fileUrl) {
+        String[] splittedFile = fileUrl.split("/");
+
+        return splittedFile[4] + "/" + splittedFile[5].replace("?alt=media", "");
     }
 }

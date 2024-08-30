@@ -106,6 +106,22 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
+
+    @ExceptionHandler(InvalidOtpException.class)
+    public ResponseEntity<?> invalidOtpException(
+            InvalidOtpException invalidOtpException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                invalidOtpException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
+    }
+
+
     @Data
     @AllArgsConstructor
     private static class ErrorDetails{

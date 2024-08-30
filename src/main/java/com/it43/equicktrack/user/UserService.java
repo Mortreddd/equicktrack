@@ -1,6 +1,6 @@
 package com.it43.equicktrack.user;
 
-import com.it43.equicktrack.auth.JwtRegisterRequest;
+import com.it43.equicktrack.auth.JwtRegisterRequestDTO;
 import com.it43.equicktrack.exception.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.transaction.Transaction;
@@ -30,11 +30,16 @@ public class UserService {
                 .findAll();
     }
 
-    public Optional<User> getBorrowerById(Long id){
-        return userRepository.findById(id);
+    public User getUserById(Long id){
+        return userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
-    public User createUser(JwtRegisterRequest _user) throws Exception{
+    public Optional<User> getUserByUid(String _uuid) {
+        return userRepository.findByGoogleUid(_uuid);
+    }
+
+    public User createUser(JwtRegisterRequestDTO _user) throws Exception{
         Role userRole = roleRepository.findById(_user.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role user not found"));
 
@@ -42,8 +47,7 @@ public class UserService {
             throw new EmailExistsException("Email already exists");
         }
         User user = User.builder()
-                .firstName(_user.getFirstName())
-                .lastName(_user.getLastName())
+                .fullName(_user.getFullName())
                 .email(_user.getEmail())
                 .roles(Set.of(userRole))
                 .password(passwordEncoder.encode(_user.getPassword()))
@@ -61,7 +65,6 @@ public class UserService {
         return user;
     }
 
-
     public List<User> saveUsers(List<User> users){
         userRepository.saveAll(users);
         return users;
@@ -77,6 +80,7 @@ public class UserService {
                 .getTransactions();
 
     }
+
 
 
 

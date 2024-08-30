@@ -20,17 +20,17 @@ public class UserRequestTest {
     @Autowired
     private MockMvc mockMvc;
 
-//    @BeforeEach
-//    void setUp() throws Exception {
-//        mockMvc.perform(get("/api/v1/users/1")
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isUnauthorized());
-////                .andExpect(content().json("{\"id\":1,\"firstName\":\"Emmanuel\",\"lastName\":\"Male\",\"email\":\"emmanmale@gmail.com\"}"));
-//
-//
-//        mockMvc.perform(get("/api/v1/users").contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isUnauthorized());
-//    }
+    @BeforeEach
+    void setUp() throws Exception {
+        mockMvc.perform(get("/api/v1/users/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+//                .andExpect(content().json("{\"id\":1,\"firstName\":\"Emmanuel\",\"lastName\":\"Male\",\"email\":\"emmanmale@gmail.com\"}"));
+
+
+        mockMvc.perform(get("/api/v1/users").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
 
     @Test
     @Disabled
