@@ -11,13 +11,9 @@ import lombok.Data;
 @Builder
 public class JwtRegisterRequest {
     @NotBlank
-    @NotNull(message = "First name is required")
-    @Min(value = 2, message = "First Name must at least 3 more characters")
-    private String firstName;
-    @NotBlank
-    @NotNull(message = "Last name is required")
-    @Min(value = 2, message = "Last Name must at least 3 more characters")
-    private String lastName;
+    @NotNull(message = "Full Name is required")
+    @Min(value = 2, message = "Full Name must at least 3 more characters")
+    private String fullName;
     @NotBlank
     @NotNull(message = "Email is required")
     @Email
