@@ -30,7 +30,6 @@ public class OtpWorker {
                 .filter((_otp) -> DateUtilities.isLate(_otp.getCreatedAt()))
                 .toList();
 
-
         otpService.deleteAll(unusedOtps);
     }
 }

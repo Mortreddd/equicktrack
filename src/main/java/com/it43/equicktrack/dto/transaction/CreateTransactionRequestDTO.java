@@ -1,5 +1,6 @@
 package com.it43.equicktrack.dto.transaction;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +13,13 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class CreateTransactionRequestDTO {
+    @NotNull
     private Long userId;
+    @NotNull
     private Long equipmentId;
     private String purpose = null;
-    private LocalDateTime borrowData = LocalDateTime.now();
-    private LocalDateTime returnDate = LocalDateTime.now().plusHours(1);
-
+//    @NotNull
+//    private LocalDateTime borrowData;
+//    @NotNull
+//    private LocalDateTime returnDate;
 }

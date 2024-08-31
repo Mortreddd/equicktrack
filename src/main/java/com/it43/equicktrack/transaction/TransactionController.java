@@ -1,11 +1,11 @@
 package com.it43.equicktrack.transaction;
 
 
-import com.it43.equicktrack.dto.BorrowerTransactionsDTO;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,16 +17,42 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @GetMapping
+    @GetMapping(path = "/", consumes = {"application/json"})
     public ResponseEntity<List<Transaction>> getTransactions(){
         return ResponseEntity.ok().body(transactionService.getTransactions());
     }
 
-    @PostMapping(path = "/create")
-    public ResponseEntity<Transaction> createTransaction(@ModelAttribute CreateTransactionRequestDTO createTransactionRequestDTO){
+//    This endpoint is for creating new transactions for equipments
+    @PostMapping(path = "/borrow", consumes = {"application/json"})
+    public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequestDTO createTransactionRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
+
+//    This endpoint is for updating the created transaction for the equipment
+/*
+    @PatchMapping(path = "/{transactionId}/return", consumes = {"application/json"})
+    public ResponseEntity<Transaction> createReturnTransaction(@PathVariable("transactionId") Long transactionId) {
+
+    }
+*/
+
+/*
+    @PatchMapping(path = "/{transactionId}/update")
+    public ResponseEntity<Transaction> updateTransaction(@RequestParam("transactionId") Long transactionId, @Validated @RequestBody ) {
+
+    }
+
+*/
+    @DeleteMapping(path = "/{transactionId}/delete")
+    public ResponseEntity<String> deleteTransaction(@RequestParam("transactionId") Long transactionId) {
+        transactionService.deleteTransactionById(transactionId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Transaction has been deleted");
+    }
+
+
 
 //
 //    @GetMapping(path = "/borrower/{borrowerId}")

@@ -51,8 +51,10 @@ public class UserService {
                 .email(_user.getEmail())
                 .roles(Set.of(userRole))
                 .password(passwordEncoder.encode(_user.getPassword()))
+                .emailVerifiedAt(null)
                 .createdAt(LocalDateTime.now())
                 .build();
+
         userRepository.save(user);
         return user;
     }
@@ -80,8 +82,6 @@ public class UserService {
                 .getTransactions();
 
     }
-
-
 
 
 }

@@ -1,13 +1,10 @@
 package com.it43.equicktrack.dto.response;
 
-import lombok.Builder;
-import lombok.Data;
+import java.util.Objects;
 
-@Data
-@Builder
-public class ResponseDTO <T> {
-    private int status;
-    private String message;
-    private T data;
+public record ResponseDTO<T> (int status, String message, T data){
+    public ResponseDTO {
+        Objects.nonNull(status);
+        Objects.nonNull(message);
+    }
 }
-
