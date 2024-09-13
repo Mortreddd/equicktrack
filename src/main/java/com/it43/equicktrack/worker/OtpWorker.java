@@ -17,11 +17,9 @@ import java.util.List;
 @Slf4j
 public class OtpWorker {
 
-
     private final OtpService otpService;
 
-
-//    @Scheduled(fixedRate = Constant.TIME_CHECK)
+    @Scheduled(fixedRate = Constant.TIME_CHECK)
     public void deleteUnfinishedUser() {
 
         List<Otp> otps = otpService.getOtps();
