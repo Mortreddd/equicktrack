@@ -1,26 +1,33 @@
 package com.it43.equicktrack.otp;
 
+import com.it43.equicktrack.email.EmailService;
+import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.InvalidOtpException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OtpService {
 
     private final OtpRepository otpRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
-
-    public boolean verifyEmailByCode(String code) throws InvalidOtpException{
+//    returns email
+    public String verifyEmailByCode(String code) throws InvalidOtpException{
+        log.debug(code);
         Otp emailOtp = otpRepository.findByCode(code).
                 orElseThrow(() -> new ResourceNotFoundException("Otp code not found"));
 
@@ -31,17 +38,27 @@ public class OtpService {
         User user = userRepository.findById(emailOtp.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        User.builder()
-                .emailVerifiedAt(LocalDateTime.now())
-                .build();
-
+        user.setEmailVerifiedAt(LocalDateTime.now());
         userRepository.save(user);
-
-        return true;
+        return user.getEmail();
     }
 
-    public void sendVerificationEmail(String email) {
+    public void sendVerificationEmail(String email) throws EmailMessageException {
+        final String OTP_CODE = generateRandomOtpCode();
+        final String RANDOM_ID = UUID.randomUUID().toString();
+        User newUser = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
+        Otp otp = Otp.builder()
+                .id(RANDOM_ID)
+                .userId(newUser.getId())
+                .email(email)
+                .contactNumber(null)
+                .code(OTP_CODE)
+                .build();
 
+        otpRepository.save(otp);
+
+        emailService.sendVerifyEmail(email, OTP_CODE);
     }
 
     public boolean isValidCode(String code) {

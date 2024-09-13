@@ -11,14 +11,12 @@ import com.it43.equicktrack.util.FileUtil;
 import com.it43.equicktrack.util.QuickResponseCode;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -41,7 +39,8 @@ public class EquipmentService {
 
 
     public Equipment getEquipmentByQrcodeData(String qrcodeData) {
-        return equipmentRepository.findEquipmentByQrcodeData(qrcodeData);
+        return equipmentRepository.findByQrcodeData(qrcodeData)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
 
@@ -91,6 +90,10 @@ public class EquipmentService {
         equipmentRepository.deleteById(equipmentId);
 
         return true;
+    }
+
+    public Equipment getBySerialNumber(String serialNumber) {
+        Equipment = equipmentRepository.findBySerialNumber(serialNumber);
     }
 
 

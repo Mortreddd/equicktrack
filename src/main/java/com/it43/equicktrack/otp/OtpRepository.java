@@ -16,7 +16,6 @@ public interface OtpRepository extends JpaRepository<Otp, String>, CrudRepositor
 
     default boolean codeExists(String code) {
         List<Otp> otps  = findAll();
-
         return otps.stream()
                 .anyMatch((otp) -> otp.getCode() == code);
     }
