@@ -41,6 +41,4 @@ public class Otp {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
-
-
 }

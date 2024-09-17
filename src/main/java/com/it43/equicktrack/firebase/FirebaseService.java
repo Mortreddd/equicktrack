@@ -35,6 +35,9 @@ public class FirebaseService {
     @Value("${firebase.storage.bucket-url}")
     private String BUCKET_URL;
 
+    @Value("${firebase.storage.access-url}")
+    private String ACCESS_URL;
+
 
     public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
@@ -52,8 +55,11 @@ public class FirebaseService {
                     .getService()
                     .create(blobInfo, Files.readAllBytes(file.toPath()));
 
+
+//            return getFirebaseFileUrl(firebaseFolder, fileName);
             return getFirebaseFileUrl(firebaseFolder, fileName);
         } catch (IOException e) {
+
             log.error("Error uploading file to Firebase", e);
             throw new FirebaseFileUploadException("Unable to upload file into firebase");
         }
@@ -98,9 +104,9 @@ public class FirebaseService {
 
     private String getFirebaseFileUrl(FirebaseFolder firebaseFolder, String fileName){
         return switch(firebaseFolder){
-            case AVATAR -> String.format(DOWNLOAD_URL, "avatars", URLEncoder.encode(fileName, StandardCharsets.UTF_8));
-            case QR_IMAGE -> String.format(DOWNLOAD_URL, "qr-images", URLEncoder.encode(fileName, StandardCharsets.UTF_8));
-            case EQUIPMENT -> String.format(DOWNLOAD_URL, "equipments", URLEncoder.encode(fileName, StandardCharsets.UTF_8));
+            case AVATAR -> String.format(ACCESS_URL, URLEncoder.encode("avatars" + "/" + fileName, StandardCharsets.UTF_8));
+            case QR_IMAGE -> String.format(ACCESS_URL, URLEncoder.encode("qr-images" + "/" + fileName, StandardCharsets.UTF_8));
+            case EQUIPMENT -> String.format(ACCESS_URL, URLEncoder.encode("equipments" + "/" + fileName, StandardCharsets.UTF_8));
         };
     }
 

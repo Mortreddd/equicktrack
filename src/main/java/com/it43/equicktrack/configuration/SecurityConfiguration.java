@@ -1,6 +1,7 @@
 package com.it43.equicktrack.configuration;
 
 
+import com.it43.equicktrack.email.VerifiedEmailFilter;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.jwt.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,7 @@ public class SecurityConfiguration {
 
     private final ApplicationConfiguration applicationConfiguration;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
+    private final VerifiedEmailFilter verifiedEmailFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -45,6 +46,7 @@ public class SecurityConfiguration {
                 )
                 .authenticationProvider(applicationConfiguration.authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(verifiedEmailFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

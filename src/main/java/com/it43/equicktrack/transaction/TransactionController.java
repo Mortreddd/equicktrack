@@ -1,7 +1,8 @@
 package com.it43.equicktrack.transaction;
 
 
-import com.it43.equicktrack.dto.transaction.CreateTransactionRequestDTO;
+import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
+import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,9 +25,16 @@ public class TransactionController {
 
 //    This endpoint is for creating new transactions for equipments
     @PostMapping(path = "/borrow", consumes = {"application/json"})
-    public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequestDTO createTransactionRequestDTO){
+    public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequest createTransactionRequestDTO){
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
+    }
+
+    @PatchMapping(path = "/{transactionId}/return")
+    public ResponseEntity<TransactionDTO> createReturnTransaction(@PathVariable("transactionId") Long transactionId) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                transactionService.createReturnTransaction(transactionId)
+        );
     }
 
 //    This endpoint is for updating the created transaction for the equipment
@@ -36,13 +44,11 @@ public class TransactionController {
 
     }
 */
-
 /*
     @PatchMapping(path = "/{transactionId}/update")
     public ResponseEntity<Transaction> updateTransaction(@RequestParam("transactionId") Long transactionId, @Validated @RequestBody ) {
 
     }
-
 */
     @DeleteMapping(path = "/{transactionId}/delete")
     public ResponseEntity<String> deleteTransaction(@RequestParam("transactionId") Long transactionId) {

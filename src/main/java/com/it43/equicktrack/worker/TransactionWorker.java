@@ -20,17 +20,21 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class TransactionWorker {
     private final TransactionService transactionService;
+    private static final long TEST_TIME_CHECK = 5_000L;
+
+    @Scheduled(fixedRate = TEST_TIME_CHECK)
 //    @Scheduled(fixedRate = Constant.TIME_CHECK)
     public void checkLateReturnEquipments(){
         List<Transaction> lateReturnees = transactionService.getTransactions()
                 .stream()
                 .filter(transaction ->
-                        DateUtilities.isLate(transaction.getReturnDate())
+                        DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() != null
                 )
                 .toList();
 
         log.info("Executed at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
         // TODO : block code of push notification for the mobile application
+
 
     }
 
