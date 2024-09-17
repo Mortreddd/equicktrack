@@ -25,6 +25,6 @@ COPY --from=build /usr/src/app/target/equicktrack-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar", "-Dspring.profiles.active=prod"]
+CMD ["java", "-jar", "app.jar"]
 
 
