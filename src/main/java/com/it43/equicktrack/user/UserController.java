@@ -1,5 +1,6 @@
 package com.it43.equicktrack.user;
 
+import com.it43.equicktrack.dto.user.UpdateUserDTO;
 import com.it43.equicktrack.dto.user.UserTransactionDTO;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.AuthenticatedUser;
@@ -39,13 +40,18 @@ public class UserController {
 
     @GetMapping(path = "/me")
     public ResponseEntity<Object> getAuthenticatedUser(){
-        return ResponseEntity.ok().body(AuthenticatedUser.getAuthenticatedUser().getPrincipal());
+        return ResponseEntity.ok().body(AuthenticatedUser.getAuthenticatedUser());
     }
-
 
     @GetMapping(path = "/{userId}/transactions")
     public ResponseEntity<UserTransactionDTO> getUserTransactions(@PathVariable("userId") Long userId){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionsService.getTransactionsByUser(userId));
+    }
+
+    @PatchMapping(path = "/{userId}/update")
+    public ResponseEntity<User> updateUser(@PathVariable("userId") Long userId, @RequestBody UpdateUserDTO updateUser) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(userService.updateUser(userId, updateUser));
     }
 }

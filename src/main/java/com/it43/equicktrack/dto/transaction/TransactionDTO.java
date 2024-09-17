@@ -12,6 +12,7 @@ public record TransactionDTO(
         String purpose,
         LocalDateTime borrowDate,
         LocalDateTime returnDate,
+        LocalDateTime returnedAt,
         LocalDateTime createdAt,
         LocalDateTime updatedAt
 ) { }

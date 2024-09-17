@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -31,7 +32,7 @@ public class OtpService {
         Otp emailOtp = otpRepository.findByCode(code).
                 orElseThrow(() -> new ResourceNotFoundException("Otp code not found"));
 
-        if(DateUtilities.isLate(emailOtp.getCreatedAt())) {
+        if(DateUtilities.isLate(emailOtp.getUpdatedAt())) {
             throw new InvalidOtpException("Otp is expired");
         }
 
@@ -40,26 +41,41 @@ public class OtpService {
 
         user.setEmailVerifiedAt(LocalDateTime.now());
         userRepository.save(user);
+        otpRepository.delete(emailOtp);
         return user.getEmail();
     }
 
     public void sendVerificationEmail(String email) throws EmailMessageException {
         final String OTP_CODE = generateRandomOtpCode();
         final String RANDOM_ID = UUID.randomUUID().toString();
-        User newUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
-        Otp otp = Otp.builder()
-                .id(RANDOM_ID)
-                .userId(newUser.getId())
-                .email(email)
-                .contactNumber(null)
-                .code(OTP_CODE)
-                .build();
+        Otp otp = null;
+//        CHECK FOR THE EXISTING OTP CODE
+        Optional<Otp> existingOtp = otpRepository.findByEmail(email);
+
+        if(existingOtp.isEmpty()) {
+            User newUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
+            otp = Otp.builder()
+                    .id(RANDOM_ID)
+                    .userId(newUser.getId())
+                    .email(email)
+                    .contactNumber(null)
+                    .code(OTP_CODE)
+                    .createdAt(LocalDateTime.now())
+                    .updatedAt(LocalDateTime.now())
+                    .build();
+        } else {
+            existingOtp.get().setCode(OTP_CODE);
+            existingOtp.get().setCreatedAt(LocalDateTime.now());
+            existingOtp.get().setUpdatedAt(LocalDateTime.now());
+            otp = existingOtp.get();
+        }
+
 
         otpRepository.save(otp);
-
         emailService.sendVerifyEmail(email, OTP_CODE);
     }
+
 
     public boolean isValidCode(String code) {
         return otpRepository.codeExists(code);
@@ -81,6 +97,9 @@ public class OtpService {
 
         return otp;
     }
+
+
+
 
 
 

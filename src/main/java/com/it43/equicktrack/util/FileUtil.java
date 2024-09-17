@@ -7,7 +7,11 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.text.SimpleDateFormat;
+import java.util.Base64;
 import java.util.Date;
 
 
@@ -19,6 +23,13 @@ public class FileUtil {
         File file = new File(fileDirectory + "/" + fileName);
 
         return file.delete();
+    }
+
+    public String generateRandomFileName() {
+        return "%s-%s"
+                .formatted(
+                        new SimpleDateFormat("MM-dd-yyyy_HHmmss").format(new Date()),
+                        RandomStringUtils.randomNumeric(10));
     }
 
     public String generateRandomFileName(String fileName) {
@@ -54,6 +65,11 @@ public class FileUtil {
 
     public String getExtension(String fileName){
         return fileName.substring(fileName.lastIndexOf("."));
+    }
+
+    public String encodeFileToBase64(Path filePath) throws IOException {
+        byte[] readAllBytes = Files.readAllBytes(filePath);
+        return Base64.getEncoder().encodeToString(readAllBytes);
     }
 
 }

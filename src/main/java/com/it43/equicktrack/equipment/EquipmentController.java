@@ -1,15 +1,25 @@
 package com.it43.equicktrack.equipment;
 
-import com.it43.equicktrack.dto.request.CreateEquipmentRequestDTO;
+import com.google.zxing.WriterException;
+import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @RestController
@@ -20,6 +30,7 @@ public class EquipmentController {
     private final QuickResponseCode quickResponseCode;
     private final EquipmentService equipmentService;
     private final TransactionService transactionService;
+
 
     @GetMapping
     public ResponseEntity<List<Equipment>> getEquipments(){
@@ -42,8 +53,33 @@ public class EquipmentController {
                 .body(equipment);
     }
 
+    @GetMapping(path = "/qrcode/generate")
+    public ResponseEntity<String> generateQrcode() throws IOException, WriterException {
+//        Resource qrcodeFile = equipmentService.generateQrcode();
+//        how to return the qrcodeFile as a response
+//        Map<String, Object> data = new HashMap<>();
+//        data.put("qrcodeFile", qrcodeFile);
+        String qrcodeFileUrl = equipmentService.generateQrcode();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(qrcodeFileUrl);
+    }
+
+    @GetMapping(path = "/qrcode/storage/{fileName}")
+    public ResponseEntity<Resource> getQrcodeFile(@PathVariable("fileName") String fileName) throws FileNotFoundException, MalformedURLException {
+
+        Path filePath = Paths.get("storage/images/qr-images").resolve(fileName);
+
+        if(!Files.exists(filePath)) {
+            throw new FileNotFoundException("Qrcode File not found");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .contentType(MediaType.IMAGE_PNG)
+                .body(new UrlResource(filePath.toUri()));
+    }
+
     @PostMapping(path = "/create", consumes = "multipart/form-data")
-    public ResponseEntity<Equipment> createEquipment(@ModelAttribute CreateEquipmentRequestDTO equipment) throws IOException {
+    public ResponseEntity<Equipment> createEquipment(@Validated @ModelAttribute CreateEquipmentRequest equipment) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(equipmentService.createEquipment(equipment));
     }
@@ -60,6 +96,5 @@ public class EquipmentController {
             return ResponseEntity.status(HttpStatus.OK).build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
     }
 }

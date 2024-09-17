@@ -12,14 +12,15 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 @Builder
-public class CreateTransactionRequestDTO {
+public class CreateTransactionRequest {
     @NotNull
     private Long userId;
     @NotNull
     private Long equipmentId;
+
     private String purpose = null;
-//    @NotNull
-//    private LocalDateTime borrowData;
-//    @NotNull
-//    private LocalDateTime returnDate;
+    @NotNull
+    private LocalDateTime borrowDate;
+    @NotNull
+    private LocalDateTime returnDate;
 }
