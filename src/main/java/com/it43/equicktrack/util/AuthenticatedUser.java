@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AuthenticatedUser {
-    public static Authentication getAuthenticatedUser(){
-        return SecurityContextHolder.getContext().getAuthentication();
+    public static Object getAuthenticatedUser(){
+        return SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 }

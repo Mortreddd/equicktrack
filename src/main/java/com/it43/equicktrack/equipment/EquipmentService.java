@@ -1,6 +1,7 @@
 package com.it43.equicktrack.equipment;
 
-import com.it43.equicktrack.dto.request.CreateEquipmentRequestDTO;
+import com.google.zxing.WriterException;
+import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
@@ -11,17 +12,23 @@ import com.it43.equicktrack.util.FileUtil;
 import com.it43.equicktrack.util.QuickResponseCode;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
@@ -41,24 +48,26 @@ public class EquipmentService {
 
 
     public Equipment getEquipmentByQrcodeData(String qrcodeData) {
-        return equipmentRepository.findEquipmentByQrcodeData(qrcodeData);
+        return equipmentRepository.findByQrcodeData(qrcodeData)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
 
-    public Equipment createEquipment(CreateEquipmentRequestDTO createEquipmentRequestDTO) throws IOException {
+    public Equipment createEquipment(CreateEquipmentRequest createEquipmentRequest) throws IOException {
         try {
 
-            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequestDTO.getName());
-            MultipartFile equipmentFile = createEquipmentRequestDTO.getEquipmentImage();
+            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName());
+            MultipartFile equipmentFile = createEquipmentRequest.getEquipmentImage();
             String equipmentDownloadUrl = firebaseService.uploadMultipartFile(equipmentFile, FirebaseFolder.EQUIPMENT);
             String qrcodeDownloadUrl = firebaseService.uploadFile(qrcodeFile, FirebaseFolder.QR_IMAGE, qrcodeFile.getName());
 
             Equipment equipment = Equipment.builder()
-                    .name(createEquipmentRequestDTO.getName())
+                    .name(createEquipmentRequest.getName())
                     .qrcodeData(quickResponseCode.generateQrcodeData())
                     .available(true)
                     .qrcodeImage(qrcodeDownloadUrl)
-                    .description(createEquipmentRequestDTO.getDescription())
+                    .description(createEquipmentRequest.getDescription())
+                    .serialNumber(createEquipmentRequest.getSerialNumber())
                     .equipmentImage(equipmentDownloadUrl)
                     .createdAt(LocalDateTime.now())
                     .updatedAt(LocalDateTime.now())
@@ -93,5 +102,28 @@ public class EquipmentService {
         return true;
     }
 
+    public Equipment getBySerialNumber(String serialNumber) {
+        return equipmentRepository.findBySerialNumber(serialNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+    }
+
+    public String generateQrcode() throws IOException, WriterException, FileNotFoundException {
+        String fileName = quickResponseCode.generateQrCodeImage(fileUtil.generateRandomFileName()).getName();
+        Path filePath = Paths.get("storage/images/qr-images").resolve(fileName);
+
+        if(Files.exists(filePath)) {
+//            String fileBase64 = fileUtil.encodeFileToBase64(filePath);
+//          Returns the String value of file with certain endpoint
+            return ServletUriComponentsBuilder.fromCurrentContextPath()
+                    .path("/api/v1/equipments/qrcode/storage/" + fileName)
+                    .toUriString();
+//            return new UrlResource();
+        }
+
+        log.error("Qrcode not found path: {}", filePath.toString());
+        Files.delete(filePath);
+        throw new FileNotFoundException("Qrcode not found");
+
+    }
 
 }

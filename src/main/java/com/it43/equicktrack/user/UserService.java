@@ -1,12 +1,14 @@
 package com.it43.equicktrack.user;
 
 import com.it43.equicktrack.auth.JwtRegisterRequestDTO;
+import com.it43.equicktrack.dto.user.UpdateUserDTO;
 import com.it43.equicktrack.exception.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -48,11 +50,14 @@ public class UserService {
         }
         User user = User.builder()
                 .fullName(_user.getFullName())
+                .googleUid(null)
                 .email(_user.getEmail())
                 .roles(Set.of(userRole))
                 .password(passwordEncoder.encode(_user.getPassword()))
+                .emailVerifiedAt(null)
                 .createdAt(LocalDateTime.now())
                 .build();
+
         userRepository.save(user);
         return user;
     }
@@ -70,7 +75,12 @@ public class UserService {
         return users;
     }
 
-    public User updateUser(User _user){
+    public User updateUser(Long userId, UpdateUserDTO updateUserDTO){
+        User _user = userRepository.findById(userId)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        _user.setFullName(updateUserDTO.getFullName());
+        _user.setGoogleUid(updateUserDTO.getGoogleUuid());
+        _user.setPassword(new BCryptPasswordEncoder().encode(updateUserDTO.getPassword()));
         userRepository.save(_user);
         return _user;
     }
@@ -80,8 +90,6 @@ public class UserService {
                 .getTransactions();
 
     }
-
-
 
 
 }

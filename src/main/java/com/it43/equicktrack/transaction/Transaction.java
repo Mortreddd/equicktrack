@@ -45,6 +45,10 @@ public class Transaction {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime returnDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(nullable = true)
+    private LocalDateTime returnedAt;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
