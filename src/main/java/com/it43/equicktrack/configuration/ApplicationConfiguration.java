@@ -90,9 +90,12 @@ public class ApplicationConfiguration {
 
     public InputStream getFirebaseCredentialsStream() throws IOException {
         String firebaseCredentials = environment.getProperty("firebase_credentials");
+        String systemEnvironment = System.getenv("firebase_credentials");
         if(firebaseCredentials != null) {
             log.info("Successfully retrieve the firebase_credentials json");
             return new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
+        } else if(systemEnvironment != null) {
+            return new ByteArrayInputStream(systemEnvironment.getBytes(StandardCharsets.UTF_8));
         }
 
         log.error("Unable to load the firebase_credentials");
