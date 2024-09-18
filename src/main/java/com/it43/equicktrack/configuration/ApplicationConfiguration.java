@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -24,9 +25,11 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.io.FileInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 @Configuration
 @RequiredArgsConstructor
@@ -36,7 +39,7 @@ public class ApplicationConfiguration {
     private final UserRepository userRepository;
     private final ResourceLoader resourceLoader;
     private final FirebaseService firebaseService;
-
+    private final Environment environment;
     @Value("${firebase.storage.bucket-url}")
     private String BUCKET_URL;
 
@@ -83,6 +86,14 @@ public class ApplicationConfiguration {
         return FirebaseApp.initializeApp(firebaseOptions);
     }
 
+    public InputStream getFirebaseCredentialsStream() throws IOException {
+        String firebaseCredentials = environment.getProperty("firebase_credentials");
+        if(firebaseCredentials != null) {
+            return new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
+        }
+
+        throw new FileNotFoundException("Firebase credentials file not found");
+    }
 
     @Bean
     CommandLineRunner init(RoleRepository roleRepository){
