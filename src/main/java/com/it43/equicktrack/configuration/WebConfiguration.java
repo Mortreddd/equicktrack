@@ -11,9 +11,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfiguration {
-
-    @Value("${base.domain.url}")
-    private final String BASE_DOMAIN_URL;
+//
+//    @Value("${base.domain.url}")
+//    private final String BASE_DOMAIN_URL;
 
     @Bean
     public WebMvcConfigurer webMvcConfigurer(){
@@ -22,7 +22,7 @@ public class WebConfiguration {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins(BASE_DOMAIN_URL)
+                        .allowedOrigins("wily-rena-equicktrack-4bc9ec67.koyeb.app")
                         .allowedHeaders("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowCredentials(true);
