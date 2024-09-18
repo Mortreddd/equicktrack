@@ -10,10 +10,12 @@ import com.it43.equicktrack.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,10 +40,18 @@ public class FirebaseService {
     @Value("${firebase.storage.access-url}")
     private String ACCESS_URL;
 
+    private final Environment environment;
 
     public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
-            InputStream credentialsStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+//            InputStream credentialsStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+            String firebaseCredentials = environment.getProperty("firebase_credentials");
+
+            if(firebaseCredentials == null || firebaseCredentials.isEmpty()) {
+                throw new IllegalStateException("Firebase credentials not found in environment variables");
+            }
+
+            InputStream credentialsStream = new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
             Credentials credentials = GoogleCredentials.fromStream(credentialsStream);
 
             BlobInfo blobInfo = BlobInfo.newBuilder(
