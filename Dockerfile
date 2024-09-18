@@ -23,7 +23,7 @@ FROM eclipse-temurin:22-jre
 
 COPY --from=build /usr/src/app/target/equicktrack-0.0.1-SNAPSHOT.jar app.jar
 
-EXPOSE 8080
+EXPOSE 8000
 
 CMD ["java", "-jar", "app.jar"]
 
