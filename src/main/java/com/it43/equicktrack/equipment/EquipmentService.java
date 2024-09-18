@@ -83,9 +83,7 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
         String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
-        if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
-            return false;
-        }
+        fileUtil.deleteFile("storage/images" , qrcodeImage);
 
         if(!firebaseService.delete(equipment.getEquipmentImage())) {
             return false;
