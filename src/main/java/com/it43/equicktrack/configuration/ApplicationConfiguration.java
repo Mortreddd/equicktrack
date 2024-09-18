@@ -73,36 +73,6 @@ public class ApplicationConfiguration {
         return daoAuthenticationProvider;
     }
 
-    @Bean
-    public FirebaseApp firebaseApp() throws IOException {
-
-//        InputStream fileInputStream = resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
-
-        InputStream fileInputStream = getFirebaseCredentialsStream();
-        log.info("Bucket url: {}", BUCKET_URL);
-        FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
-                .setCredentials(GoogleCredentials.fromStream(fileInputStream))
-                .setStorageBucket(BUCKET_URL)
-                .build();
-
-        return FirebaseApp.initializeApp(firebaseOptions);
-    }
-
-    public InputStream getFirebaseCredentialsStream() throws IOException {
-        String firebaseCredentials = environment.getProperty("firebase_credentials");
-        String systemEnvironment = System.getenv("firebase_credentials");
-        if(firebaseCredentials != null) {
-            log.info("Successfully retrieve the firebase_credentials json");
-            return new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
-        } else if(systemEnvironment != null) {
-            return new ByteArrayInputStream(systemEnvironment.getBytes(StandardCharsets.UTF_8));
-        }
-
-        log.error("Unable to load the firebase_credentials");
-//        throw new FileNotFoundException("Firebase credentials file not found");
-        return resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
-    }
-
 
     @Bean
     CommandLineRunner init(RoleRepository roleRepository){

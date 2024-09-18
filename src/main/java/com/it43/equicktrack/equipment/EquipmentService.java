@@ -47,15 +47,15 @@ public class EquipmentService {
     }
 
     public Equipment getEquipmentByQrcodeData(String qrcodeData) {
-        return equipmentRepository.findByQrcodeData(qrcodeData)
+        return equipmentRepository.findByQrcodeData(qrcodeData.trim())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
     public Equipment createEquipment(CreateEquipmentRequest createEquipmentRequest) throws IOException {
         try {
             String qrcodeData = quickResponseCode.generateQrcodeData();
-            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName(), quickResponseCode.generateQrcodeData());
             MultipartFile equipmentFile = createEquipmentRequest.getEquipmentImage();
+            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName(), quickResponseCode.generateQrcodeData());
             String equipmentDownloadUrl = firebaseService.uploadMultipartFile(equipmentFile, FirebaseFolder.EQUIPMENT);
             String qrcodeDownloadUrl = firebaseService.uploadFile(qrcodeFile, FirebaseFolder.QR_IMAGE, qrcodeFile.getName());
 
@@ -72,7 +72,6 @@ public class EquipmentService {
                     .build();
 
             equipmentRepository.save(equipment);
-            quickResponseCode.deleteQrcodeImage(quickResponseCode.getDirectory(), qrcodeFile.getName());
             return equipment;
         } catch (Exception error) {
             throw new ConvertMultipartFileException("File can't be uploaded");
@@ -83,11 +82,10 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
-
-//        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
-//        if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
-//            return false;
-//        }
+        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
+        if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
+            return false;
+        }
 
         if(!firebaseService.delete(equipment.getEquipmentImage())) {
             return false;

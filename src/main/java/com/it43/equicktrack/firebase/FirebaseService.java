@@ -4,6 +4,8 @@ import com.google.auth.Credentials;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.*;
 import com.google.firebase.cloud.StorageClient;
+import com.it43.equicktrack.configuration.ApplicationConfiguration;
+import com.it43.equicktrack.configuration.FirebaseConfiguration;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.util.FileUtil;
@@ -19,6 +21,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -41,17 +44,19 @@ public class FirebaseService {
     private String ACCESS_URL;
 
     private final Environment environment;
+    private final FirebaseConfiguration firebaseConfiguration;
+
 
     public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
 //            InputStream credentialsStream = resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
-            String firebaseCredentials = environment.getProperty("firebase_credentials");
+//            String firebaseCredentials = environment.getProperty("firebase_credentials");
+//
+//            if(firebaseCredentials == null || firebaseCredentials.isEmpty()) {
+//                throw new IllegalStateException("Firebase credentials not found in environment variables");
+//            }
 
-            if(firebaseCredentials == null || firebaseCredentials.isEmpty()) {
-                throw new IllegalStateException("Firebase credentials not found in environment variables");
-            }
-
-            InputStream credentialsStream = new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
+            InputStream credentialsStream = firebaseConfiguration.getFirebaseCredentialsStream();
             Credentials credentials = GoogleCredentials.fromStream(credentialsStream);
 
             BlobInfo blobInfo = BlobInfo.newBuilder(
@@ -131,7 +136,7 @@ public class FirebaseService {
 //    returns the file along with its folder from firebase ex. equipments/Projector.png
     public String extractFileFromFirebaseUrl(String fileUrl) {
         String[] splittedFile = fileUrl.split("/");
-
-        return splittedFile[4] + "/" + splittedFile[5].replace("?alt=media", "");
+        return URLDecoder.decode(splittedFile[7].replace("?alt=media", ""), StandardCharsets.UTF_8);
     }
+
 }
