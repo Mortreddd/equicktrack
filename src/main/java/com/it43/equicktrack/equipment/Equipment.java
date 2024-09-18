@@ -1,5 +1,6 @@
 package com.it43.equicktrack.equipment;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -41,6 +42,7 @@ public class Equipment {
     @NotBlank
     @NotNull(message = "Qr image is required")
     @Column(nullable = false)
+    @JsonIgnore
     private String qrcodeImage;
 
     @Column(nullable = true)
