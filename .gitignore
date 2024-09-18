@@ -35,4 +35,3 @@ build/
 
 ### Docker ###
 docker-compose.yml
-storage

@@ -7,7 +7,6 @@ import com.google.zxing.common.BitMatrix;
 import com.google.zxing.qrcode.QRCodeWriter;
 import com.it43.equicktrack.firebase.FirebaseService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import javax.imageio.ImageIO;
@@ -26,14 +25,13 @@ public class QuickResponseCode {
     private final String DIRECTORY = "storage/images/qr-images";
     private final FileUtil fileUtil;
 
-    public File generateQrCodeImage(String fileName) throws IOException, WriterException {
+    public File generateQrCodeImage(String fileName, String qrcodeData) throws IOException, WriterException {
 
         // Generate random file name with a .png extension
         final String RANDOM_FILE_NAME = fileUtil.generateRandomFileName(fileName, "png");
-        final String QRCODE_DATA = UUID.randomUUID().toString();
 
         // Create the QR code
-        BitMatrix bitMatrix = new QRCodeWriter().encode(QRCODE_DATA, BarcodeFormat.QR_CODE, 200, 200);
+        BitMatrix bitMatrix = new QRCodeWriter().encode(qrcodeData, BarcodeFormat.QR_CODE, 200, 200);
         BufferedImage bufferedImage = MatrixToImageWriter.toBufferedImage(bitMatrix);
 
         // Ensure the directory exists
@@ -57,5 +55,10 @@ public class QuickResponseCode {
 
     public String getDirectory() {
         return DIRECTORY;
+    }
+
+    public void deleteQrcodeImage(String directory, String fileName){
+        File file = new File(directory + "/" + fileName);
+        file.delete();
     }
 }

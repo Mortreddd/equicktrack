@@ -21,7 +21,6 @@ public class FileUtil {
 
     public boolean deleteFile(String fileDirectory, String fileName) {
         File file = new File(fileDirectory + "/" + fileName);
-
         return file.delete();
     }
 

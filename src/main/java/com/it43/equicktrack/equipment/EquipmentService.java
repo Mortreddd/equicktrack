@@ -46,24 +46,22 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
-
     public Equipment getEquipmentByQrcodeData(String qrcodeData) {
-        return equipmentRepository.findByQrcodeData(qrcodeData)
+        return equipmentRepository.findByQrcodeData(qrcodeData.trim())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
-
     public Equipment createEquipment(CreateEquipmentRequest createEquipmentRequest) throws IOException {
         try {
-
-            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName());
+            String qrcodeData = quickResponseCode.generateQrcodeData();
             MultipartFile equipmentFile = createEquipmentRequest.getEquipmentImage();
+            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName(), quickResponseCode.generateQrcodeData());
             String equipmentDownloadUrl = firebaseService.uploadMultipartFile(equipmentFile, FirebaseFolder.EQUIPMENT);
             String qrcodeDownloadUrl = firebaseService.uploadFile(qrcodeFile, FirebaseFolder.QR_IMAGE, qrcodeFile.getName());
 
             Equipment equipment = Equipment.builder()
                     .name(createEquipmentRequest.getName())
-                    .qrcodeData(quickResponseCode.generateQrcodeData())
+                    .qrcodeData(qrcodeData)
                     .available(true)
                     .qrcodeImage(qrcodeDownloadUrl)
                     .description(createEquipmentRequest.getDescription())
@@ -83,7 +81,6 @@ public class EquipmentService {
     public boolean deleteEquipmentById(Long equipmentId) throws FirebaseFileUploadException, IOException {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
-
 
         String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
         if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
@@ -108,7 +105,8 @@ public class EquipmentService {
     }
 
     public String generateQrcode() throws IOException, WriterException, FileNotFoundException {
-        String fileName = quickResponseCode.generateQrCodeImage(fileUtil.generateRandomFileName()).getName();
+        final String QRCODE_DATA = quickResponseCode.generateQrcodeData();
+        String fileName = quickResponseCode.generateQrCodeImage(fileUtil.generateRandomFileName(), generateQrcode()).getName();
         Path filePath = Paths.get("storage/images/qr-images").resolve(fileName);
 
         if(Files.exists(filePath)) {
