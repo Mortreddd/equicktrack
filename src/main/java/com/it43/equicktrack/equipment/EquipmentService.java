@@ -55,7 +55,7 @@ public class EquipmentService {
         try {
             String qrcodeData = quickResponseCode.generateQrcodeData();
             MultipartFile equipmentFile = createEquipmentRequest.getEquipmentImage();
-            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName(), quickResponseCode.generateQrcodeData());
+            File qrcodeFile = quickResponseCode.generateQrCodeImage(createEquipmentRequest.getName(), qrcodeData);
             String equipmentDownloadUrl = firebaseService.uploadMultipartFile(equipmentFile, FirebaseFolder.EQUIPMENT);
             String qrcodeDownloadUrl = firebaseService.uploadFile(qrcodeFile, FirebaseFolder.QR_IMAGE, qrcodeFile.getName());
 
