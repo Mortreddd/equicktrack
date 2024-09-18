@@ -56,4 +56,9 @@ public class QuickResponseCode {
     public String getDirectory() {
         return DIRECTORY;
     }
+
+    public void deleteQrcodeImage(String directory, String fileName){
+        File file = new File(directory + "/" + fileName);
+        file.delete();
+    }
 }

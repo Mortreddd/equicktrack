@@ -72,6 +72,7 @@ public class EquipmentService {
                     .build();
 
             equipmentRepository.save(equipment);
+            quickResponseCode.deleteQrcodeImage(quickResponseCode.getDirectory(), qrcodeFile.getName());
             return equipment;
         } catch (Exception error) {
             throw new ConvertMultipartFileException("File can't be uploaded");
@@ -83,10 +84,10 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
 
-        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
-        if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
-            return false;
-        }
+//        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
+//        if(!fileUtil.deleteFile("storage/images" , qrcodeImage)) {
+//            return false;
+//        }
 
         if(!firebaseService.delete(equipment.getEquipmentImage())) {
             return false;
