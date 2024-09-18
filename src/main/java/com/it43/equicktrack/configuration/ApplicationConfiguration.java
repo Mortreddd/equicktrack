@@ -75,7 +75,10 @@ public class ApplicationConfiguration {
 
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
-        InputStream fileInputStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+
+//        InputStream fileInputStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+
+        InputStream fileInputStream = getFirebaseCredentialsStream();
         log.info("Bucket url: {}", BUCKET_URL);
         FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(fileInputStream))
