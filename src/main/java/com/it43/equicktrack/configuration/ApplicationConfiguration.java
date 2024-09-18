@@ -76,7 +76,7 @@ public class ApplicationConfiguration {
     @Bean
     public FirebaseApp firebaseApp() throws IOException {
 
-//        InputStream fileInputStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+//        InputStream fileInputStream = resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
 
         InputStream fileInputStream = getFirebaseCredentialsStream();
         log.info("Bucket url: {}", BUCKET_URL);
@@ -85,18 +85,21 @@ public class ApplicationConfiguration {
                 .setStorageBucket(BUCKET_URL)
                 .build();
 
-
         return FirebaseApp.initializeApp(firebaseOptions);
     }
 
     public InputStream getFirebaseCredentialsStream() throws IOException {
         String firebaseCredentials = environment.getProperty("firebase_credentials");
         if(firebaseCredentials != null) {
+            log.info("Successfully retrieve the firebase_credentials json");
             return new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
         }
 
-        throw new FileNotFoundException("Firebase credentials file not found");
+        log.error("Unable to load the firebase_credentials");
+//        throw new FileNotFoundException("Firebase credentials file not found");
+        return resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
     }
+
 
     @Bean
     CommandLineRunner init(RoleRepository roleRepository){

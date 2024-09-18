@@ -44,7 +44,7 @@ public class FirebaseService {
 
     public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
-//            InputStream credentialsStream = resourceLoader.getResource("classpath:equicktrack-api-service-firebase-adminsdk.json").getInputStream();
+//            InputStream credentialsStream = resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
             String firebaseCredentials = environment.getProperty("firebase_credentials");
 
             if(firebaseCredentials == null || firebaseCredentials.isEmpty()) {
