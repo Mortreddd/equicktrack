@@ -52,7 +52,6 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
-
     public Equipment createEquipment(CreateEquipmentRequest createEquipmentRequest) throws IOException {
         try {
 
