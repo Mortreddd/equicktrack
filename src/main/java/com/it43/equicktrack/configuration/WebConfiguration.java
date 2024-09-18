@@ -17,6 +17,7 @@ public class WebConfiguration {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
+                        .allowedOrigins("*")
                         .allowedOriginPatterns("*")
                         .allowedHeaders("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
