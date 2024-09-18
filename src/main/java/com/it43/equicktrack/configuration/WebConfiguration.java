@@ -22,7 +22,7 @@ public class WebConfiguration {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins("wily-rena-equicktrack-4bc9ec67.koyeb.app")
+                        .allowedOrigins("https://wily-rena-equicktrack-4bc9ec67.koyeb.app")
                         .allowedHeaders("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowCredentials(true);
