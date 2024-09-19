@@ -1,6 +1,7 @@
 package com.it43.equicktrack.user;
 
 import com.it43.equicktrack.auth.JwtRegisterRequestDTO;
+import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UpdateUserDTO;
 import com.it43.equicktrack.exception.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -53,6 +55,7 @@ public class UserService {
                 .googleUid(null)
                 .email(_user.getEmail())
                 .roles(Set.of(userRole))
+                .contactNumber(_user.getContactNumber())
                 .password(passwordEncoder.encode(_user.getPassword()))
                 .emailVerifiedAt(null)
                 .createdAt(LocalDateTime.now())
@@ -84,11 +87,31 @@ public class UserService {
         userRepository.save(_user);
         return _user;
     }
-    public List<Transaction> getUserTransactionsById(Long _id){
-        return userRepository.findById(_id)
-                        .orElseThrow(() -> new ResourceNotFoundException("User not found"))
-                .getTransactions();
+    public List<TransactionDTO> getUserTransactionsById(Long _id){
+        User user = userRepository.findById(_id)
+                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
+
+        List<TransactionDTO> transactions = transactionRepository.findAll()
+                .stream()
+                .filter((transaction) -> Objects.equals(user, transaction.getUser()))
+                .map((transaction) ->
+                        new TransactionDTO(
+                                transaction.getId(),
+                                transaction.getUser(),
+                                transaction.getEquipment(),
+                                transaction.getPurpose(),
+                                transaction.getBorrowDate(),
+                                transaction.getReturnDate(),
+                                transaction.getReturnedAt(),
+                                transaction.getCreatedAt(),
+                                transaction.getUpdatedAt()
+                        )
+                )
+                .toList();
+
+
+        return transactions;
     }
 
 

@@ -23,6 +23,9 @@ public class JwtRegisterRequestDTO {
     @NotNull
     @Size(min = 8, message = "Password must have 8 characters")
     private String password;
+
+    private String contactNumber;
+
     private Integer roleId = 3;
 
 }
