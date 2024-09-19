@@ -49,6 +49,10 @@ public class User implements UserDetails{
     @Column(nullable = true)
     @JsonIgnore
     private String password;
+
+    @Column(nullable = true)
+    private String contactNumber;
+
     @Column(nullable = true)
     private String photoUrl;
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
