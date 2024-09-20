@@ -18,7 +18,7 @@ public class TransactionController {
 
     private final TransactionService transactionService;
 
-    @GetMapping(path = "/", consumes = {"application/json"})
+    @GetMapping
     public ResponseEntity<List<Transaction>> getTransactions(){
         return ResponseEntity.ok().body(transactionService.getTransactions());
     }
