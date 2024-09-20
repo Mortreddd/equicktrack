@@ -1,5 +1,6 @@
 package com.it43.equicktrack.transaction;
 
+import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UserTransactionDTO;
@@ -27,8 +28,26 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
 
-    public List<Transaction> getTransactions(){
-        return transactionRepository.findAll();
+    public List<TransactionDTO> getTransactions(){
+        List<TransactionDTO> transactions = transactionRepository.findAll()
+                .stream()
+                .map((transaction) -> {
+                    return new TransactionDTO(
+                            transaction.getId(),
+                            transaction.getUser(),
+                            transaction.getEquipment(),
+                            transaction.getPurpose(),
+                            transaction.getBorrowDate(),
+                            transaction.getReturnDate(),
+                            transaction.getReturnedAt(),
+                            transaction.getCreatedAt(),
+                            transaction.getUpdatedAt()
+                    );
+                })
+                .toList();
+
+
+        return transactions;
     }
 
     public Transaction createTransaction(CreateTransactionRequest createTransactionRequest) throws EquipmentNotAvailableException {
@@ -82,15 +101,19 @@ public class TransactionService {
         return new UserTransactionDTO(transactions);
     }
 
-    public TransactionDTO createReturnTransaction(Long transactionId) {
+    public TransactionDTO createReturnTransaction(Long transactionId, CreateReturnTransactionRequest createReturnTransactionRequest) {
 
         Transaction transaction = transactionRepository.findById(transactionId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
 
+        User userReturnee = userRepository.findById(createReturnTransactionRequest.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User returnee not found"));
+
+
         if(transaction.getReturnedAt() != null) {
             throw new AlreadyExistsException("The equipment is already returned");
         }
-        if(!Objects.equals(transaction.getUser(), AuthenticatedUser.getAuthenticatedUser())) {
+        if(!Objects.equals(transaction.getUser(), userReturnee)) {
             throw new ResourceNotFoundException("The scanned user and borrower does not match");
         }
 
