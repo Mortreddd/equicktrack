@@ -1,6 +1,7 @@
 package com.it43.equicktrack.transaction;
 
 
+import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<List<Transaction>> getTransactions(){
+    public ResponseEntity<List<TransactionDTO>> getTransactions(){
         return ResponseEntity.ok().body(transactionService.getTransactions());
     }
 
@@ -30,10 +31,13 @@ public class TransactionController {
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
 
-    @PatchMapping(path = "/{transactionId}/return")
-    public ResponseEntity<TransactionDTO> createReturnTransaction(@PathVariable("transactionId") Long transactionId) {
+    @PatchMapping(path = "/{transactionId}/return", consumes = {"application/json"})
+    public ResponseEntity<TransactionDTO> createReturnTransaction(
+            @PathVariable("transactionId") Long  transactionId,
+            @Validated @RequestBody CreateReturnTransactionRequest createReturnTransactionRequest
+    ) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                transactionService.createReturnTransaction(transactionId)
+                transactionService.createReturnTransaction(transactionId, createReturnTransactionRequest)
         );
     }
 
