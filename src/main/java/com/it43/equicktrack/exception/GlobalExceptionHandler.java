@@ -162,6 +162,20 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
     }
 
+    @ExceptionHandler(EquipmentNotAvailableException.class)
+    public ResponseEntity<?> alreadyExist(
+            EquipmentNotAvailableException equipmentNotAvailableException,
+            WebRequest webRequest
+    ){
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                equipmentNotAvailableException.getMessage(),
+                webRequest.getDescription(false)
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorDetails);
+    }
+
+
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<?> runtime(
             EmailNotVerifiedException emailNotVerifiedException,

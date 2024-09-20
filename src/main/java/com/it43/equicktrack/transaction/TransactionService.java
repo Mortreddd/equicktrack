@@ -6,6 +6,7 @@ import com.it43.equicktrack.dto.user.UserTransactionDTO;
 import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.EquipmentRepository;
 import com.it43.equicktrack.exception.AlreadyExistsException;
+import com.it43.equicktrack.exception.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
@@ -30,13 +31,16 @@ public class TransactionService {
         return transactionRepository.findAll();
     }
 
-    public Transaction createTransaction(CreateTransactionRequest createTransactionRequest){
+    public Transaction createTransaction(CreateTransactionRequest createTransactionRequest) throws EquipmentNotAvailableException {
         User user = userRepository.findById(createTransactionRequest.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Equipment equipment = equipmentRepository.findById(createTransactionRequest.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
+        if(!equipment.isAvailable()) {
+            throw new EquipmentNotAvailableException("Equipment is already used by " + user.getFullName());
+        }
         equipment.setAvailable(false);
         equipmentRepository.save(equipment);
         Transaction transaction = Transaction.builder()
