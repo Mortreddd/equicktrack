@@ -31,13 +31,10 @@ public class TransactionController {
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
 
-    @PatchMapping(path = "/{transactionId}/return", consumes = {"application/json"})
-    public ResponseEntity<TransactionDTO> createReturnTransaction(
-            @PathVariable("transactionId") Long  transactionId,
-            @Validated @RequestBody CreateReturnTransactionRequest createReturnTransactionRequest
-    ) {
+    @PatchMapping(path = "/return", consumes = {"application/json"})
+    public ResponseEntity<TransactionDTO> createReturnTransaction(@Validated @RequestBody CreateReturnTransactionRequest createReturnTransactionRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(
-                transactionService.createReturnTransaction(transactionId, createReturnTransactionRequest)
+                transactionService.createReturnTransaction(createReturnTransactionRequest)
         );
     }
 

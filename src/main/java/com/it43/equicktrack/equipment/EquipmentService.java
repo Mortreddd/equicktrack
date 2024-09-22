@@ -2,6 +2,7 @@ package com.it43.equicktrack.equipment;
 
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;

@@ -11,7 +11,7 @@ import com.it43.equicktrack.exception.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
-import com.it43.equicktrack.util.AuthenticatedUser;
+import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,21 +30,18 @@ public class TransactionService {
     private final EquipmentRepository equipmentRepository;
 
     public List<TransactionDTO> getTransactions(){
+        //                        transaction.getId(),
+        //                        transaction.getUser(),
+        //                        transaction.getEquipment(),
+        //                        transaction.getPurpose(),
+        //                        transaction.getBorrowDate(),
+        //                        transaction.getReturnDate(),
+        //                        transaction.getReturnedAt(),
+        //                        transaction.getCreatedAt(),
+        //                        transaction.getUpdatedAt()
         List<TransactionDTO> transactions = transactionRepository.findAll()
                 .stream()
-                .map((transaction) -> {
-                    return new TransactionDTO(
-                            transaction.getId(),
-                            transaction.getUser(),
-                            transaction.getEquipment(),
-                            transaction.getPurpose(),
-                            transaction.getBorrowDate(),
-                            transaction.getReturnDate(),
-                            transaction.getReturnedAt(),
-                            transaction.getCreatedAt(),
-                            transaction.getUpdatedAt()
-                    );
-                })
+                .map(TransactionDTO::new)
                 .toList();
 
 
@@ -57,26 +55,34 @@ public class TransactionService {
         Equipment equipment = equipmentRepository.findById(createTransactionRequest.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
-        if(!equipment.isAvailable()) {
-            throw new EquipmentNotAvailableException("Equipment is already used by " + user.getFullName());
+        Optional<Transaction> transaction = transactionRepository.findAll()
+                .stream()
+                .filter((_transaction) -> Objects.equals(_transaction.getUser(), user) && Objects.equals(_transaction.getEquipment(), equipment))
+                .findFirst();
+
+        if(!equipment.isAvailable() && transaction.isPresent()) {
+            throw new EquipmentNotAvailableException("Equipment is already used by " + transaction.get().getUser().getFullName());
         }
+
         equipment.setAvailable(false);
         equipmentRepository.save(equipment);
-        Transaction transaction = Transaction.builder()
+
+        return transactionRepository.save(
+                Transaction.builder()
                 .purpose(createTransactionRequest.getPurpose())
                 .user(user)
                 .equipment(equipment)
-                .borrowDate(LocalDateTime.parse(createTransactionRequest.getBorrowDate().format(DateTimeFormatter.ISO_DATE_TIME)))
-                .returnDate(LocalDateTime.parse(createTransactionRequest.getReturnDate().format(DateTimeFormatter.ISO_DATE_TIME)))
+                .borrowDate(DateUtilities.parseDateTimeString(createTransactionRequest.getBorrowDate()))
+                .returnDate(DateUtilities.parseDateTimeString(createTransactionRequest.getReturnDate()))
                 .returnedAt(null)
                 .createdAt(LocalDateTime.now())
-                .build();
-
-        return transactionRepository.save(transaction);
+                .build()
+        );
     }
+
+
     public UserTransactionDTO getTransactionsByUser(Long userId){
-//        return userRepository.findById(userId)
-//                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
@@ -101,29 +107,30 @@ public class TransactionService {
         return new UserTransactionDTO(transactions);
     }
 
-    public TransactionDTO createReturnTransaction(Long transactionId, CreateReturnTransactionRequest createReturnTransactionRequest) {
+    public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) {
 
-        Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
-
-        User userReturnee = userRepository.findById(createReturnTransactionRequest.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User returnee not found"));
-
+        TransactionDTO transaction = getTransactionByUserId(createReturnTransactionRequest.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
 
         if(transaction.getReturnedAt() != null) {
             throw new AlreadyExistsException("The equipment is already returned");
         }
+
+        Equipment equipment = equipmentRepository.findById(transaction.getEquipment().getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        User userReturnee = userRepository.findById(createReturnTransactionRequest.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User returnee not found"));
+
         if(!Objects.equals(transaction.getUser(), userReturnee)) {
             throw new ResourceNotFoundException("The scanned user and borrower does not match");
         }
 
         transaction.setReturnedAt(LocalDateTime.now());
         transaction.setUpdatedAt(LocalDateTime.now());
-        Equipment equipment = equipmentRepository.findById(transaction.getEquipment().getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
         equipment.setAvailable(true);
         equipmentRepository.save(equipment);
-        transactionRepository.save(transaction);
+        transactionRepository.save(transaction.toTransaction(transaction));
 
 
         return new TransactionDTO(
@@ -139,9 +146,51 @@ public class TransactionService {
         );
     }
 
+
     public Equipment getTransactionsByEquipment(Long equipmentId){
         return equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+    }
+
+    public List<TransactionDTO> getOnUsedEquipments() {
+
+        List<TransactionDTO> onUsedEquipments = transactionRepository.findAll()
+                .stream()
+                .filter((transaction) -> transaction.getReturnedAt() == null && !transaction.getEquipment().isAvailable())
+                .map((transaction) ->
+                    new TransactionDTO(
+                            transaction.getId(),
+                            transaction.getUser(),
+                            transaction.getEquipment(),
+                            transaction.getPurpose(),
+                            transaction.getBorrowDate(),
+                            transaction.getReturnDate(),
+                            null,
+                            transaction.getCreatedAt(),
+                            transaction.getUpdatedAt()
+                    )
+                )
+                .toList();
+
+        return onUsedEquipments;
+    }
+
+//    Returns currently used equipment and select equipment based on equipmentId
+    public Optional<TransactionDTO> getOnUsedEquipment(Long equipmentId) {
+        Optional<TransactionDTO> onUsedEquipment = getOnUsedEquipments()
+                .stream()
+                .filter((transactionDTO) -> Objects.equals(transactionDTO.getEquipment().getId(), equipmentId))
+                .findFirst();
+        return onUsedEquipment;
+    }
+
+    public Optional<TransactionDTO> getTransactionByUserId(Long userId) {
+        Optional<TransactionDTO> transaction = getOnUsedEquipments()
+                .stream()
+                .filter((transactionDTO -> Objects.equals(transactionDTO.getUser().getId(), userId)))
+                .findFirst();
+
+        return transaction;
     }
 
     public void deleteTransactionById(Long _id) {
