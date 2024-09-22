@@ -108,9 +108,16 @@ public class TransactionService {
     }
 
     public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) {
-
-        TransactionDTO transaction = getTransactionByUserId(createReturnTransactionRequest.getUserId())
+        TransactionDTO transaction = getOnUsedEquipments()
+                .stream()
+                .filter((_t) ->
+                        Objects.equals(_t.getUser().getId(), createReturnTransactionRequest.getUserId()) &&
+                        Objects.equals(_t.getUser().getId(), createReturnTransactionRequest.getEquipmentId())
+                )
+                .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
+//        TransactionDTO transaction = getTransactionByUserId(createReturnTransactionRequest.getUserId())
+//                .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
 
         if(transaction.getReturnedAt() != null) {
             throw new AlreadyExistsException("The equipment is already returned");
