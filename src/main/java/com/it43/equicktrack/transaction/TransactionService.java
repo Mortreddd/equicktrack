@@ -12,6 +12,7 @@ import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +49,7 @@ public class TransactionService {
         return transactions;
     }
 
+    @Transactional
     public Transaction createTransaction(CreateTransactionRequest createTransactionRequest) throws EquipmentNotAvailableException {
         User user = userRepository.findById(createTransactionRequest.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -72,8 +74,8 @@ public class TransactionService {
                 .purpose(createTransactionRequest.getPurpose())
                 .user(user)
                 .equipment(equipment)
-                .borrowDate(createTransactionRequest.getBorrowDate())
-                .returnDate(createTransactionRequest.getReturnDate())
+                .borrowDate(LocalDateTime.parse(createTransactionRequest.getBorrowDate()))
+                .returnDate(LocalDateTime.parse(createTransactionRequest.getReturnDate()))
                 .returnedAt(null)
                 .createdAt(LocalDateTime.now())
                 .build()
