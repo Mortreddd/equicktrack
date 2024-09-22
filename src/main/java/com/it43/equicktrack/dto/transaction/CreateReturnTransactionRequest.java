@@ -18,6 +18,8 @@ public class CreateReturnTransactionRequest {
     @NotNull
     private Long userId;
 
+    @NotNull
+    private Long equipmentId;
 
 
 }
