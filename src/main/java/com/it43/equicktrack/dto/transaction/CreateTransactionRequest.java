@@ -22,7 +22,7 @@ public class CreateTransactionRequest {
 
     private String purpose = null;
     @NotNull
-    private LocalDateTime borrowDate;
+    private String borrowDate;
     @NotNull
-    private LocalDateTime returnDate;
+    private String returnDate;
 }

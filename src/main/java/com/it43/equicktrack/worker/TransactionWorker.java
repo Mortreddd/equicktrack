@@ -29,7 +29,7 @@ public class TransactionWorker {
         List<TransactionDTO> lateReturnees = transactionService.getTransactions()
                 .stream()
                 .filter(transaction -> {
-                        return DateUtilities.isLate(transaction.returnDate()) && transaction.returnedAt() == null;
+                        return DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() == null;
                 })
                 .toList();
 
