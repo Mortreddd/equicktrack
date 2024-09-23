@@ -58,9 +58,6 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Transaction has been deleted");
     }
-
-
-
 //
 //    @GetMapping(path = "/borrower/{borrowerId}")
 //    public ResponseEntity<BorrowerTransactionsDTO> getBorrowerTransactions(@PathVariable("borrowerId") Long id){
