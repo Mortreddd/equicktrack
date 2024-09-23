@@ -2,6 +2,7 @@ package com.it43.equicktrack.equipment;
 
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
@@ -97,6 +98,29 @@ public class EquipmentService {
 
         return true;
     }
+
+    public Equipment updateEquipment(Long equipmentId, UpdateEquipmentRequest updateEquipmentRequest) {
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        if (updateEquipmentRequest.getName() != null) {
+            equipment.setName(updateEquipmentRequest.getName());
+        }
+
+        if (updateEquipmentRequest.getDescription() != null) {
+            equipment.setDescription(updateEquipmentRequest.getDescription());
+        }
+
+        if (updateEquipmentRequest.getEquipmentImage() != null) {
+            equipment.setEquipmentImage(updateEquipmentRequest.getEquipmentImage());
+        }
+
+        equipment.setAvailable(updateEquipmentRequest.isAvailable());
+        equipment.setUpdatedAt(LocalDateTime.now());
+
+        return equipmentRepository.save(equipment);
+    }
+
 
     public Equipment getBySerialNumber(String serialNumber) {
         return equipmentRepository.findBySerialNumber(serialNumber)
