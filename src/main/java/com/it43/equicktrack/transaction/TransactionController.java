@@ -27,7 +27,7 @@ public class TransactionController {
 //    This endpoint is for creating new transactions for equipments
     @PostMapping(path = "/borrow", consumes = {"application/json"})
     public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequest createTransactionRequestDTO){
-        return ResponseEntity.status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
 
