@@ -110,23 +110,21 @@ public class TransactionService {
     }
 
     public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) {
+        Equipment equipment = equipmentRepository.findByQrcodeData(createReturnTransactionRequest.getQrcodeData())
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
         TransactionDTO transaction = getOnUsedEquipments()
                 .stream()
                 .filter((_t) ->
                         Objects.equals(_t.getUser().getId(), createReturnTransactionRequest.getUserId()) &&
-                        Objects.equals(_t.getUser().getId(), createReturnTransactionRequest.getEquipmentId())
+                        Objects.equals(_t.getUser().getId(), equipment.getId())
                 )
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
-//        TransactionDTO transaction = getTransactionByUserId(createReturnTransactionRequest.getUserId())
-//                .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
 
         if(transaction.getReturnedAt() != null) {
             throw new AlreadyExistsException("The equipment is already returned");
         }
-
-        Equipment equipment = equipmentRepository.findById(transaction.getEquipment().getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
         User userReturnee = userRepository.findById(createReturnTransactionRequest.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User returnee not found"));
@@ -140,7 +138,6 @@ public class TransactionService {
         equipment.setAvailable(true);
         equipmentRepository.save(equipment);
         transactionRepository.save(transaction.toTransaction(transaction));
-
 
         return new TransactionDTO(
                 transaction.getId(),
