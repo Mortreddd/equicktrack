@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
@@ -133,12 +134,11 @@ public class TransactionService {
             throw new ResourceNotFoundException("The scanned user and borrower does not match");
         }
 
-        transaction.setReturnedAt(LocalDateTime.now());
-        transaction.setUpdatedAt(LocalDateTime.now());
+        transaction.setReturnedAt(DateUtilities.now());
+        transaction.setUpdatedAt(DateUtilities.now());
         equipment.setAvailable(true);
         equipmentRepository.save(equipment);
         transactionRepository.save(transaction.toTransaction(transaction));
-
         return new TransactionDTO(
                 transaction.getId(),
                 transaction.getUser(),

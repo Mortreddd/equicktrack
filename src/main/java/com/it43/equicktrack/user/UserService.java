@@ -7,6 +7,7 @@ import com.it43.equicktrack.exception.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
+import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -58,7 +59,7 @@ public class UserService {
                 .contactNumber(_user.getContactNumber())
                 .password(passwordEncoder.encode(_user.getPassword()))
                 .emailVerifiedAt(null)
-                .createdAt(LocalDateTime.now())
+                .createdAt(DateUtilities.now())
                 .build();
 
         userRepository.save(user);
@@ -69,7 +70,7 @@ public class UserService {
         User user = userRepository.findById(_id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         userRepository.delete(user);
-        log.info("User {} was deleted at {}", user.getId(), LocalDateTime.now());
+        log.info("User {} was deleted at {}", user.getId(), DateUtilities.now());
         return user;
     }
 

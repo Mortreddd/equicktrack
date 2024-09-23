@@ -1,6 +1,7 @@
 package com.it43.equicktrack.util;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 public class DateUtilities {
@@ -16,6 +17,11 @@ public class DateUtilities {
     public static LocalDateTime parseDateTimeString(String dateTimeString) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("M/d/yy, h:mm a");
         return LocalDateTime.parse(dateTimeString, formatter);
+    }
+
+    public static LocalDateTime now() {
+        ZoneId manilaZoneId = ZoneId.of("Asia/Manila");
+        return LocalDateTime.now(manilaZoneId);
     }
 
 }

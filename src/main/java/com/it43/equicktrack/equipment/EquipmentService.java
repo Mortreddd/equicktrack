@@ -10,6 +10,7 @@ import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.user.UserRepository;
+import com.it43.equicktrack.util.DateUtilities;
 import com.it43.equicktrack.util.FileUtil;
 import com.it43.equicktrack.util.QuickResponseCode;
 
@@ -69,8 +70,8 @@ public class EquipmentService {
                     .description(createEquipmentRequest.getDescription())
                     .serialNumber(createEquipmentRequest.getSerialNumber())
                     .equipmentImage(equipmentDownloadUrl)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
+                    .createdAt(DateUtilities.now())
+                    .updatedAt(DateUtilities.now())
                     .build();
 
             equipmentRepository.save(equipment);
@@ -116,7 +117,7 @@ public class EquipmentService {
         }
 
         equipment.setAvailable(updateEquipmentRequest.isAvailable());
-        equipment.setUpdatedAt(LocalDateTime.now());
+        equipment.setUpdatedAt(DateUtilities.now());
 
         return equipmentRepository.save(equipment);
     }
