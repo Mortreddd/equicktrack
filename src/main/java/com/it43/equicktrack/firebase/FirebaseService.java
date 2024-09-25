@@ -49,13 +49,6 @@ public class FirebaseService {
 
     public String uploadFile(File file, FirebaseFolder firebaseFolder, String fileName) throws IOException, Exception {
         try {
-//            InputStream credentialsStream = resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
-//            String firebaseCredentials = environment.getProperty("firebase_credentials");
-//
-//            if(firebaseCredentials == null || firebaseCredentials.isEmpty()) {
-//                throw new IllegalStateException("Firebase credentials not found in environment variables");
-//            }
-
             InputStream credentialsStream = firebaseConfiguration.getFirebaseCredentialsStream();
             Credentials credentials = GoogleCredentials.fromStream(credentialsStream);
 
@@ -118,11 +111,7 @@ public class FirebaseService {
 
 
     private String getFirebaseFileUrl(FirebaseFolder firebaseFolder, String fileName){
-        return switch(firebaseFolder){
-            case AVATAR -> String.format(ACCESS_URL, URLEncoder.encode("avatars" + "/" + fileName, StandardCharsets.UTF_8));
-            case QR_IMAGE -> String.format(ACCESS_URL, URLEncoder.encode("qr-images" + "/" + fileName, StandardCharsets.UTF_8));
-            case EQUIPMENT -> String.format(ACCESS_URL, URLEncoder.encode("equipments" + "/" + fileName, StandardCharsets.UTF_8));
-        };
+        return String.format(ACCESS_URL, URLEncoder.encode(getFirebaseFolder(firebaseFolder) + "/" + fileName, StandardCharsets.UTF_8));
     }
 
     private String getFirebaseFolder(FirebaseFolder firebaseFolder){
@@ -130,6 +119,7 @@ public class FirebaseService {
             case AVATAR -> "avatars";
             case EQUIPMENT -> "equipments";
             case QR_IMAGE -> "qr-images";
+            case CONDITION -> "conditions";
         };
     }
 

@@ -9,6 +9,8 @@ import com.it43.equicktrack.equipment.EquipmentRepository;
 import com.it43.equicktrack.exception.AlreadyExistsException;
 import com.it43.equicktrack.exception.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.firebase.FirebaseFolder;
+import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
@@ -16,6 +18,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -30,22 +33,13 @@ public class TransactionService {
     private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
+    private final FirebaseService firebaseService;
 
     public List<TransactionDTO> getTransactions(){
-        //                        transaction.getId(),
-        //                        transaction.getUser(),
-        //                        transaction.getEquipment(),
-        //                        transaction.getPurpose(),
-        //                        transaction.getBorrowDate(),
-        //                        transaction.getReturnDate(),
-        //                        transaction.getReturnedAt(),
-        //                        transaction.getCreatedAt(),
-        //                        transaction.getUpdatedAt()
         List<TransactionDTO> transactions = transactionRepository.findAll()
                 .stream()
                 .map(TransactionDTO::new)
                 .toList();
-
 
         return transactions;
     }
@@ -102,7 +96,9 @@ public class TransactionService {
                         _transaction.getReturnDate(),
                         null,
                         _transaction.getCreatedAt(),
-                        _transaction.getUpdatedAt()
+                        _transaction.getUpdatedAt(),
+                            _transaction.getRemark(),
+                            _transaction.getConditionImage()
                     );
                 })
                 .toList();
@@ -110,7 +106,7 @@ public class TransactionService {
         return new UserTransactionDTO(transactions);
     }
 
-    public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) {
+    public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) throws IOException {
         Equipment equipment = equipmentRepository.findByQrcodeData(createReturnTransactionRequest.getQrcodeData())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
@@ -134,8 +130,15 @@ public class TransactionService {
             throw new ResourceNotFoundException("The scanned user and borrower does not match");
         }
 
+        if(createReturnTransactionRequest.getConditionImage() != null) {
+            String conditionImagePath = firebaseService.uploadMultipartFile(createReturnTransactionRequest.getConditionImage(), FirebaseFolder.CONDITION);
+            transaction.setConditionImage(conditionImagePath);
+        }
+
+        transaction.setRemark(createReturnTransactionRequest.getRemark());
         transaction.setReturnedAt(DateUtilities.now());
         transaction.setUpdatedAt(DateUtilities.now());
+        equipment.setRemark(transaction.getRemark());
         equipment.setAvailable(true);
         equipmentRepository.save(equipment);
         transactionRepository.save(transaction.toTransaction(transaction));
@@ -148,10 +151,11 @@ public class TransactionService {
                 transaction.getReturnDate(),
                 transaction.getReturnedAt(),
                 transaction.getCreatedAt(),
-                transaction.getUpdatedAt()
+                transaction.getUpdatedAt(),
+                transaction.getRemark(),
+                transaction.getConditionImage()
         );
     }
-
 
     public Equipment getTransactionsByEquipment(Long equipmentId){
         return equipmentRepository.findById(equipmentId)
@@ -163,19 +167,7 @@ public class TransactionService {
         List<TransactionDTO> onUsedEquipments = transactionRepository.findAll()
                 .stream()
                 .filter((transaction) -> transaction.getReturnedAt() == null && !transaction.getEquipment().isAvailable())
-                .map((transaction) ->
-                    new TransactionDTO(
-                            transaction.getId(),
-                            transaction.getUser(),
-                            transaction.getEquipment(),
-                            transaction.getPurpose(),
-                            transaction.getBorrowDate(),
-                            transaction.getReturnDate(),
-                            null,
-                            transaction.getCreatedAt(),
-                            transaction.getUpdatedAt()
-                    )
-                )
+                .map(TransactionDTO::new)
                 .toList();
 
         return onUsedEquipments;

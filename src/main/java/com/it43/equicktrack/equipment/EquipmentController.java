@@ -43,7 +43,6 @@ public class EquipmentController {
     @GetMapping(path = "/{equipment_id}")
     public ResponseEntity<Equipment> getEquipmentById(@PathVariable("equipment_id") Long _equipmentId){
         Equipment equipment = equipmentService.getEquipmentById(_equipmentId);
-
         return ResponseEntity.status(HttpStatus.OK).body(equipment);
 
     }
@@ -57,10 +56,6 @@ public class EquipmentController {
 
     @GetMapping(path = "/qrcode/generate")
     public ResponseEntity<String> generateQrcode() throws IOException, WriterException {
-//        Resource qrcodeFile = equipmentService.generateQrcode();
-//        how to return the qrcodeFile as a response
-//        Map<String, Object> data = new HashMap<>();
-//        data.put("qrcodeFile", qrcodeFile);
         String qrcodeFileUrl = equipmentService.generateQrcode();
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(qrcodeFileUrl);
@@ -81,8 +76,8 @@ public class EquipmentController {
     }
 
     @PostMapping(path = "/create", consumes = "multipart/form-data")
-    public ResponseEntity<Equipment> createEquipment(@Validated @ModelAttribute CreateEquipmentRequest equipment) throws IOException {
-        return ResponseEntity.status(HttpStatus.OK)
+    public ResponseEntity<Equipment> createEquipment(@Validated @RequestBody CreateEquipmentRequest equipment) throws IOException {
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(equipmentService.createEquipment(equipment));
     }
 
@@ -96,7 +91,7 @@ public class EquipmentController {
     public ResponseEntity<Equipment> updateEquipmentById(
             @PathVariable("equipmentId") Long equipmentId,
             @RequestBody UpdateEquipmentRequest updateEquipmentRequest
-    ) {
+    ) throws FirebaseFileUploadException, IOException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(equipmentService.updateEquipment(equipmentId, updateEquipmentRequest));
     }
