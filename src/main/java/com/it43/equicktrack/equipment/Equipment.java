@@ -28,9 +28,11 @@ public class Equipment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @NotBlank
     @NotNull(message = "Name of equipment is required")
     private String name;
+
     @Column(nullable = true)
     private String description;
 
@@ -52,6 +54,10 @@ public class Equipment {
     @Column(nullable = true)
     @NotBlank
     private String equipmentImage;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'GOOD_CONDITION'")
+    private Remark remark = Remark.GOOD_CONDITION;
 
     private boolean available = true;
 

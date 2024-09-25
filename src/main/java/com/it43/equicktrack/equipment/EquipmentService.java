@@ -3,7 +3,6 @@ package com.it43.equicktrack.equipment;
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
-import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
@@ -14,6 +13,7 @@ import com.it43.equicktrack.util.DateUtilities;
 import com.it43.equicktrack.util.FileUtil;
 import com.it43.equicktrack.util.QuickResponseCode;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -70,12 +69,13 @@ public class EquipmentService {
                     .description(createEquipmentRequest.getDescription())
                     .serialNumber(createEquipmentRequest.getSerialNumber())
                     .equipmentImage(equipmentDownloadUrl)
+                    .remark(Remark.GOOD_CONDITION)
                     .createdAt(DateUtilities.now())
                     .updatedAt(DateUtilities.now())
                     .build();
-
             equipmentRepository.save(equipment);
             return equipment;
+
         } catch (Exception error) {
             throw new ConvertMultipartFileException("File can't be uploaded");
         }
@@ -100,7 +100,8 @@ public class EquipmentService {
         return true;
     }
 
-    public Equipment updateEquipment(Long equipmentId, UpdateEquipmentRequest updateEquipmentRequest) {
+    @Transactional
+    public Equipment updateEquipment(Long equipmentId, UpdateEquipmentRequest updateEquipmentRequest) throws FirebaseFileUploadException, IOException {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
@@ -113,12 +114,13 @@ public class EquipmentService {
         }
 
         if (updateEquipmentRequest.getEquipmentImage() != null) {
-            equipment.setEquipmentImage(updateEquipmentRequest.getEquipmentImage());
+            firebaseService.delete(equipment.getEquipmentImage());
+            String newEquipmentImage = firebaseService.uploadMultipartFile(updateEquipmentRequest.getEquipmentImage(), FirebaseFolder.EQUIPMENT);
+            equipment.setEquipmentImage(newEquipmentImage);
         }
 
         equipment.setAvailable(updateEquipmentRequest.isAvailable());
         equipment.setUpdatedAt(DateUtilities.now());
-
         return equipmentRepository.save(equipment);
     }
 
@@ -128,7 +130,7 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
-    public String generateQrcode() throws IOException, WriterException, FileNotFoundException {
+    public String generateQrcode() throws IOException, WriterException {
         final String QRCODE_DATA = quickResponseCode.generateQrcodeData();
         String fileName = quickResponseCode.generateQrCodeImage(fileUtil.generateRandomFileName(), generateQrcode()).getName();
         Path filePath = Paths.get("storage/images/qr-images").resolve(fileName);

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -20,37 +21,26 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<List<TransactionDTO>> getTransactions(){
+    public ResponseEntity<List<TransactionDTO>> getTransactions() {
         return ResponseEntity.ok().body(transactionService.getTransactions());
     }
-
-//    This endpoint is for creating new transactions for equipments
+    //    This endpoint is for creating new transactions for equipments
     @PostMapping(path = "/borrow", consumes = {"application/json"})
-    public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequest createTransactionRequestDTO){
+    public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequest createTransactionRequestDTO) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
 
-    @PatchMapping(path = "/return", consumes = {"application/json"})
-    public ResponseEntity<TransactionDTO> createReturnTransaction(@Validated @RequestBody CreateReturnTransactionRequest createReturnTransactionRequest) {
+    @PatchMapping(path = "/return", consumes = {"application/json", "multipart/form-data"})
+    public ResponseEntity<TransactionDTO> createReturnTransaction(
+            @Validated @RequestBody CreateReturnTransactionRequest createReturnTransactionRequest
+    ) throws IOException {
+
         return ResponseEntity.status(HttpStatus.OK).body(
                 transactionService.createReturnTransaction(createReturnTransactionRequest)
         );
     }
 
-//    This endpoint is for updating the created transaction for the equipment
-/*
-    @PatchMapping(path = "/{transactionId}/return", consumes = {"application/json"})
-    public ResponseEntity<Transaction> createReturnTransaction(@PathVariable("transactionId") Long transactionId) {
-
-    }
-*/
-/*
-    @PatchMapping(path = "/{transactionId}/update")
-    public ResponseEntity<Transaction> updateTransaction(@RequestParam("transactionId") Long transactionId, @Validated @RequestBody ) {
-
-    }
-*/
     @DeleteMapping(path = "/{transactionId}/delete")
     public ResponseEntity<String> deleteTransaction(@RequestParam("transactionId") Long transactionId) {
         transactionService.deleteTransactionById(transactionId);
@@ -58,10 +48,11 @@ public class TransactionController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Transaction has been deleted");
     }
+
+//    @PatchMapping(path = "/{transactionId}/update")
+//    public ResponseEntity<TransactionDTO> updateTransaction(@RequestParam("transactionId") Long transactionId) {
 //
-//    @GetMapping(path = "/borrower/{borrowerId}")
-//    public ResponseEntity<BorrowerTransactionsDTO> getBorrowerTransactions(@PathVariable("borrowerId") Long id){
-//        return ResponseEntity.ok()
-//                .body(transactionService.)
 //    }
+
 }
+

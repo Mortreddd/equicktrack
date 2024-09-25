@@ -4,6 +4,7 @@ package com.it43.equicktrack.transaction;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.equipment.Equipment;
+import com.it43.equicktrack.equipment.Remark;
 import com.it43.equicktrack.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -48,6 +49,13 @@ public class Transaction {
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true)
     private LocalDateTime returnedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(255) default 'GOOD_CONDITION'")
+    private Remark remark = Remark.GOOD_CONDITION;
+
+    @Column(nullable = true)
+    private String conditionImage;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

@@ -1,6 +1,7 @@
 package com.it43.equicktrack.dto.transaction;
 
 import com.it43.equicktrack.equipment.Equipment;
+import com.it43.equicktrack.equipment.Remark;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.user.User;
 import lombok.AllArgsConstructor;
@@ -25,28 +26,8 @@ public class TransactionDTO {
     private LocalDateTime returnedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-//    public TransactionDTO(
-//        Long id,
-//        User user,
-//        Equipment equipment,
-//        String purpose,
-//        LocalDateTime borrowDate,
-//        LocalDateTime returnDate,
-//        LocalDateTime returnedAt,
-//        LocalDateTime createdAt,
-//        LocalDateTime updatedAt
-//    ) {
-//        this.id = id;
-//        this.user = user;
-//        this.equipment = equipment;
-//        this.purpose = purpose;
-//        this.borrowDate = borrowDate;
-//        this.returnDate = returnDate;
-//        this.returnedAt = returnedAt;
-//        this.createdAt = createdAt;
-//        this.updatedAt = updatedAt;
-//    }
+    private Remark remark;
+    private String conditionImage;
 
     public TransactionDTO(
             Transaction transaction
@@ -59,7 +40,9 @@ public class TransactionDTO {
         this.returnDate = transaction.getReturnDate();
         this.returnedAt = transaction.getReturnedAt();
         this.createdAt = transaction.getCreatedAt();
-        this.updatedAt = getUpdatedAt();
+        this.updatedAt = transaction.getUpdatedAt();
+        this.remark = transaction.getRemark();
+        this.conditionImage = transaction.getConditionImage();
     }
 
     public Transaction toTransaction(TransactionDTO transaction) {

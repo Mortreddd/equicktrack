@@ -96,19 +96,7 @@ public class UserService {
         List<TransactionDTO> transactions = transactionRepository.findAll()
                 .stream()
                 .filter((transaction) -> Objects.equals(user, transaction.getUser()))
-                .map((transaction) ->
-                        new TransactionDTO(
-                                transaction.getId(),
-                                transaction.getUser(),
-                                transaction.getEquipment(),
-                                transaction.getPurpose(),
-                                transaction.getBorrowDate(),
-                                transaction.getReturnDate(),
-                                transaction.getReturnedAt(),
-                                transaction.getCreatedAt(),
-                                transaction.getUpdatedAt()
-                        )
-                )
+                .map(TransactionDTO::new)
                 .toList();
 
 

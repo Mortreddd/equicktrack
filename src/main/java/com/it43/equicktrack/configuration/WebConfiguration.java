@@ -14,6 +14,8 @@ public class WebConfiguration {
 //
 //    @Value("${base.domain.url}")
 //    private final String BASE_DOMAIN_URL;
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     @Bean
     public WebMvcConfigurer webMvcConfigurer(){
@@ -22,9 +24,9 @@ public class WebConfiguration {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins("https://wily-rena-equicktrack-4bc9ec67.koyeb.app")
+                        .allowedOrigins("https://wily-rena-equicktrack-4bc9ec67.koyeb.app", frontendUrl)
                         .allowedHeaders("*")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowCredentials(true);
             }
         };
