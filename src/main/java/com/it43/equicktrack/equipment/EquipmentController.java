@@ -76,7 +76,7 @@ public class EquipmentController {
     }
 
     @PostMapping(path = "/create", consumes = "multipart/form-data")
-    public ResponseEntity<Equipment> createEquipment(@Validated @RequestBody CreateEquipmentRequest equipment) throws IOException {
+    public ResponseEntity<Equipment> createEquipment(@Validated @ModelAttribute CreateEquipmentRequest equipment) throws IOException {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(equipmentService.createEquipment(equipment));
     }
