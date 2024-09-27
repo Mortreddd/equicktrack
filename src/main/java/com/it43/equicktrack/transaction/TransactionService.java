@@ -6,6 +6,7 @@ import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UserTransactionDTO;
 import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.EquipmentRepository;
+import com.it43.equicktrack.equipment.Remark;
 import com.it43.equicktrack.exception.AlreadyExistsException;
 import com.it43.equicktrack.exception.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
@@ -36,12 +37,11 @@ public class TransactionService {
     private final FirebaseService firebaseService;
 
     public List<TransactionDTO> getTransactions(){
-        List<TransactionDTO> transactions = transactionRepository.findAll()
+
+        return transactionRepository.findAll()
                 .stream()
                 .map(TransactionDTO::new)
                 .toList();
-
-        return transactions;
     }
 
     @Transactional
@@ -71,6 +71,7 @@ public class TransactionService {
                 .equipment(equipment)
                 .borrowDate(LocalDateTime.parse(createTransactionRequest.getBorrowDate()))
                 .returnDate(LocalDateTime.parse(createTransactionRequest.getReturnDate()))
+                        .remark(Remark.GOOD_CONDITION)
                 .returnedAt(null)
                 .createdAt(LocalDateTime.now())
                 .build()

@@ -54,6 +54,7 @@ public class TransactionDTO {
                 .borrowDate(transaction.getBorrowDate())
                 .returnDate(transaction.getReturnDate())
                 .returnedAt(transaction.getReturnedAt())
+                .remark(transaction.getRemark())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
                 .build();
