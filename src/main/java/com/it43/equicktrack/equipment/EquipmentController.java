@@ -90,7 +90,7 @@ public class EquipmentController {
     @PatchMapping(path = "/{equipmentId}/update")
     public ResponseEntity<Equipment> updateEquipmentById(
             @PathVariable("equipmentId") Long equipmentId,
-            @RequestBody UpdateEquipmentRequest updateEquipmentRequest
+            @ModelAttribute UpdateEquipmentRequest updateEquipmentRequest
     ) throws FirebaseFileUploadException, IOException {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(equipmentService.updateEquipment(equipmentId, updateEquipmentRequest));
