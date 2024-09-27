@@ -2,6 +2,7 @@ package com.it43.equicktrack.equipment;
 
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
@@ -27,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -147,6 +149,40 @@ public class EquipmentService {
         log.error("Qrcode not found path: {}", filePath.toString());
         Files.delete(filePath);
         throw new FileNotFoundException("Qrcode not found");
+
+    }
+
+    public EquipmentDTO getOccupiedEquipmentById(Long equipmentId) {
+        return getOccupiedEquipments()
+                .stream()
+                .filter(( _equipment ) -> Objects.equals(_equipment.getId(), equipmentId))
+                .map((_equipment) -> new EquipmentDTO(
+                        _equipment.getId(),
+                        _equipment.getName(),
+                        _equipment.getDescription(),
+                        _equipment.getQrcodeData(),
+                        _equipment.getQrcodeImage(),
+                        _equipment.getSerialNumber(),
+                        _equipment.getEquipmentImage(),
+                        _equipment.getRemark(),
+                        _equipment.isAvailable(),
+                        _equipment.getCreatedAt(),
+                        _equipment.getUpdatedAt(),
+                        _equipment.getTransactions()
+                    )
+                ).findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Equipment is not currently borrowed"));
+    }
+
+    public List<Equipment> getOccupiedEquipments() {
+        return equipmentRepository.findAll()
+                .stream()
+                .filter((_equipment) ->
+                        _equipment.getTransactions()
+                                .stream()
+                                .anyMatch((transaction) -> transaction.getReturnedAt() == null)
+                        && !_equipment.isAvailable()
+                ).toList();
 
     }
 

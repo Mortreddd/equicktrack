@@ -21,7 +21,7 @@ public class CreateReturnTransactionRequest {
     private Long userId;
 
     @NotNull
-    private String qrcodeData;
+    private Long equipmentId;
 
     @NotNull
     private Remark remark;

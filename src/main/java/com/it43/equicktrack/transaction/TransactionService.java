@@ -108,7 +108,7 @@ public class TransactionService {
     }
 
     public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) throws IOException {
-        Equipment equipment = equipmentRepository.findByQrcodeData(createReturnTransactionRequest.getQrcodeData())
+        Equipment equipment = equipmentRepository.findById(createReturnTransactionRequest.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
         TransactionDTO transaction = getOnUsedEquipments()
@@ -175,19 +175,21 @@ public class TransactionService {
     }
 
 //    Returns currently used equipment and select equipment based on equipmentId
-    public Optional<TransactionDTO> getOnUsedEquipment(Long equipmentId) {
-        Optional<TransactionDTO> onUsedEquipment = getOnUsedEquipments()
+    public TransactionDTO getOnUsedEquipment(Long equipmentId) {
+        TransactionDTO onUsedEquipment = getOnUsedEquipments()
                 .stream()
                 .filter((transactionDTO) -> Objects.equals(transactionDTO.getEquipment().getId(), equipmentId))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("The equipment is not currently on used"));
         return onUsedEquipment;
     }
 
-    public Optional<TransactionDTO> getTransactionByUserId(Long userId) {
-        Optional<TransactionDTO> transaction = getOnUsedEquipments()
+    public TransactionDTO getTransactionByUserId(Long userId) {
+        TransactionDTO transaction = getOnUsedEquipments()
                 .stream()
                 .filter((transactionDTO -> Objects.equals(transactionDTO.getUser().getId(), userId)))
-                .findFirst();
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("The user didn't borrow any equipment yet"));
 
         return transaction;
     }

@@ -49,10 +49,5 @@ public class TransactionController {
                 .body("Transaction has been deleted");
     }
 
-//    @PatchMapping(path = "/{transactionId}/update")
-//    public ResponseEntity<TransactionDTO> updateTransaction(@RequestParam("transactionId") Long transactionId) {
-//
-//    }
-
 }
 
