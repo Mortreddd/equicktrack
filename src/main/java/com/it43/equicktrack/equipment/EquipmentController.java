@@ -3,6 +3,7 @@ package com.it43.equicktrack.equipment;
 import com.google.api.Http;
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
@@ -102,5 +103,13 @@ public class EquipmentController {
             return ResponseEntity.status(HttpStatus.OK).build();
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+    @GetMapping(path = "/{equipmentId}/occupied")
+    public ResponseEntity<EquipmentDTO> getOccupiedEquipment(
+            @PathVariable("equipmentId") Long equipmentId
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipmentService.getOccupiedEquipmentById(equipmentId));
     }
 }
