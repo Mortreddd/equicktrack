@@ -115,7 +115,7 @@ public class TransactionService {
                 .stream()
                 .filter((_t) ->
                         Objects.equals(_t.getUser().getId(), createReturnTransactionRequest.getUserId()) &&
-                        Objects.equals(_t.getUser().getId(), equipment.getId())
+                        Objects.equals(_t.getEquipment().getId(), equipment.getId())
                 )
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
