@@ -49,5 +49,11 @@ public class TransactionController {
                 .body("Transaction has been deleted");
     }
 
+    @GetMapping(path = "/occupied")
+    public ResponseEntity<List<TransactionDTO>> getOnUsedEquipment() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(transactionService.getOnUsedEquipments());
+    }
+
 }
 

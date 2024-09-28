@@ -165,13 +165,13 @@ public class TransactionService {
 
     public List<TransactionDTO> getOnUsedEquipments() {
 
-        List<TransactionDTO> onUsedEquipments = transactionRepository.findAll()
+        return transactionRepository.findAll()
                 .stream()
                 .filter((transaction) -> transaction.getReturnedAt() == null && !transaction.getEquipment().isAvailable())
                 .map(TransactionDTO::new)
                 .toList();
 
-        return onUsedEquipments;
+
     }
 
 //    Returns currently used equipment and select equipment based on equipmentId
