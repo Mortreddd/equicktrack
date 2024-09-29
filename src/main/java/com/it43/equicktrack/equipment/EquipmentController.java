@@ -11,6 +11,7 @@ import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,16 +37,20 @@ public class EquipmentController {
 
 
     @GetMapping
-    public ResponseEntity<List<Equipment>> getEquipments(){
+    public ResponseEntity<Page<Equipment>> getEquipments(
+            @RequestParam(name = "search", required = false, defaultValue = "") String search,
+            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+
+    ){
         return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getEquipments());
+                .body(equipmentService.getEquipments(search, pageNo, pageSize));
     }
 
     @GetMapping(path = "/{equipment_id}")
     public ResponseEntity<Equipment> getEquipmentById(@PathVariable("equipment_id") Long _equipmentId){
         Equipment equipment = equipmentService.getEquipmentById(_equipmentId);
         return ResponseEntity.status(HttpStatus.OK).body(equipment);
-
     }
 
     @GetMapping(path = "/qrcode/{qrcode}")
@@ -111,5 +116,23 @@ public class EquipmentController {
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(equipmentService.getOccupiedEquipmentById(equipmentId));
+    }
+
+    @GetMapping(path = "/available")
+    public ResponseEntity<Page<Equipment>> getAvailableEquipments(
+            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipmentService.getAvailableEquipments(pageNo, pageSize));
+    }
+
+    @GetMapping(path = "/unavailable")
+    public ResponseEntity<Page<Equipment>> getUnavailableEquipments(
+            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipmentService.getUnavailableEquipments(pageNo, pageSize));
     }
 }

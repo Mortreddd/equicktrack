@@ -17,6 +17,9 @@ import com.it43.equicktrack.util.QuickResponseCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -41,8 +44,13 @@ public class EquipmentService {
     private final FirebaseService firebaseService;
     private final FileUtil fileUtil;
 
-    public List<Equipment> getEquipments() {
-        return equipmentRepository.findAll();
+    public Page<Equipment> getEquipments(String search, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        if(search.isEmpty() || search.isBlank()) {
+            return equipmentRepository.findAll(pageable);
+        }
+
+        return equipmentRepository.findEquipmentByName(search, pageable);
     }
 
     public Equipment getEquipmentById(Long _id) {
@@ -184,6 +192,16 @@ public class EquipmentService {
                         && !_equipment.isAvailable()
                 ).toList();
 
+    }
+
+    public Page<Equipment> getAvailableEquipments(int pageNo, int pageSize) {
+        boolean available = true;
+        return equipmentRepository.findAvailableEquipments(available, PageRequest.of(pageNo, pageSize));
+    }
+
+    public Page<Equipment> getUnavailableEquipments(int pageNo, int pageSize) {
+        boolean unavailable = true;
+        return equipmentRepository.findUnavailableEquipments(unavailable, PageRequest.of(pageNo, pageSize));
     }
 
 }

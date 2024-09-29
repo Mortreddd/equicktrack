@@ -11,9 +11,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 @RequiredArgsConstructor
 public class WebConfiguration {
-//
-//    @Value("${base.domain.url}")
-//    private final String BASE_DOMAIN_URL;
+
     @Value("${frontend.url}")
     private String frontendUrl;
 

@@ -5,16 +5,17 @@ import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UpdateUserDTO;
 import com.it43.equicktrack.exception.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
-import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,9 +31,15 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TransactionRepository transactionRepository;
 
-    public List<User> getUsers(){
-        return userRepository
-                .findAll();
+    public Page<User> getUsers(String search, int pageNo, int pageSize){
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        if(search.isBlank() || search.isEmpty()) {
+            return userRepository
+                    .findAll(pageable);
+        }
+
+        return userRepository.findByFullName(search, pageable);
     }
 
     public User getUserById(Long id){
@@ -88,6 +95,8 @@ public class UserService {
         userRepository.save(_user);
         return _user;
     }
+
+
     public List<TransactionDTO> getUserTransactionsById(Long _id){
         User user = userRepository.findById(_id)
                         .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -98,10 +107,9 @@ public class UserService {
                 .filter((transaction) -> Objects.equals(user, transaction.getUser()))
                 .map(TransactionDTO::new)
                 .toList();
-
-
         return transactions;
     }
+
 
 
 }
