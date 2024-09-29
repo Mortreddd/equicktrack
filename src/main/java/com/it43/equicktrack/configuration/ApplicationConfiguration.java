@@ -1,21 +1,14 @@
 package com.it43.equicktrack.configuration;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.user.Role;
 import com.it43.equicktrack.user.RoleName;
 import com.it43.equicktrack.user.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -25,11 +18,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 @Configuration
 @RequiredArgsConstructor
@@ -37,11 +25,6 @@ import java.nio.charset.StandardCharsets;
 public class ApplicationConfiguration {
 
     private final UserRepository userRepository;
-    private final ResourceLoader resourceLoader;
-    private final FirebaseService firebaseService;
-    private final Environment environment;
-    @Value("${firebase.storage.bucket-url}")
-    private String BUCKET_URL;
 
     @Bean
     public UserDetailsService userDetailsService(){

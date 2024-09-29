@@ -6,6 +6,7 @@ import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,8 +23,12 @@ public class UserController {
     private final TransactionService transactionsService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getUsers(){
-        return ResponseEntity.ok().body(userService.getUsers());
+    public ResponseEntity<Page<User>> getUsers(
+            @RequestParam(name = "search", required = false, defaultValue = "") String search,
+            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+    ){
+        return ResponseEntity.ok().body(userService.getUsers(search, pageNo, pageSize));
     }
 
     @GetMapping(path = "/{userId}")
