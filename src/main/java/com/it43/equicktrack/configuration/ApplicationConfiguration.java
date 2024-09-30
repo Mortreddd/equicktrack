@@ -58,7 +58,7 @@ public class ApplicationConfiguration {
 
 
     @Bean
-    CommandLineRunner init(RoleRepository roleRepository){
+    CommandLineRunner roleInit(RoleRepository roleRepository){
         return args -> {
             roleRepository.saveIfNotExists(Role.builder()
                     .name(RoleName.SUPER_ADMIN)
@@ -72,6 +72,13 @@ public class ApplicationConfiguration {
             roleRepository.saveIfNotExists(Role.builder()
                     .name(RoleName.STUDENT)
                     .build());
+        };
+    }
+
+    @Bean
+    CommandLineRunner superAdminInit(UserRepository userRepository) {
+        return args -> {
+            userRepository.saveSuperAdminIfNotExists();
         };
     }
 }
