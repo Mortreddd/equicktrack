@@ -39,7 +39,7 @@ public class OtpService {
         User user = userRepository.findById(emailOtp.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        user.setEmailVerifiedAt(LocalDateTime.now());
+        user.setEmailVerifiedAt(DateUtilities.now());
         userRepository.save(user);
         otpRepository.delete(emailOtp);
         return user.getEmail();
@@ -61,19 +61,42 @@ public class OtpService {
                     .email(email)
                     .contactNumber(null)
                     .code(OTP_CODE)
-                    .createdAt(LocalDateTime.now())
-                    .updatedAt(LocalDateTime.now())
+                    .createdAt(DateUtilities.now())
+                    .updatedAt(DateUtilities.now())
                     .build();
         } else {
             existingOtp.get().setCode(OTP_CODE);
-            existingOtp.get().setCreatedAt(LocalDateTime.now());
-            existingOtp.get().setUpdatedAt(LocalDateTime.now());
+            existingOtp.get().setCreatedAt(DateUtilities.now());
+            existingOtp.get().setUpdatedAt(DateUtilities.now());
             otp = existingOtp.get();
         }
 
 
         otpRepository.save(otp);
         emailService.sendVerifyEmail(email, OTP_CODE);
+    }
+
+    public boolean verifyByEmail(String email) throws EmailMessageException, InvalidOtpException {
+        Optional<Otp> otp =  otpRepository.findByEmail(email);
+
+        if(otp.isEmpty()) {
+            return false;
+        }
+
+        Otp verifiedOtp = otp.get();
+
+        if(DateUtilities.isLate(verifiedOtp.getCreatedAt())) {
+            throw new InvalidOtpException("Verification is expired");
+        }
+        User user = userRepository.findById(verifiedOtp.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setEmailVerifiedAt(DateUtilities.now());
+        user.setUpdatedAt(DateUtilities.now());
+        userRepository.save(user);
+        otpRepository.delete(verifiedOtp);
+        return true;
+
     }
 
 
@@ -93,14 +116,8 @@ public class OtpService {
 
 //    Generate a 6 digit code ex: 342130
     public String generateRandomOtpCode() {
-        String otp = String.format("%06d", new Random().nextInt(999999));
-
-        return otp;
+        return String.format("%06d", new Random().nextInt(999999));
     }
-
-
-
-
 
 
 }

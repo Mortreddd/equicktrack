@@ -25,7 +25,7 @@ public class EmailService {
         String emailUrl = frontendUrl + "/verify-email/" + email;
         context.setVariable("otpCode", otpCode);
         context.setVariable("emailUrl", emailUrl);
-        String process = templateEngine.process("email-confirmation", context);
+        String process = templateEngine.process("email-verification", context);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         try{

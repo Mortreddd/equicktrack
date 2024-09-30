@@ -17,7 +17,7 @@ import java.util.List;
 public class OtpWorker {
 
     private final OtpService otpService;
-    private static final long TEST_TIME_CHECK = 1_000L;
+    private static final long TEST_TIME_CHECK = 60_000L;
 
     @Scheduled(fixedRate = TEST_TIME_CHECK)
 //    @Scheduled(fixedRate = Constant.TIME_CHECK)
@@ -28,6 +28,9 @@ public class OtpWorker {
                 .filter((_otp) -> DateUtilities.isLate(_otp.getCreatedAt()))
                 .toList();
 
+        for(Otp otp : unusedOtps) {
+            log.info("Deleted Otp id", otp.getId());
+        }
         otpService.deleteAll(unusedOtps);
     }
 }

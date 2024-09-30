@@ -14,6 +14,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * Author: Emmanuel Male
  *
  */
+
+// TODO: Uncomment @EnableScheduling when most of the functions are finished
+//@EnableScheduling
 @SpringBootApplication
 public class EquicktrackApplication {
 	public static void main(String[] args) {

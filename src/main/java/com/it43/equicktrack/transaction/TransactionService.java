@@ -84,7 +84,7 @@ public class TransactionService {
                         .remark(Remark.GOOD_CONDITION)
                         .notifiedAt(null)
                 .returnedAt(null)
-                .createdAt(LocalDateTime.now())
+                .createdAt(DateUtilities.now())
                 .build()
         );
     }

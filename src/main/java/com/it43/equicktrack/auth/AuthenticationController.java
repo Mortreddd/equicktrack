@@ -10,6 +10,7 @@ import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.user.UserService;
 import com.it43.equicktrack.jwt.JwtService;
+import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -91,31 +92,48 @@ public class AuthenticationController {
 //
 //
 //    }
+    @GetMapping(path = "/verify-email/{email}")
+    public ResponseEntity verifyEmailWithLink(
+            @PathVariable("email") String email
+    ) throws EmailMessageException, InvalidOtpException {
+        if(otpService.verifyByEmail(email)) {
+            return ResponseEntity.ok().build();
+        };
 
-    @PostMapping(path = "/google")
-    public ResponseEntity<String> authenticateUsingGoogle(@Validated @RequestBody GoogleAuthenticationRequest googleAuthenticationRequest) {
-        Optional<User> user = userService.getUserByUid(googleAuthenticationRequest.getUid());
-
-        if(user.isPresent()) {
-            return ResponseEntity.status(HttpStatus.OK)
-                    .body(jwtService.generateToken(user.get().getEmail()));
-        }
-
-        String randomPassword = RandomStringUtils.randomAlphabetic(10);
-
-        User newUser = User.builder()
-                .email(googleAuthenticationRequest.getEmail())
-                .googleUid(googleAuthenticationRequest.getUid())
-                .photoUrl(googleAuthenticationRequest.getPhotoUrl())
-                .fullName(googleAuthenticationRequest.getDisplayName())
-                .password(new BCryptPasswordEncoder().encode(randomPassword))
-                .emailVerifiedAt(LocalDateTime.now())
-                .build();
-
-        userRepository.save(newUser);
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(jwtService.generateToken(newUser.getEmail()));
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }
+
+/** TODO: Configure the generated User if the user chooses the google to authenticate
+ *  TODO: Make a ModelRequest for the required attributes example, contactNumber, Role for the new user
+ *
+ * @param GoogleAuthenticationRequest
+ * @return googleUid
+ */
+//    @PostMapping(path = "/google")
+//    public ResponseEntity<String> authenticateUsingGoogle(@Validated @RequestBody GoogleAuthenticationRequest googleAuthenticationRequest) {
+//        Optional<User> user = userService.getUserByUid(googleAuthenticationRequest.getUid());
+//
+//        if(user.isPresent()) {
+//            return ResponseEntity.status(HttpStatus.OK)
+//                    .body(jwtService.generateToken(user.get().getEmail()));
+//        }
+//
+//        String randomPassword = RandomStringUtils.randomAlphabetic(10);
+//
+//        User newUser = User.builder()
+//                .email(googleAuthenticationRequest.getEmail())
+//                .googleUid(googleAuthenticationRequest.getUid())
+//                .photoUrl(googleAuthenticationRequest.getPhotoUrl())
+//                .fullName(googleAuthenticationRequest.getDisplayName())
+//                .password(new BCryptPasswordEncoder().encode(randomPassword))
+//                .contactNumber()
+//                .emailVerifiedAt(DateUtilities.now())
+//                .build();
+//
+//        userRepository.save(newUser);
+//
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(jwtService.generateToken(newUser.getEmail()));
+//    }
 
 }

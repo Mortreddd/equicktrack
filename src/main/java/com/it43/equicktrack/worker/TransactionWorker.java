@@ -30,9 +30,7 @@ public class TransactionWorker {
     public void checkLateReturnEquipments(){
         List<Transaction> lateReturnees = transactionRepository.findAll()
                 .stream()
-                .filter(transaction -> {
-                        return DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() == null;
-                })
+                .filter(transaction -> DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() == null)
                 .toList();
 
         log.info("Executed at {}", DateUtilities.now());
