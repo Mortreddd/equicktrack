@@ -67,9 +67,11 @@ public class AuthenticationController {
                 .body("Verification otp code has been sent to the email");
     }
 
-    @GetMapping(path = "/verify-email/resend/{email}")
-    public ResponseEntity<String> resendOtp(@PathVariable("email") String email) throws EmailMessageException {
-        otpService.sendVerificationEmail(email);
+    @PostMapping(path = "/forgot-password/resend")
+    public ResponseEntity<String> resendOtp(
+            @RequestBody ForgotPasswordRequest forgotPasswordRequest
+    ) throws EmailMessageException {
+        otpService.sendVerificationEmail(forgotPasswordRequest.getEmail());
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Verification otp code has been resent to the email");
     }
@@ -82,21 +84,19 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/forgot-password")
-    public ResponseEntity<String> forgotPassword(@Validated @RequestBody ForgotPasswordRequest forgotPasswordRequest) {
+    public ResponseEntity<String> forgotPassword(@Validated @RequestBody ForgotPasswordRequest forgotPasswordRequest) throws EmailMessageException {
+
+        otpService.sendVerificationEmail(forgotPasswordRequest.getEmail());
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Verification email is sent");
     }
 
-//    @GetMapping(path = "/forgot-password/resend/{email}")
-//    public ResponseEntity<String> resendForgotPassword(@PathVariable("email") String email) {
-//
-//
-//    }
-    @GetMapping(path = "/verify-email/{email}")
+
+    @GetMapping(path = "/verify-email/{uuid}")
     public ResponseEntity verifyEmailWithLink(
-            @PathVariable("email") String email
+            @PathVariable("uuid") String uuid
     ) throws EmailMessageException, InvalidOtpException {
-        if(otpService.verifyByEmail(email)) {
+        if(otpService.verifyById(uuid)) {
             return ResponseEntity.ok().build();
         };
 

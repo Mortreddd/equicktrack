@@ -19,12 +19,31 @@ public class EmailService {
     @Value("${frontend.url}")
     private String frontendUrl;
 
+//
+//    public void sendVerifyEmail(String email, String otpCode) throws EmailMessageException {
+//        Context context = new Context();
+//        String uuidUrl = frontendUrl + "/verify-email/" + email;
+//        context.setVariable("otpCode", otpCode);
+//        context.setVariable("emailUrl", emailUrl);
+//        String process = templateEngine.process("email-verification", context);
+//        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+//
+//        try{
+//            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+//            mimeMessageHelper.setTo(email);
+//            mimeMessageHelper.setSubject("Email Verification");
+//            mimeMessageHelper.setText(process, true);
+//            javaMailSender.send(mimeMessage);
+//        } catch (MessagingException e) {
+//            throw new EmailMessageException("Can't send an email: " + e.getMessage());
+//        }
+//    }
 
-    public void sendVerifyEmail(String email, String otpCode) throws EmailMessageException {
+    public void sendVerifyEmail(String email, String otpCode, String uuid) throws EmailMessageException {
         Context context = new Context();
-        String emailUrl = frontendUrl + "/verify-email/" + email;
+        String uuidUrl = frontendUrl + "/auth/verify-email/" + uuid;
+        context.setVariable("uuidUrl", uuidUrl);
         context.setVariable("otpCode", otpCode);
-        context.setVariable("emailUrl", emailUrl);
         String process = templateEngine.process("email-verification", context);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 

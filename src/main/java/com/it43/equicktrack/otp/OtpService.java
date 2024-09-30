@@ -65,38 +65,35 @@ public class OtpService {
                     .updatedAt(DateUtilities.now())
                     .build();
         } else {
-            existingOtp.get().setCode(OTP_CODE);
-            existingOtp.get().setCreatedAt(DateUtilities.now());
-            existingOtp.get().setUpdatedAt(DateUtilities.now());
             otp = existingOtp.get();
+            otp.setCode(OTP_CODE);
+            otp.setCreatedAt(DateUtilities.now());
+            otp.setUpdatedAt(DateUtilities.now());
+
         }
 
 
         otpRepository.save(otp);
-        emailService.sendVerifyEmail(email, OTP_CODE);
+        emailService.sendVerifyEmail(email, OTP_CODE, otp.getId());
     }
 
-    public boolean verifyByEmail(String email) throws EmailMessageException, InvalidOtpException {
-        Optional<Otp> otp =  otpRepository.findByEmail(email);
+    public boolean verifyById(String otpUuid) throws InvalidOtpException {
+        Otp otp = otpRepository.findById(otpUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Otp not found"));
 
-        if(otp.isEmpty()) {
-            return false;
-        }
-
-        Otp verifiedOtp = otp.get();
-
-        if(DateUtilities.isLate(verifiedOtp.getCreatedAt())) {
+        if(DateUtilities.isLate(otp.getCreatedAt())) {
             throw new InvalidOtpException("Verification is expired");
         }
-        User user = userRepository.findById(verifiedOtp.getUserId())
+
+
+        User user = userRepository.findById(otp.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         user.setEmailVerifiedAt(DateUtilities.now());
         user.setUpdatedAt(DateUtilities.now());
         userRepository.save(user);
-        otpRepository.delete(verifiedOtp);
+        otpRepository.delete(otp);
         return true;
-
     }
 
 
