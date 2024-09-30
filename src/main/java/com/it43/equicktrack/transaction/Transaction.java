@@ -57,6 +57,9 @@ public class Transaction {
     @Column(nullable = true)
     private String conditionImage;
 
+    @Column(nullable = true)
+    private LocalDateTime notifiedAt;
+
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;

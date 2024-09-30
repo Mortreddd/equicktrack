@@ -5,6 +5,7 @@ import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -21,8 +22,11 @@ public class TransactionController {
     private final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<List<TransactionDTO>> getTransactions() {
-        return ResponseEntity.ok().body(transactionService.getTransactions());
+    public ResponseEntity<Page<TransactionDTO>> getTransactions(
+            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+    ) {
+        return ResponseEntity.ok().body(transactionService.getTransactions(pageNo, pageSize));
     }
     //    This endpoint is for creating new transactions for equipments
     @PostMapping(path = "/borrow", consumes = {"application/json"})

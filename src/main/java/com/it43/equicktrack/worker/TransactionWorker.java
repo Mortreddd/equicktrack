@@ -3,6 +3,7 @@ package com.it43.equicktrack.worker;
 
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.transaction.Transaction;
+import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.Constant;
 import com.it43.equicktrack.util.DateUtilities;
@@ -20,20 +21,21 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class TransactionWorker {
-    private final TransactionService transactionService;
+
+    private final TransactionRepository transactionRepository;
     private static final long TEST_TIME_CHECK = 5_000L;
 
     @Scheduled(fixedRate = TEST_TIME_CHECK)
 //    @Scheduled(fixedRate = Constant.TIME_CHECK)
     public void checkLateReturnEquipments(){
-        List<TransactionDTO> lateReturnees = transactionService.getTransactions()
+        List<Transaction> lateReturnees = transactionRepository.findAll()
                 .stream()
                 .filter(transaction -> {
                         return DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() == null;
                 })
                 .toList();
 
-        log.info("Executed at {}", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+        log.info("Executed at {}", DateUtilities.now());
         // TODO : block code of push notification for the mobile application
 
 
