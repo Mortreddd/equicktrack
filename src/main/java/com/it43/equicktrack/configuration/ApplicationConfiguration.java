@@ -74,4 +74,11 @@ public class ApplicationConfiguration {
                     .build());
         };
     }
+
+    @Bean
+    CommandLineRunner init(UserRepository userRepository) {
+        return args -> {
+            userRepository.saveSuperAdminIfNotExists();
+        };
+    }
 }
