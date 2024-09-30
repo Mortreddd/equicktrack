@@ -17,15 +17,17 @@ import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
@@ -36,12 +38,20 @@ public class TransactionService {
     private final EquipmentRepository equipmentRepository;
     private final FirebaseService firebaseService;
 
-    public List<TransactionDTO> getTransactions(){
+    public Page<TransactionDTO> getTransactions(int pageNo, int pageSize){
 
-        return transactionRepository.findAll()
-                .stream()
-                .map(TransactionDTO::new)
-                .toList();
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+
+        Page<Transaction> transactionEntities = transactionRepository.findAll(pageable);
+        return transactionEntities
+                .map(new Function<Transaction, TransactionDTO>() {
+                    @Override
+                    public TransactionDTO apply(Transaction transaction) {
+                        return new TransactionDTO(transaction);
+                    }
+                });
+
     }
 
     @Transactional
@@ -72,6 +82,7 @@ public class TransactionService {
                 .borrowDate(LocalDateTime.parse(createTransactionRequest.getBorrowDate()))
                 .returnDate(LocalDateTime.parse(createTransactionRequest.getReturnDate()))
                         .remark(Remark.GOOD_CONDITION)
+                        .notifiedAt(null)
                 .returnedAt(null)
                 .createdAt(LocalDateTime.now())
                 .build()
@@ -98,6 +109,7 @@ public class TransactionService {
                         null,
                         _transaction.getCreatedAt(),
                         _transaction.getUpdatedAt(),
+                            _transaction.getNotifiedAt(),
                             _transaction.getRemark(),
                             _transaction.getConditionImage()
                     );
@@ -153,6 +165,7 @@ public class TransactionService {
                 transaction.getReturnedAt(),
                 transaction.getCreatedAt(),
                 transaction.getUpdatedAt(),
+                transaction.getNotifiedAt(),
                 transaction.getRemark(),
                 transaction.getConditionImage()
         );
