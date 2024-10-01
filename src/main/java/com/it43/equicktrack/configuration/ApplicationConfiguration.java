@@ -1,9 +1,7 @@
 package com.it43.equicktrack.configuration;
 
-import com.it43.equicktrack.user.UserRepository;
-import com.it43.equicktrack.user.Role;
-import com.it43.equicktrack.user.RoleName;
-import com.it43.equicktrack.user.RoleRepository;
+import com.it43.equicktrack.user.*;
+import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -18,12 +16,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+
 
 @Configuration
 @RequiredArgsConstructor
 @Slf4j
 public class ApplicationConfiguration {
-
+    private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
     @Bean
@@ -58,7 +60,7 @@ public class ApplicationConfiguration {
 
 
     @Bean
-    CommandLineRunner roleInit(RoleRepository roleRepository){
+    CommandLineRunner roleInit(){
         return args -> {
             roleRepository.saveIfNotExists(Role.builder()
                     .name(RoleName.SUPER_ADMIN)
@@ -76,9 +78,36 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    CommandLineRunner superAdminInit(UserRepository userRepository) {
+    CommandLineRunner superAdminInit() {
         return args -> {
-            userRepository.saveSuperAdminIfNotExists();
+            roleInit();
+
+            Role superAdminRole = roleRepository.findByName(RoleName.SUPER_ADMIN)
+                    .orElseThrow(() -> new RuntimeException("Admin role is not yet created"));
+
+
+            List<User> users = userRepository.findAll();
+            boolean hasSuperAdmin = users.stream()
+                    .anyMatch((u) -> u.getRoles()
+                            .stream()
+                            .anyMatch( (r) -> Objects.equals(r, superAdminRole))
+                    );
+
+            if(!hasSuperAdmin) {
+                User superAdmin = User.builder()
+                        .fullName("Emmanuel Male")
+                        .googleUid(null)
+                        .email("emmanmale@gmail.com")
+                        .roles(Set.of(superAdminRole))
+                        .contactNumber("09670778658")
+                        .password(new BCryptPasswordEncoder().encode("12345678"))
+                        .emailVerifiedAt(DateUtilities.now())
+                        .createdAt(DateUtilities.now())
+                        .build();
+
+                userRepository.save(superAdmin);
+            }
         };
     }
+
 }
