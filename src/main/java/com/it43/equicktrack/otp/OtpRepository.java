@@ -10,6 +10,7 @@ import java.util.Optional;
 @Repository
 public interface OtpRepository extends JpaRepository<Otp, String>, CrudRepository<Otp, String> {
 
+    Optional<Otp> findByUserId(Long userId);
     Optional<Otp> findByContactNumber(String contactNumber);
     Optional<Otp> findByCode(String code);
     Optional<Otp> findByEmail(String email);

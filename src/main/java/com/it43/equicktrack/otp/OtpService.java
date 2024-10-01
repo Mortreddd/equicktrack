@@ -9,6 +9,7 @@ import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -93,6 +94,69 @@ public class OtpService {
         user.setUpdatedAt(DateUtilities.now());
         userRepository.save(user);
         otpRepository.delete(otp);
+        return true;
+    }
+
+    public void forgotPassword(String email) throws EmailMessageException {
+        final String OTP_CODE = generateRandomOtpCode();
+        final String RANDOM_ID = UUID.randomUUID().toString();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Otp otp = Otp.builder()
+                .id(RANDOM_ID)
+                .code(OTP_CODE)
+                .userId(user.getId())
+                .email(email)
+                .contactNumber(null)
+                .createdAt(DateUtilities.now())
+                .updatedAt(DateUtilities.now())
+                .build();
+
+        otpRepository.save(otp);
+        emailService.sendResetPassword(email, OTP_CODE, otp.getId());
+    }
+
+    public void resendForgotPassword(String email) throws EmailMessageException {
+        final String OTP_CODE = generateRandomOtpCode();
+        final String RANDOM_ID = UUID.randomUUID().toString();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        Otp otp = otpRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("User did not request a otp"));
+
+        otpRepository.delete(otp);
+
+        Otp newOtp = Otp.builder()
+                .id(RANDOM_ID)
+                .code(OTP_CODE)
+                .userId(user.getId())
+                .email(email)
+                .contactNumber(null)
+                .createdAt(DateUtilities.now())
+                .updatedAt(DateUtilities.now())
+                .build();
+
+
+        otpRepository.save(newOtp);
+        emailService.sendResetPassword(email, OTP_CODE, newOtp.getId());
+    }
+
+
+    public boolean resetPassword(String otpUuid, String password) {
+        Otp otp = otpRepository.findById(otpUuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Otp not found"));
+
+        User user = userRepository.findById(otp.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        user.setPassword(new BCryptPasswordEncoder().encode(password));
+        user.setUpdatedAt(DateUtilities.now());
+        otpRepository.delete(otp);
+
         return true;
     }
 
