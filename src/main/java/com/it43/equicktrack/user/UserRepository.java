@@ -8,6 +8,9 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 import org.springframework.data.repository.CrudRepository;
+
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,9 +30,16 @@ public interface UserRepository extends JpaRepository<User, Long>, CrudRepositor
     };
 
     default void saveSuperAdminIfNotExists() {
-        if(findById(1L).isEmpty()) {
+
+        List<User> users = findAll();
+        boolean hasSuperAdmin = users.stream()
+                .anyMatch((u) -> u.getRoles()
+                        .stream()
+                        .anyMatch( (r) -> Objects.equals(r.getName(), RoleName.SUPER_ADMIN))
+                );
+
+        if(!hasSuperAdmin) {
             User superAdmin = User.builder()
-                    .id(1L)
                     .fullName("Emmanuel Male")
                     .googleUid(null)
                     .email("emmanmale@gmail.com")
@@ -39,6 +49,7 @@ public interface UserRepository extends JpaRepository<User, Long>, CrudRepositor
                     .emailVerifiedAt(DateUtilities.now())
                     .createdAt(DateUtilities.now())
                     .build();
+
             save(superAdmin);
         }
     }
