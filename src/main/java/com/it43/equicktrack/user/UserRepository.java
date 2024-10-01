@@ -28,30 +28,5 @@ public interface UserRepository extends JpaRepository<User, Long>, CrudRepositor
     default boolean emailExists(String email){
         return findByEmail(email).isPresent();
     };
-
-    default void saveSuperAdminIfNotExists() {
-
-        List<User> users = findAll();
-        boolean hasSuperAdmin = users.stream()
-                .anyMatch((u) -> u.getRoles()
-                        .stream()
-                        .anyMatch( (r) -> Objects.equals(r.getName(), RoleName.SUPER_ADMIN))
-                );
-
-        if(!hasSuperAdmin) {
-            User superAdmin = User.builder()
-                    .fullName("Emmanuel Male")
-                    .googleUid(null)
-                    .email("emmanmale@gmail.com")
-                    .roles(Set.of(Role.builder().name(RoleName.SUPER_ADMIN).build()))
-                    .contactNumber("09670778658")
-                    .password(new BCryptPasswordEncoder().encode("12345678"))
-                    .emailVerifiedAt(DateUtilities.now())
-                    .createdAt(DateUtilities.now())
-                    .build();
-
-            save(superAdmin);
-        }
-    }
 }
 
