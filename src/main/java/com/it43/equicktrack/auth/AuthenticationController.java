@@ -63,9 +63,12 @@ public class AuthenticationController {
     @PostMapping(path = "/register", consumes = {"application/json", "application/x-www-form-urlencoded"})
     public ResponseEntity<String> createBorrower(@Validated @RequestBody JwtRegisterRequestDTO requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
-        otpService.sendVerificationEmail(requestUser.getEmail());
+//        TODO: Uncomment this line of code after presentation
+//        otpService.sendVerificationEmail(requestUser.getEmail());
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body("Verification otp code has been sent to the email");
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Verification otp code has been sent to the email");
+                .body(jwtService.generateToken(newUser.getEmail()));
     }
 
     @PutMapping(path = "/forgot-password/resend")
