@@ -129,6 +129,16 @@ public class EquipmentService {
             equipment.setEquipmentImage(newEquipmentImage);
         }
 
+        if(updateEquipmentRequest.getSerialNumber() != null) {
+            equipment.setSerialNumber(updateEquipmentRequest.getSerialNumber());
+        }
+
+        if(updateEquipmentRequest.getRemark() != null) {
+            equipment.setRemark(updateEquipmentRequest.getRemark());
+        } else {
+            equipment.setRemark(Remark.GOOD_CONDITION);
+        }
+
         equipment.setAvailable(updateEquipmentRequest.isAvailable());
         equipment.setUpdatedAt(DateUtilities.now());
         return equipmentRepository.save(equipment);

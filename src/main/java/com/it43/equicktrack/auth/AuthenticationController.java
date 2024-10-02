@@ -3,6 +3,7 @@ package com.it43.equicktrack.auth;
 import com.it43.equicktrack.dto.request.ForgotPasswordRequest;
 import com.it43.equicktrack.dto.request.GoogleAuthenticationRequest;
 import com.it43.equicktrack.dto.request.OtpEmailRequest;
+import com.it43.equicktrack.dto.request.ResetPasswordRequest;
 import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.InvalidOtpException;
 import com.it43.equicktrack.otp.OtpService;
@@ -62,20 +63,22 @@ public class AuthenticationController {
     @PostMapping(path = "/register", consumes = {"application/json", "application/x-www-form-urlencoded"})
     public ResponseEntity<String> createBorrower(@Validated @RequestBody JwtRegisterRequestDTO requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
-        otpService.sendVerificationEmail(requestUser.getEmail());
+//        TODO: Uncomment this line of code after presentation
+//        otpService.sendVerificationEmail(requestUser.getEmail());
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body("Verification otp code has been sent to the email");
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Verification otp code has been sent to the email");
+                .body(jwtService.generateToken(newUser.getEmail()));
     }
 
-    @PostMapping(path = "/forgot-password/resend")
+    @PutMapping(path = "/forgot-password/resend")
     public ResponseEntity<String> resendOtp(
             @RequestBody ForgotPasswordRequest forgotPasswordRequest
     ) throws EmailMessageException {
-        otpService.sendVerificationEmail(forgotPasswordRequest.getEmail());
+        otpService.resendForgotPassword(forgotPasswordRequest.getEmail());
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Verification otp code has been resent to the email");
     }
-
 
     @PostMapping(path = "/verify-email", consumes = "application/json")
     public ResponseEntity<String> verifyEmail(@Validated @RequestBody OtpEmailRequest otpEmailRequest) throws InvalidOtpException {
@@ -86,11 +89,10 @@ public class AuthenticationController {
     @PostMapping(path = "/forgot-password")
     public ResponseEntity<String> forgotPassword(@Validated @RequestBody ForgotPasswordRequest forgotPasswordRequest) throws EmailMessageException {
 
-        otpService.sendVerificationEmail(forgotPasswordRequest.getEmail());
+        otpService.forgotPassword(forgotPasswordRequest.getEmail());
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Verification email is sent");
     }
-
 
     @GetMapping(path = "/verify-email/{uuid}")
     public ResponseEntity verifyEmailWithLink(
@@ -101,6 +103,15 @@ public class AuthenticationController {
         };
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    }
+
+    @PatchMapping(path = "/reset-password/{otpUuid}")
+    public ResponseEntity resetPassword(
+            @PathVariable("otpUuid") String otpUuid,
+            @Validated @RequestBody ResetPasswordRequest resetPasswordRequest
+    ) {
+
+        return ResponseEntity.ok().build();
     }
 
 /** TODO: Configure the generated User if the user chooses the google to authenticate
