@@ -135,6 +135,8 @@ public class EquipmentService {
 
         if(updateEquipmentRequest.getRemark() != null) {
             equipment.setRemark(updateEquipmentRequest.getRemark());
+        } else {
+            equipment.setRemark(Remark.GOOD_CONDITION);
         }
 
         equipment.setAvailable(updateEquipmentRequest.isAvailable());
