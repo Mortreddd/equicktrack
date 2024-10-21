@@ -24,7 +24,6 @@ public class EquipmentDTO {
     private String qrcodeData;
 
     private String qrcodeImage;
-    private String serialNumber;
     private String equipmentImage;
     private Remark remark = Remark.GOOD_CONDITION;
     private boolean available = true;

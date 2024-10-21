@@ -64,11 +64,11 @@ public class AuthenticationController {
     public ResponseEntity<String> createBorrower(@Validated @RequestBody JwtRegisterRequestDTO requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
 //        TODO: Uncomment this line of code after presentation
-//        otpService.sendVerificationEmail(requestUser.getEmail());
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body("Verification otp code has been sent to the email");
+        otpService.sendVerificationEmail(requestUser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(jwtService.generateToken(newUser.getEmail()));
+                .body("Verification otp code has been sent to the email");
+//        return ResponseEntity.status(HttpStatus.CREATED)
+//                .body(jwtService.generateToken(newUser.getEmail()));
     }
 
     @PutMapping(path = "/forgot-password/resend")
@@ -100,7 +100,7 @@ public class AuthenticationController {
     ) throws EmailMessageException, InvalidOtpException {
         if(otpService.verifyById(uuid)) {
             return ResponseEntity.ok().build();
-        };
+        }
 
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
     }

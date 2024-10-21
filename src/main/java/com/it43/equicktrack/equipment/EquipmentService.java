@@ -2,6 +2,7 @@ package com.it43.equicktrack.equipment;
 
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
 import com.it43.equicktrack.exception.ConvertMultipartFileException;
@@ -77,7 +78,6 @@ public class EquipmentService {
                     .available(true)
                     .qrcodeImage(qrcodeDownloadUrl)
                     .description(createEquipmentRequest.getDescription())
-                    .serialNumber(createEquipmentRequest.getSerialNumber())
                     .equipmentImage(equipmentDownloadUrl)
                     .remark(Remark.GOOD_CONDITION)
                     .createdAt(DateUtilities.now())
@@ -129,25 +129,18 @@ public class EquipmentService {
             equipment.setEquipmentImage(newEquipmentImage);
         }
 
-        if(updateEquipmentRequest.getSerialNumber() != null) {
-            equipment.setSerialNumber(updateEquipmentRequest.getSerialNumber());
-        }
-
-        if(updateEquipmentRequest.getRemark() != null) {
-            equipment.setRemark(updateEquipmentRequest.getRemark());
-        } else {
-            equipment.setRemark(Remark.GOOD_CONDITION);
-        }
-
-        equipment.setAvailable(updateEquipmentRequest.isAvailable());
         equipment.setUpdatedAt(DateUtilities.now());
         return equipmentRepository.save(equipment);
     }
 
-
-    public Equipment getBySerialNumber(String serialNumber) {
-        return equipmentRepository.findBySerialNumber(serialNumber)
+    public Equipment updateEquipmentStatus(Long equipmentId, EditInventoryRequest editInventoryRequest) {
+        Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        equipment.setAvailable(editInventoryRequest.isAvailable());
+        equipment.setRemark(editInventoryRequest.getRemark());
+
+        return equipmentRepository.save(equipment);
     }
 
     public String generateQrcode() throws IOException, WriterException {
@@ -180,7 +173,6 @@ public class EquipmentService {
                         _equipment.getDescription(),
                         _equipment.getQrcodeData(),
                         _equipment.getQrcodeImage(),
-                        _equipment.getSerialNumber(),
                         _equipment.getEquipmentImage(),
                         _equipment.getRemark(),
                         _equipment.isAvailable(),

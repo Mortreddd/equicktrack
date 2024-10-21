@@ -47,9 +47,6 @@ public class Equipment {
     @Column(nullable = false)
     private String qrcodeImage;
 
-    @Column(nullable = true)
-    private String serialNumber;
-
     @NotNull(message = "Image of equipment is required")
     @Column(nullable = true)
     @NotBlank

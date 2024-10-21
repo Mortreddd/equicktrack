@@ -86,7 +86,6 @@ public class OtpService {
             throw new InvalidOtpException("Verification is expired");
         }
 
-
         User user = userRepository.findById(otp.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 

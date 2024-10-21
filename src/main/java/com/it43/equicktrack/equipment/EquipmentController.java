@@ -1,8 +1,8 @@
 package com.it43.equicktrack.equipment;
 
-import com.google.api.Http;
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
@@ -93,6 +93,7 @@ public class EquipmentController {
                 .body(transactionService.getTransactionsByEquipment(equipmentId));
     }
 
+//    Modifying the equipment
     @PatchMapping(path = "/{equipmentId}/update")
     public ResponseEntity<Equipment> updateEquipmentById(
             @PathVariable("equipmentId") Long equipmentId,
@@ -102,6 +103,15 @@ public class EquipmentController {
                 .body(equipmentService.updateEquipment(equipmentId, updateEquipmentRequest));
     }
 
+//    Modifying the status of equipment
+    @PatchMapping(path = "/{equipmentId}/update/status")
+    public ResponseEntity<Equipment> updateEquipmentStatusById(
+            @PathVariable("equipmentId") Long equipmentId,
+            @RequestBody EditInventoryRequest editInventoryRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipmentService.updateEquipmentStatus(equipmentId, editInventoryRequest));
+    }
     @DeleteMapping(path = "/{equipmentId}/delete")
     public ResponseEntity deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
         if(equipmentService.deleteEquipmentById(equipmentId)){

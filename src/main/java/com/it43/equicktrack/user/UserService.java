@@ -59,18 +59,6 @@ public class UserService {
             throw new EmailExistsException("Email already exists");
         }
 //        TODO: Uncomment this line of code after presentation
-//        User user = User.builder()
-//                .fullName(_user.getFullName())
-//                .googleUid(null)
-//                .email(_user.getEmail())
-//                .roles(Set.of(userRole))
-//                .contactNumber(_user.getContactNumber())
-//                .password(passwordEncoder.encode(_user.getPassword()))
-//                .emailVerifiedAt(null)
-//                .createdAt(DateUtilities.now())
-//                .build();
-
-
         User user = User.builder()
                 .fullName(_user.getFullName())
                 .googleUid(null)
@@ -78,9 +66,21 @@ public class UserService {
                 .roles(Set.of(userRole))
                 .contactNumber(_user.getContactNumber())
                 .password(passwordEncoder.encode(_user.getPassword()))
-                .emailVerifiedAt(DateUtilities.now())
+                .emailVerifiedAt(null)
                 .createdAt(DateUtilities.now())
                 .build();
+
+
+//        User user = User.builder()
+//                .fullName(_user.getFullName())
+//                .googleUid(null)
+//                .email(_user.getEmail())
+//                .roles(Set.of(userRole))
+//                .contactNumber(_user.getContactNumber())
+//                .password(passwordEncoder.encode(_user.getPassword()))
+//                .emailVerifiedAt(DateUtilities.now())
+//                .createdAt(DateUtilities.now())
+//                .build();
         userRepository.save(user);
         return user;
     }

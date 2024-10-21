@@ -26,6 +26,5 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Cru
 
 
     Optional<Equipment> findByQrcodeData(String qrcode);
-    Optional<Equipment> findBySerialNumber(String serialNumber);
     List<Equipment> findByRemark(Remark remark);
 }
