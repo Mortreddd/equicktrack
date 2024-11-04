@@ -81,7 +81,7 @@ public class TransactionService {
                 .equipment(equipment)
                 .borrowDate(LocalDateTime.parse(createTransactionRequest.getBorrowDate()))
                 .returnDate(LocalDateTime.parse(createTransactionRequest.getReturnDate()))
-                        .remark(Remark.GOOD_CONDITION)
+                        .remark(equipment.getRemark())
                         .notifiedAt(null)
                 .returnedAt(null)
                 .createdAt(DateUtilities.now())
@@ -92,7 +92,7 @@ public class TransactionService {
 
 
 
-    public UserTransactionDTO getTransactionsByUser(Long userId){
+    public List<TransactionDTO> getTransactionsByUser(Long userId){
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -100,25 +100,23 @@ public class TransactionService {
         List<TransactionDTO> transactions = transactionRepository.findAll()
                 .stream()
                 .filter((_transaction) -> Objects.equals(_transaction.getUser(), user))
-                .map((_transaction) -> {
-                    return new TransactionDTO(
-                        _transaction.getId(),
-                        _transaction.getUser(),
-                        _transaction.getEquipment(),
-                        _transaction.getPurpose(),
-                        _transaction.getBorrowDate(),
-                        _transaction.getReturnDate(),
-                        null,
-                        _transaction.getCreatedAt(),
-                        _transaction.getUpdatedAt(),
-                            _transaction.getNotifiedAt(),
-                            _transaction.getRemark(),
-                            _transaction.getConditionImage()
-                    );
-                })
+                .map((_transaction) -> new TransactionDTO(
+                    _transaction.getId(),
+                    _transaction.getUser(),
+                    _transaction.getEquipment(),
+                    _transaction.getPurpose(),
+                    _transaction.getBorrowDate(),
+                    _transaction.getReturnDate(),
+                    null,
+                    _transaction.getCreatedAt(),
+                    _transaction.getUpdatedAt(),
+                        _transaction.getNotifiedAt(),
+                        _transaction.getRemark(),
+                        _transaction.getConditionImage()
+                ))
                 .toList();
 
-        return new UserTransactionDTO(transactions);
+        return transactions;
     }
 
     public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) throws IOException {
@@ -173,9 +171,30 @@ public class TransactionService {
         );
     }
 
-    public Equipment getTransactionsByEquipment(Long equipmentId){
-        return equipmentRepository.findById(equipmentId)
+    public List<TransactionDTO> getTransactionsByEquipment(Long equipmentId){
+        Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        List<TransactionDTO> transactions = equipment.getTransactions()
+                .stream()
+                .map((_transaction) -> new TransactionDTO(
+                        _transaction.getId(),
+                        _transaction.getUser(),
+                        _transaction.getEquipment(),
+                        _transaction.getPurpose(),
+                        _transaction.getBorrowDate(),
+                        _transaction.getReturnDate(),
+                        null,
+                        _transaction.getCreatedAt(),
+                        _transaction.getUpdatedAt(),
+                        _transaction.getNotifiedAt(),
+                        _transaction.getRemark(),
+                        _transaction.getConditionImage()
+                    ))
+                .toList();
+
+        return transactions;
+
     }
 
     public List<TransactionDTO> getOnUsedEquipments() {

@@ -22,7 +22,6 @@ public class EquipmentDTO {
     private String name;
     private String description;
     private String qrcodeData;
-
     private String qrcodeImage;
     private String equipmentImage;
     private Remark remark = Remark.GOOD_CONDITION;

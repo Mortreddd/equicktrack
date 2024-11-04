@@ -1,9 +1,9 @@
 package com.it43.equicktrack.auth;
 
-import com.it43.equicktrack.dto.request.ForgotPasswordRequest;
-import com.it43.equicktrack.dto.request.GoogleAuthenticationRequest;
+import com.it43.equicktrack.dto.request.auth.ForgotPasswordRequest;
 import com.it43.equicktrack.dto.request.OtpEmailRequest;
-import com.it43.equicktrack.dto.request.ResetPasswordRequest;
+import com.it43.equicktrack.dto.request.auth.ResetPasswordRequest;
+import com.it43.equicktrack.dto.request.auth.SmsVerificationRequest;
 import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.InvalidOtpException;
 import com.it43.equicktrack.otp.OtpService;
@@ -11,22 +11,16 @@ import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.user.UserService;
 import com.it43.equicktrack.jwt.JwtService;
-import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-import java.time.LocalDateTime;
 
 @RequestMapping(path = "/api/v1/auth")
 @RestController
@@ -49,6 +43,8 @@ public class AuthenticationController {
                         jwtRequest.getPassword()
                 )
         );
+
+        log.info(jwtRequest.toString());
         
         if(authentication.isAuthenticated()){
             log.info("Logged in: {}", authentication.getDetails());
@@ -64,9 +60,9 @@ public class AuthenticationController {
     public ResponseEntity<String> createBorrower(@Validated @RequestBody JwtRegisterRequestDTO requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
 //        TODO: Uncomment this line of code after presentation
-        otpService.sendVerificationEmail(requestUser.getEmail());
+        otpService.sendEmailVerification(requestUser.getEmail());
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Verification otp code has been sent to the email");
+                .body("Email verification has been sent");
 //        return ResponseEntity.status(HttpStatus.CREATED)
 //                .body(jwtService.generateToken(newUser.getEmail()));
     }
@@ -112,6 +108,15 @@ public class AuthenticationController {
     ) {
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/verify-phone", consumes = {"application/json"})
+    public ResponseEntity<String> verifyPhone(
+            @Validated @RequestBody SmsVerificationRequest smsVerificationRequest
+    ) {
+        otpService.sendSmsVerification(smsVerificationRequest.getPhone());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body("Sms has been sent");
     }
 
 /** TODO: Configure the generated User if the user chooses the google to authenticate

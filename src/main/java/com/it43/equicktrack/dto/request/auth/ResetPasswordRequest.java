@@ -1,4 +1,4 @@
-package com.it43.equicktrack.dto.request;
+package com.it43.equicktrack.dto.request.auth;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -7,11 +7,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResendForgotPasswordRequest {
+@Builder
+public class ResetPasswordRequest {
 
     @NotNull
-    private String email;
+    private String password;
+
+    @NotNull
+    private String confirmPassword;
 }

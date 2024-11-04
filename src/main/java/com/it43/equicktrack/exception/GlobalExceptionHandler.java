@@ -1,6 +1,8 @@
 package com.it43.equicktrack.exception;
 
 import com.google.zxing.WriterException;
+import com.it43.equicktrack.dto.response.ErrorResponse;
+import com.vonage.client.messages.MessageResponseException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.AllArgsConstructor;
@@ -186,7 +188,23 @@ public class GlobalExceptionHandler {
                 emailNotVerifiedException.getMessage(),
                 webRequest.getDescription(false)
         );
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(errorDetails);
+    }
+
+    @ExceptionHandler(MessageResponseException.class)
+    public ResponseEntity<?> messageResponseException(
+            MessageResponseException messageResponseException,
+            WebRequest webRequest
+    ) {
+        ErrorDetails errorDetails = new ErrorDetails(
+                new Date(),
+                messageResponseException.getMessage(),
+                webRequest.getDescription(false)
+        );
+
+        return ResponseEntity.status(messageResponseException.getStatusCode())
+                .body(errorDetails);
     }
 
     @Data

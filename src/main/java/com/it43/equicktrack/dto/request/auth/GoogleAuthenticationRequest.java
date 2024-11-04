@@ -1,4 +1,4 @@
-package com.it43.equicktrack.dto.request;
+package com.it43.equicktrack.dto.request.auth;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

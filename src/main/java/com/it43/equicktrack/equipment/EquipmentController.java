@@ -5,6 +5,7 @@ import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
 import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
+import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.exception.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.QuickResponseCode;
@@ -88,7 +89,7 @@ public class EquipmentController {
     }
 
     @GetMapping(path = "/{equipmentId}/transactions")
-    public ResponseEntity<Equipment> getTransactionsByEquipment(@PathVariable("equipmentId") Long equipmentId){
+    public ResponseEntity<List<TransactionDTO>> getTransactionsByEquipment(@PathVariable("equipmentId") Long equipmentId){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.getTransactionsByEquipment(equipmentId));
     }
