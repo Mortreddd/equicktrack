@@ -2,7 +2,7 @@ package com.it43.equicktrack.otp;
 
 import com.it43.equicktrack.email.EmailService;
 import com.it43.equicktrack.exception.EmailMessageException;
-import com.it43.equicktrack.exception.InvalidOtpException;
+import com.it43.equicktrack.exception.auth.InvalidOtpException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.sms.SmsService;
 import com.it43.equicktrack.user.User;
@@ -89,7 +89,7 @@ public class OtpService {
         Otp otp = otpRepository.findById(otpUuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Otp not found"));
 
-        if(DateUtilities.isLate(otp.getCreatedAt())) {
+        if(DateUtilities.isExpired(otp.getCreatedAt())) {
             throw new InvalidOtpException("Verification is expired");
         }
 

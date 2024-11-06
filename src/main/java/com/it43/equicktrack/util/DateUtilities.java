@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 public class DateUtilities {
 
     public static boolean isLate(LocalDateTime localDateTime){
-        return now().isAfter(localDateTime.plusMinutes(Constant.LATE_RETURN_MINUTES));
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
     public static boolean isPast(LocalDateTime localDateTime){
@@ -23,6 +23,10 @@ public class DateUtilities {
     public static LocalDateTime now() {
         ZoneId manilaZoneId = ZoneId.of("Asia/Manila");
         return LocalDateTime.now(manilaZoneId);
+    }
+
+    public static boolean isExpired(LocalDateTime localDateTime) {
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
 }

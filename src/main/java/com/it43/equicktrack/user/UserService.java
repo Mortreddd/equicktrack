@@ -1,10 +1,11 @@
 package com.it43.equicktrack.user;
 
-import com.it43.equicktrack.auth.JwtRegisterRequestDTO;
+import com.it43.equicktrack.dto.auth.JwtRegisterRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UpdateUserDTO;
-import com.it43.equicktrack.exception.EmailExistsException;
+import com.it43.equicktrack.exception.auth.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.sms.SmsService;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TransactionRepository transactionRepository;
+    private final SmsService smsService;
 
     public Page<User> getUsers(String search, int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -51,7 +53,7 @@ public class UserService {
         return userRepository.findByGoogleUid(_uuid);
     }
 
-    public User createUser(JwtRegisterRequestDTO _user) throws Exception{
+    public User createUser(JwtRegisterRequest _user) throws Exception{
         Role userRole = roleRepository.findById(_user.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role user not found"));
 
@@ -67,9 +69,9 @@ public class UserService {
                 .contactNumber(_user.getContactNumber())
                 .password(passwordEncoder.encode(_user.getPassword()))
                 .emailVerifiedAt(null)
+                .contactNumberVerifiedAt(null)
                 .createdAt(DateUtilities.now())
                 .build();
-
 
 //        User user = User.builder()
 //                .fullName(_user.getFullName())
@@ -121,7 +123,5 @@ public class UserService {
                 .toList();
         return transactions;
     }
-
-
 
 }

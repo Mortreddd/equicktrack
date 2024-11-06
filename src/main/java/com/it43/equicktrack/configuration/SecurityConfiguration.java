@@ -46,7 +46,7 @@ public class SecurityConfiguration {
                 )
                 .authenticationProvider(applicationConfiguration.authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(verifiedEmailFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(verifiedEmailFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

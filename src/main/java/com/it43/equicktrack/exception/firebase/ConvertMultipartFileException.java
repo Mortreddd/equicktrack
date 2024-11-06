@@ -1,4 +1,4 @@
-package com.it43.equicktrack.exception;
+package com.it43.equicktrack.exception.firebase;
 
 import java.io.IOException;
 

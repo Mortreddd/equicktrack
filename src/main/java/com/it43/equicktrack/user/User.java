@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.transaction.Transaction;
+import com.it43.equicktrack.validations.ContactNumber;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -66,6 +67,10 @@ public class User implements UserDetails{
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime emailVerifiedAt = null;
+
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime contactNumberVerifiedAt = null;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

@@ -6,7 +6,9 @@ import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
-import com.it43.equicktrack.exception.FirebaseFileUploadException;
+import com.it43.equicktrack.exception.EmailMessageException;
+import com.it43.equicktrack.exception.auth.EmailExistsException;
+import com.it43.equicktrack.exception.firebase.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +44,7 @@ public class EquipmentController {
             @RequestParam(name = "search", required = false, defaultValue = "") String search,
             @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-
-    ){
+    ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(equipmentService.getEquipments(search, pageNo, pageSize));
     }

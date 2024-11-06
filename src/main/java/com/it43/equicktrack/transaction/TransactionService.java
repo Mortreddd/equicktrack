@@ -3,12 +3,10 @@ package com.it43.equicktrack.transaction;
 import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
-import com.it43.equicktrack.dto.user.UserTransactionDTO;
 import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.EquipmentRepository;
-import com.it43.equicktrack.equipment.Remark;
-import com.it43.equicktrack.exception.AlreadyExistsException;
-import com.it43.equicktrack.exception.EquipmentNotAvailableException;
+import com.it43.equicktrack.exception.transaction.TransactionAlreadyExistsException;
+import com.it43.equicktrack.exception.equipment.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
@@ -133,7 +131,7 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
 
         if(transaction.getReturnedAt() != null) {
-            throw new AlreadyExistsException("The equipment is already returned");
+            throw new TransactionAlreadyExistsException("The equipment is already returned");
         }
 
         User userReturnee = userRepository.findById(createReturnTransactionRequest.getUserId())

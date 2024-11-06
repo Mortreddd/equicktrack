@@ -1,7 +1,6 @@
-package com.it43.equicktrack.auth;
+package com.it43.equicktrack.dto.auth;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JwtLoginRequestDTO {
+public class JwtLoginRequest {
     @NotNull
     @Email
     private String email;

@@ -34,4 +34,36 @@ public class SmsService {
 
         log.info("Sms Status ", response.getMessages().getFirst().getStatus());
     }
+
+    public boolean isValidContactNumber(String contactNumber) {
+        if(contactNumber.isEmpty() || contactNumber.isBlank()) {
+            return false;
+        }
+
+        if(contactNumber.length() != 11) {
+            return false;
+        }
+
+        if(!contactNumber.startsWith("0")) {
+            return false;
+        }
+        return true;
+    }
+
+    public String parseContactNumber(String contactNumber) {
+
+        String newContactNumber;
+
+        if(!isValidContactNumber(contactNumber)) {
+            return null;
+        }
+
+        if(!contactNumber.startsWith("0")) {
+            return null;
+        }
+
+        newContactNumber = contactNumber.replaceFirst("[^1-9]", "63");
+
+        return newContactNumber;
+    }
 }

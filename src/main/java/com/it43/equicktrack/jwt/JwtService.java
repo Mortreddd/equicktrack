@@ -1,5 +1,6 @@
 package com.it43.equicktrack.jwt;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -15,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import static com.it43.equicktrack.util.Constant.JWT_EXPIRATION_TIME;
+
 @Component
 public class JwtService {
 
@@ -22,8 +25,6 @@ public class JwtService {
     private String secretKey;
 
 //    private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-
-    private static final long EXPIRATION_TIME = 604800000L; // 7 days
 
     public String generateToken(String username){
         Map<String, Object> claims = new HashMap<>();
@@ -36,7 +37,7 @@ public class JwtService {
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME)) // Fix expiration time
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME)) // Fix expiration time
                 .signWith(getSignKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
@@ -73,8 +74,9 @@ public class JwtService {
         return extractExpiration(token).before(new Date());
     }
 
-    public boolean validateToken(String token, UserDetails userDetails){
+    public boolean validateToken(String token, UserDetails userDetails) throws ExpiredJwtException {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+        return username.equals(userDetails.getUsername());
     }
+
 }

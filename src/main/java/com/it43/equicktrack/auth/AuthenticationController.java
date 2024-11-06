@@ -1,16 +1,20 @@
 package com.it43.equicktrack.auth;
 
+import com.it43.equicktrack.dto.auth.JwtLoginRequest;
+import com.it43.equicktrack.dto.auth.JwtRegisterRequest;
+import com.it43.equicktrack.dto.auth.JwtToken;
 import com.it43.equicktrack.dto.request.auth.ForgotPasswordRequest;
 import com.it43.equicktrack.dto.request.OtpEmailRequest;
 import com.it43.equicktrack.dto.request.auth.ResetPasswordRequest;
 import com.it43.equicktrack.dto.request.auth.SmsVerificationRequest;
 import com.it43.equicktrack.exception.EmailMessageException;
-import com.it43.equicktrack.exception.InvalidOtpException;
+import com.it43.equicktrack.exception.auth.InvalidOtpException;
 import com.it43.equicktrack.otp.OtpService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.user.UserService;
 import com.it43.equicktrack.jwt.JwtService;
+import com.it43.equicktrack.util.Constant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -18,9 +22,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Date;
+
+import static com.it43.equicktrack.util.Constant.JWT_EXPIRATION_TIME;
 
 @RequestMapping(path = "/api/v1/auth")
 @RestController
@@ -35,7 +44,7 @@ public class AuthenticationController {
     private final OtpService otpService;
 
     @PostMapping(path = "/login", consumes = {"application/json"})
-    public ResponseEntity<String> authenticateAndGenerateToken(@Validated @RequestBody JwtLoginRequestDTO jwtRequest){
+    public ResponseEntity<JwtToken> authenticateAndGenerateToken(@Validated @RequestBody JwtLoginRequest jwtRequest){
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -47,8 +56,18 @@ public class AuthenticationController {
         log.info(jwtRequest.toString());
         
         if(authentication.isAuthenticated()){
-            log.info("Logged in: {}", authentication.getDetails());
-            return ResponseEntity.ok(jwtService.generateToken(jwtRequest.getEmail()));
+            String accessToken = jwtService.generateToken(jwtRequest.getEmail());
+
+            JwtToken jwtToken = JwtToken
+                    .builder()
+                    .accessToken(accessToken)
+                    .iat(new Date(System.currentTimeMillis()).getTime())
+                    .iss(Constant.BASE_URL)
+                    .exp(new Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME).getTime())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(jwtToken);
         }
         else {
             log.error("Login failed: {}", authentication.getDetails());
@@ -57,14 +76,19 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/register", consumes = {"application/json", "application/x-www-form-urlencoded"})
-    public ResponseEntity<String> createBorrower(@Validated @RequestBody JwtRegisterRequestDTO requestUser) throws Exception {
+    public ResponseEntity<JwtToken> createBorrower(@Validated @RequestBody JwtRegisterRequest requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
-//        TODO: Uncomment this line of code after presentation
         otpService.sendEmailVerification(requestUser.getEmail());
+        String accessToken = jwtService.generateToken(newUser.getEmail());
+        JwtToken jwtToken = JwtToken.builder()
+                .iss(Constant.BASE_URL)
+                .iat(new Date(System.currentTimeMillis()).getTime())
+                .exp(new Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME).getTime())
+                .accessToken(accessToken)
+                .build();
+
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body("Email verification has been sent");
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body(jwtService.generateToken(newUser.getEmail()));
+                .body(jwtToken);
     }
 
     @PutMapping(path = "/forgot-password/resend")
@@ -117,6 +141,14 @@ public class AuthenticationController {
         otpService.sendSmsVerification(smsVerificationRequest.getPhone());
         return ResponseEntity.status(HttpStatus.OK)
                 .body("Sms has been sent");
+    }
+
+
+    @GetMapping(path = "/me")
+    public ResponseEntity<Object> verifyJwtToken() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
     }
 
 /** TODO: Configure the generated User if the user chooses the google to authenticate
