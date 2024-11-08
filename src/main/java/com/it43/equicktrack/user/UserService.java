@@ -5,7 +5,7 @@ import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UpdateUserDTO;
 import com.it43.equicktrack.exception.auth.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
-import com.it43.equicktrack.sms.SmsService;
+import com.it43.equicktrack.contact.ContactService;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TransactionRepository transactionRepository;
-    private final SmsService smsService;
+    private final ContactService contactService;
 
     public Page<User> getUsers(String search, int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);

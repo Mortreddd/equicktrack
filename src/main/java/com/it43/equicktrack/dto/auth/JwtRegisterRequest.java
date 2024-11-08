@@ -25,7 +25,7 @@ public class JwtRegisterRequest {
     @Size(min = 8, message = "Password must have 8 characters")
     private String password;
 
-    @ContactNumber(min = 11)
+    @ContactNumber
     private String contactNumber;
 
     private Integer roleId = 3;

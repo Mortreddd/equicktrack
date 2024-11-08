@@ -1,7 +1,7 @@
-package com.it43.equicktrack.email;
+package com.it43.equicktrack.contact;
 
-import com.it43.equicktrack.exception.auth.EmailNotVerifiedException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.exception.auth.ContactNumberNotVerifiedException;
 import com.it43.equicktrack.jwt.JwtService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
@@ -11,21 +11,20 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
 @RequiredArgsConstructor
-@Lazy
-public class VerifiedEmailFilter extends OncePerRequestFilter {
+public class ContactVerifiedFilter extends OncePerRequestFilter {
 
-    private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final UserRepository userRepository;
 
     @Override
     protected void doFilterInternal(
@@ -40,7 +39,6 @@ public class VerifiedEmailFilter extends OncePerRequestFilter {
                 "/api/v1/auth/verify-phone",
                 "/api/v1/auth/verify-email/{uuid}"
         );
-
         for(String path : allowedPaths) {
             if (requestPath.startsWith(path)) {
                 filterChain.doFilter(request, response);
@@ -60,20 +58,20 @@ public class VerifiedEmailFilter extends OncePerRequestFilter {
 
                     // Check if email is verified
                     if (user.getEmailVerifiedAt() == null) {
-                        throw new EmailNotVerifiedException("User's email is not verified");
+                        throw new ContactNumberNotVerifiedException("User's email is not verified");
                     }
                 }
             }
 
             filterChain.doFilter(request, response);
-        } catch (EmailNotVerifiedException ex) {
+        } catch (ContactNumberNotVerifiedException ex) {
             handleException(response, ex);
         }
     }
 
-    private void handleException(HttpServletResponse response, EmailNotVerifiedException ex) throws IOException {
+    private void handleException(HttpServletResponse response, ContactNumberNotVerifiedException ex) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
-        response.getWriter().write("{\"details\": \"" + ex.getMessage() + "\", \"message\": \"Email not verified\"}");
+        response.getWriter().write("{\"details\": \"" + ex.getMessage() + "\", \"message\": \"Contact Number not verified\"}");
     }
 }

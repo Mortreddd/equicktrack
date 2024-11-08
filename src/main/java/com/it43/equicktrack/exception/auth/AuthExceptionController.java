@@ -17,8 +17,8 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EmailExistsException.class)
     public ResponseEntity<Object> emailAlreadyExists(EmailExistsException exception, WebRequest request) {
         ErrorDetails details = ErrorDetails.builder()
-                .message(request.getDescription(false))
-                .details(exception.getMessage())
+                .details(request.getDescription(false))
+                .message(exception.getMessage())
                 .date(new Date())
                 .build();
 
@@ -31,8 +31,8 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidOtpException.class)
     protected ResponseEntity<Object> invalidOtp(InvalidOtpException exception, WebRequest request) {
         ErrorDetails details = ErrorDetails.builder()
-                .message(request.getDescription(false))
-                .details(exception.getMessage())
+                .details(request.getDescription(false))
+                .message(exception.getMessage())
                 .date(new Date())
                 .build();
 
@@ -45,8 +45,8 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<Object> emailNotVerified(EmailNotVerifiedException exception, WebRequest request) {
         ErrorDetails details = ErrorDetails.builder()
-                .message(request.getDescription(false))
-                .details(exception.getMessage())
+                .details(request.getDescription(false))
+                .message(exception.getMessage())
                 .date(new Date())
                 .build();
 
@@ -68,5 +68,20 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
 //        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
 //                .body(details);
         return new ResponseEntity<>(details, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
+    @ExceptionHandler(ContactNumberNotVerifiedException.class)
+    public ResponseEntity<Object> contactNumberNotVerified(
+            ContactNumberNotVerifiedException exception,
+            WebRequest request) {
+        ErrorDetails details = ErrorDetails
+                .builder()
+                .details(request.getDescription(false))
+                .date(new Date())
+                .message(exception.getMessage())
+                .build();
+
+
+        return new ResponseEntity<>(details, HttpStatus.UNAUTHORIZED);
     }
 }

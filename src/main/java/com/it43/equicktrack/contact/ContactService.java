@@ -1,4 +1,4 @@
-package com.it43.equicktrack.sms;
+package com.it43.equicktrack.contact;
 
 import com.it43.equicktrack.util.Constant;
 import com.vonage.client.VonageClient;
@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SmsService {
+public class ContactService {
 
     private final VonageClient client;
 
@@ -43,8 +43,9 @@ public class SmsService {
         if(contactNumber.length() != 11) {
             return false;
         }
-
-        if(!contactNumber.startsWith("0")) {
+        char zero = '0';
+        boolean isValid = contactNumber.charAt(0) == zero;
+        if(!isValid) {
             return false;
         }
         return true;

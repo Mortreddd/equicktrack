@@ -37,8 +37,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ){
         ErrorDetails details = new ErrorDetails(
                 new Date(),
-                invalidOtpException.getMessage(),
-                webRequest.getDescription(false)
+                webRequest.getDescription(false),
+                invalidOtpException.getMessage()
         );
 
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorDetails);
@@ -52,8 +52,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ){
         ErrorDetails details = new ErrorDetails(
                 new Date(),
-                fileNotFoundException.getMessage(),
-                webRequest.getDescription(false)
+                webRequest.getDescription(false),
+                fileNotFoundException.getMessage()
         );
 //        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorDetails);
         return new ResponseEntity<>(details, HttpStatus.NOT_FOUND);
@@ -66,8 +66,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         ErrorDetails details = new ErrorDetails(
                 new Date(),
-                messageResponseException.getMessage(),
-                webRequest.getDescription(false)
+                webRequest.getDescription(false),
+                messageResponseException.getMessage()
         );
 
 //        return ResponseEntity.status(messageResponseException.getStatusCode())

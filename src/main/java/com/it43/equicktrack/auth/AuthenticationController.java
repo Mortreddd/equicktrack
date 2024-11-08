@@ -4,9 +4,10 @@ import com.it43.equicktrack.dto.auth.JwtLoginRequest;
 import com.it43.equicktrack.dto.auth.JwtRegisterRequest;
 import com.it43.equicktrack.dto.auth.JwtToken;
 import com.it43.equicktrack.dto.request.auth.ForgotPasswordRequest;
-import com.it43.equicktrack.dto.request.OtpEmailRequest;
+import com.it43.equicktrack.dto.request.VerifyEmailRequest;
 import com.it43.equicktrack.dto.request.auth.ResetPasswordRequest;
 import com.it43.equicktrack.dto.request.auth.SmsVerificationRequest;
+import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.auth.InvalidOtpException;
 import com.it43.equicktrack.otp.OtpService;
@@ -101,10 +102,26 @@ public class AuthenticationController {
     }
 
     @PostMapping(path = "/verify-email", consumes = "application/json")
-    public ResponseEntity<String> verifyEmail(@Validated @RequestBody OtpEmailRequest otpEmailRequest) throws InvalidOtpException {
-        String email = otpService.verifyEmailByCode(otpEmailRequest.getCode());
-        return ResponseEntity.ok().body(jwtService.generateToken(email));
+    public ResponseEntity<Response> verifyEmail(@Validated @RequestBody VerifyEmailRequest verifyEmailRequest) throws InvalidOtpException, EmailMessageException {
+        otpService.sendChangeEmailVerification(verifyEmailRequest.getOldEmail(), verifyEmailRequest.getNewEmail());
+        return ResponseEntity.ok()
+                .body(Response.builder()
+                        .code(200)
+                        .message(String.format("Email verification %s has been sent", verifyEmailRequest.getNewEmail()))
+                        .build()
+                );
     }
+
+//    @PutMapping(path = "/verify-email/change")
+//    public ResponseEntity<Response> changeVerifyEmail(@Validated @RequestBody VerifyEmailRequest verifyEmailRequest) throws InvalidOtpException, EmailMessageException {
+//        otpService.sendEmailVerification(verifyEmailRequest.getEmail());
+//        return ResponseEntity.ok()
+//                .body(Response.builder()
+//                        .code(200)
+//                        .message(String.format("Email verification %s has been sent", verifyEmailRequest.getEmail()))
+//                        .build()
+//                );
+//    }
 
     @PostMapping(path = "/forgot-password")
     public ResponseEntity<String> forgotPassword(@Validated @RequestBody ForgotPasswordRequest forgotPasswordRequest) throws EmailMessageException {
@@ -115,14 +132,16 @@ public class AuthenticationController {
     }
 
     @GetMapping(path = "/verify-email/{uuid}")
-    public ResponseEntity verifyEmailWithLink(
+    public ResponseEntity<Response> verifyEmailWithLink(
             @PathVariable("uuid") String uuid
-    ) throws EmailMessageException, InvalidOtpException {
-        if(otpService.verifyById(uuid)) {
-            return ResponseEntity.ok().build();
-        }
-
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    ) throws EmailMessageException {
+        otpService.verifyByUuid(uuid);
+        return ResponseEntity.ok()
+                .body(Response.builder()
+                        .code(200)
+                        .message("Successfully verified")
+                        .build()
+                );
     }
 
     @PatchMapping(path = "/reset-password/{otpUuid}")
