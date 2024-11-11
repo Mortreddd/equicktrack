@@ -1,5 +1,6 @@
 package com.it43.equicktrack.otp;
 
+import com.it43.equicktrack.dto.request.auth.ResetPasswordRequest;
 import com.it43.equicktrack.email.EmailService;
 import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.auth.InvalidOtpException;
@@ -13,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -27,37 +25,53 @@ public class OtpService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final ContactService contactService;
-//    returns email
-    public String verifyEmailByCode(String code) throws InvalidOtpException{
-        log.debug(code);
-        Otp emailOtp = otpRepository.findByCode(code).
-                orElseThrow(() -> new ResourceNotFoundException("Otp code not found"));
 
-        if(DateUtilities.isLate(emailOtp.getUpdatedAt())) {
-            throw new InvalidOtpException("Otp is expired");
-        }
-
-        User user = userRepository.findById(emailOtp.getUserId())
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-        user.setEmailVerifiedAt(DateUtilities.now());
-        userRepository.save(user);
-        otpRepository.delete(emailOtp);
-        return user.getEmail();
-    }
-
-//    public String verifyEmail(String email) {
-//        User user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new ResourceNotFoundException(String.format("User with email %s is not found", email)));
-//
-//
-//    }
-
-    public void sendSmsVerification(String phone) {
+    public void sendSmsVerification(Long userId, String phone) {
         final String OTP_CODE = generateRandomOtpCode();
         final String RANDOM_ID = UUID.randomUUID().toString();
 
-        contactService.sendVerificationCode(phone, OTP_CODE);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("User %s not found", userId.toString())
+                ));
+
+        otpRepository.findByUserId(userId).ifPresent(otpRepository::delete);
+
+        Otp otp = otpRepository.save(
+                Otp.builder()
+                .id(RANDOM_ID)
+                .contactNumber(phone)
+                .email(null)
+                .userId(userId)
+                .code(OTP_CODE)
+                .createdAt(DateUtilities.now())
+                .updatedAt(DateUtilities.now())
+                .build()
+        );
+
+        otpRepository.save(otp);
+
+//        contactService.sendVerificationCode(contactService.parseContactNumber(phone), otp.getCode());
+    }
+
+    public void verifyPhoneByOtp(String otpCode) {
+
+        Otp otp = otpRepository.findByCode(otpCode)
+                .orElseThrow(() -> new ResourceNotFoundException("Otp code is invalid"));
+
+        User user = userRepository.findById(otp.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s is not found", otp.getUserId().toString())));
+
+        if(DateUtilities.isLate(otp.getCreatedAt())) {
+            throw new InvalidOtpException("Otp code is expired");
+        }
+
+        user.setContactNumber(otp.getContactNumber());
+        user.setContactNumberVerifiedAt(DateUtilities.now());
+        user.setUpdatedAt(DateUtilities.now());
+        userRepository.save(user);
+        otpRepository.delete(otp);
+
     }
 
     public void sendEmailVerification(String email) throws EmailMessageException {
@@ -80,7 +94,7 @@ public class OtpService {
                 .build();
 
         otpRepository.save(newOtp);
-        emailService.sendVerifyEmail(email, OTP_CODE, newOtp.getId());
+        emailService.sendVerifyEmail(email, newOtp.getId());
     }
 
     public void sendChangeEmailVerification(String oldEmail, String newEmail) throws EmailMessageException {
@@ -108,7 +122,7 @@ public class OtpService {
                 .build()
         );
 
-        emailService.sendVerifyEmail(newEmail, OTP_CODE, newOtp.getId());
+        emailService.sendVerifyEmail(newEmail, newOtp.getId());
     }
 
     public void verifyByUuid(String otpUuid) throws InvalidOtpException {
@@ -134,11 +148,14 @@ public class OtpService {
     }
 
     public void forgotPassword(String email) throws EmailMessageException {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s doesn't match our credentials", email)));
+
         final String OTP_CODE = generateRandomOtpCode();
         final String RANDOM_ID = UUID.randomUUID().toString();
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        otpRepository.findByUserId(user.getId()).ifPresent(otpRepository::delete);
 
         Otp otp = Otp.builder()
                 .id(RANDOM_ID)
@@ -151,20 +168,27 @@ public class OtpService {
                 .build();
 
         otpRepository.save(otp);
-        emailService.sendResetPassword(email, OTP_CODE, otp.getId());
+        emailService.sendResetPassword(email, otp.getId());
     }
 
-    public void resendForgotPassword(String email) throws EmailMessageException {
-        final String OTP_CODE = generateRandomOtpCode();
-        final String RANDOM_ID = UUID.randomUUID().toString();
+    public void verifyForgotPasswordByUuid(String uuid) {
+        Otp otp = otpRepository.findById(uuid)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid otp url"));
+
+        if(DateUtilities.isLate(otp.getCreatedAt())) {
+            throw new InvalidOtpException("Reset password url is expired");
+        }
+    }
+
+    public void sendForgotPassword(String email) throws EmailMessageException {
 
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(String.format("User %s doesn't match credentials", email)));
 
-        Otp otp = otpRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("User did not request a otp"));
+        otpRepository.findByUserId(user.getId()).ifPresent(otpRepository::delete);
 
-        otpRepository.delete(otp);
+        final String OTP_CODE = generateRandomOtpCode();
+        final String RANDOM_ID = UUID.randomUUID().toString();
 
         Otp newOtp = Otp.builder()
                 .id(RANDOM_ID)
@@ -176,40 +200,23 @@ public class OtpService {
                 .updatedAt(DateUtilities.now())
                 .build();
 
-
         otpRepository.save(newOtp);
-        emailService.sendResetPassword(email, OTP_CODE, newOtp.getId());
+        emailService.sendResetPassword(email, newOtp.getId());
     }
 
-
-    public boolean resetPassword(String otpUuid, String password) {
+    public void resetPassword(String otpUuid, ResetPasswordRequest resetPasswordRequest) {
         Otp otp = otpRepository.findById(otpUuid)
-                .orElseThrow(() -> new ResourceNotFoundException("Otp not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Otp is invalid"));
 
         User user = userRepository.findById(otp.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        user.setPassword(new BCryptPasswordEncoder().encode(password));
+        user.setPassword(new BCryptPasswordEncoder().encode(resetPasswordRequest.getPassword()));
         user.setUpdatedAt(DateUtilities.now());
+        userRepository.save(user);
         otpRepository.delete(otp);
-
-        return true;
     }
 
-
-    public boolean isValidCode(String code) {
-        return otpRepository.codeExists(code);
-    }
-
-
-    public List<Otp> getOtps() {
-        return otpRepository.findAll();
-    }
-
-
-    public void deleteAll(List<Otp> otps) {
-        otpRepository.deleteAll(otps);
-    }
 
 //    Generate a 6 digit code ex: 342130
     public String generateRandomOtpCode() {

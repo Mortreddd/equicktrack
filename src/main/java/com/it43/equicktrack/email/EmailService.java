@@ -20,11 +20,10 @@ public class EmailService {
     private String frontendUrl;
 
 
-    public void sendVerifyEmail(String email, String otpCode, String uuid) throws EmailMessageException {
+    public void sendVerifyEmail(String email, String uuid) throws EmailMessageException {
         Context context = new Context();
-        String uuidUrl = frontendUrl + "/auth/verify-email/" + uuid;
-        context.setVariable("uuidUrl", uuidUrl);
-        context.setVariable("otpCode", otpCode);
+        String resetPasswordUrl = String.format("%s/auth/verify-email/%s", frontendUrl, uuid);
+        context.setVariable("resetPasswordUrl", resetPasswordUrl);
         String process = templateEngine.process("email-verification", context);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
@@ -39,11 +38,10 @@ public class EmailService {
         }
     }
 
-    public void sendResetPassword(String email, String otpCode, String uuid) throws EmailMessageException {
+    public void sendResetPassword(String email, String uuid) throws EmailMessageException {
         Context context = new Context();
-        String resetUrl = frontendUrl + "/auth/reset-password/" + uuid;
-        context.setVariable("resetUrl", resetUrl);
-        context.setVariable("otpCode", otpCode);
+        String resetPasswordUrl = frontendUrl + "/auth/forgot-password/" + uuid;
+        context.setVariable("resetPasswordUrl", resetPasswordUrl);
         String process = templateEngine.process("reset-password", context);
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 

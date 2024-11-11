@@ -43,12 +43,8 @@ public class ContactService {
         if(contactNumber.length() != 11) {
             return false;
         }
-        char zero = '0';
-        boolean isValid = contactNumber.charAt(0) == zero;
-        if(!isValid) {
-            return false;
-        }
-        return true;
+
+        return contactNumber.startsWith("09");
     }
 
     public String parseContactNumber(String contactNumber) {
@@ -59,7 +55,7 @@ public class ContactService {
             return null;
         }
 
-        if(!contactNumber.startsWith("0")) {
+        if(!contactNumber.startsWith("09")) {
             return null;
         }
 

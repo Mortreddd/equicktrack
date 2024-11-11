@@ -37,7 +37,12 @@ public class ContactVerifiedFilter extends OncePerRequestFilter {
                 "/api/v1/auth/me",
                 "/api/v1/auth/verify-email",
                 "/api/v1/auth/verify-phone",
-                "/api/v1/auth/verify-email/{uuid}"
+                "/api/v1/auth/verify-otp",
+                "/api/v1/auth/verify-email/{uuid}",
+                "/api/v1/auth/forgot-password",
+                "/api/v1/auth/forgot-password/{uuid}",
+                "/api/v1/auth/reset-password",
+                "/api/v1/auth/reset-password/{uuid}"
         );
         for(String path : allowedPaths) {
             if (requestPath.startsWith(path)) {
@@ -58,7 +63,7 @@ public class ContactVerifiedFilter extends OncePerRequestFilter {
 
                     // Check if email is verified
                     if (user.getEmailVerifiedAt() == null) {
-                        throw new ContactNumberNotVerifiedException("User's email is not verified");
+                        throw new ContactNumberNotVerifiedException("User's contact number is not verified");
                     }
                 }
             }

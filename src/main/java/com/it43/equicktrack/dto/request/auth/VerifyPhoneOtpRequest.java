@@ -7,14 +7,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ResetPasswordRequest {
+@Data
+public class VerifyPhoneOtpRequest {
 
     @NotNull
     @NotBlank
-    private String password;
-
+    private String otpCode;
 }

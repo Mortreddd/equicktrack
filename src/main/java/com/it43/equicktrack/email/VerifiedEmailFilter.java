@@ -38,7 +38,12 @@ public class VerifiedEmailFilter extends OncePerRequestFilter {
                 "/api/v1/auth/me",
                 "/api/v1/auth/verify-email",
                 "/api/v1/auth/verify-phone",
-                "/api/v1/auth/verify-email/{uuid}"
+                "/api/v1/auth/verify-otp",
+                "/api/v1/auth/verify-email/{uuid}",
+                "/api/v1/auth/forgot-password",
+                "/api/v1/auth/forgot-password/{uuid}",
+                "/api/v1/auth/reset-password",
+                "/api/v1/auth/reset-password/{uuid}"
         );
 
         for(String path : allowedPaths) {

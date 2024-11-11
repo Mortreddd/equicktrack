@@ -5,6 +5,7 @@ import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
 import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
+import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.auth.EmailExistsException;
@@ -115,9 +116,14 @@ public class EquipmentController {
                 .body(equipmentService.updateEquipmentStatus(equipmentId, editInventoryRequest));
     }
     @DeleteMapping(path = "/{equipmentId}/delete")
-    public ResponseEntity deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
+    public ResponseEntity<Response> deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
         if(equipmentService.deleteEquipmentById(equipmentId)){
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Response.builder()
+                            .code(200)
+                            .message("Successfully deleted equipment")
+                            .build()
+                    );
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
