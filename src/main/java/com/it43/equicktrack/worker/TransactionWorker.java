@@ -25,16 +25,19 @@ public class TransactionWorker {
     private final TransactionRepository transactionRepository;
     private static final long TEST_TIME_CHECK = 5_000L;
 
-    @Scheduled(fixedRate = TEST_TIME_CHECK)
+//    @Scheduled(fixedRate = TEST_TIME_CHECK)
 //    @Scheduled(fixedRate = Constant.TIME_CHECK)
     public void checkLateReturnEquipments(){
         List<Transaction> lateReturnees = transactionRepository.findAll()
                 .stream()
-                .filter(transaction -> DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() == null)
+                .filter(transaction ->
+                        DateUtilities.isLate(transaction.getReturnDate()) &&
+                                transaction.getReturnedAt() == null &&
+                        transaction.getNotifiedAt() == null)
                 .toList();
 
         log.info("Executed at {}", DateUtilities.now());
-        // TODO : block code of push notification for the mobile application
+
 
 
     }

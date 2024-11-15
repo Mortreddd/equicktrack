@@ -51,7 +51,7 @@ public class OtpService {
 
         otpRepository.save(otp);
 
-//        contactService.sendVerificationCode(contactService.parseContactNumber(phone), otp.getCode());
+        contactService.sendVerificationCode(phone, otp.getCode());
     }
 
     public void verifyPhoneByOtp(String otpCode) {

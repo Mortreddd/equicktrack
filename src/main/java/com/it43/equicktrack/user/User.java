@@ -3,6 +3,7 @@ package com.it43.equicktrack.user;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.it43.equicktrack.notification.Notification;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.validations.ContactNumber;
 import jakarta.persistence.*;
@@ -80,6 +81,10 @@ public class User implements UserDetails{
     @Temporal(TemporalType.TIMESTAMP)
     @Column(nullable = true)
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonManagedReference
+    private List<Notification> notifications = List.of();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonManagedReference

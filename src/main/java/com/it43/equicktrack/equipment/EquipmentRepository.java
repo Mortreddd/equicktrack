@@ -21,10 +21,6 @@ public interface EquipmentRepository extends JpaRepository<Equipment, Long>, Cru
     @Query("SELECT e FROM Equipment e WHERE e.available = :available")
     Page<Equipment> findAvailableEquipments(@Param("available") boolean available, Pageable pageable);
 
-    @Query("SELECT e FROM Equipment e WHERE e.available = :available")
-    Page<Equipment> findUnavailableEquipments(@Param("available") boolean available, Pageable pageable);
-
-
     Optional<Equipment> findByQrcodeData(String qrcode);
     List<Equipment> findByRemark(Remark remark);
 }

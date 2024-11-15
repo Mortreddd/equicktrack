@@ -42,12 +42,11 @@ public class EquipmentController {
 
     @GetMapping
     public ResponseEntity<Page<Equipment>> getEquipments(
-            @RequestParam(name = "search", required = false, defaultValue = "") String search,
             @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getEquipments(search, pageNo, pageSize));
+                .body(equipmentService.getEquipments(pageNo, pageSize));
     }
 
     @GetMapping(path = "/{equipment_id}")
@@ -136,21 +135,21 @@ public class EquipmentController {
                 .body(equipmentService.getOccupiedEquipmentById(equipmentId));
     }
 
-    @GetMapping(path = "/available")
-    public ResponseEntity<Page<Equipment>> getAvailableEquipments(
-            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-    ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getAvailableEquipments(pageNo, pageSize));
-    }
-
-    @GetMapping(path = "/unavailable")
-    public ResponseEntity<Page<Equipment>> getUnavailableEquipments(
-            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-    ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getUnavailableEquipments(pageNo, pageSize));
-    }
+//    @GetMapping(path = "/available")
+//    public ResponseEntity<Page<Equipment>> getAvailableEquipments(
+//            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+//            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+//    ) {
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(equipmentService.getAvailableEquipments(pageNo, pageSize));
+//    }
+//
+//    @GetMapping(path = "/unavailable")
+//    public ResponseEntity<Page<Equipment>> getUnavailableEquipments(
+//            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+//            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+//    ) {
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(equipmentService.getUnavailableEquipments(pageNo, pageSize));
+//    }
 }

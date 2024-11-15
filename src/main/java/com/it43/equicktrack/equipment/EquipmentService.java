@@ -45,14 +45,11 @@ public class EquipmentService {
     private final FirebaseService firebaseService;
     private final FileUtil fileUtil;
 
-    public Page<Equipment> getEquipments(String search, int pageNo, int pageSize) {
+    public Page<Equipment> getEquipments(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        if(search.isEmpty() || search.isBlank()) {
-            return equipmentRepository.findAll(pageable);
-        }
-
-        return equipmentRepository.findEquipmentByName(search, pageable);
+        return equipmentRepository.findAll(pageable);
     }
+
 
     public Equipment getEquipmentById(Long _id) {
         return equipmentRepository.findById(_id)
@@ -196,14 +193,14 @@ public class EquipmentService {
 
     }
 
-    public Page<Equipment> getAvailableEquipments(int pageNo, int pageSize) {
-        boolean available = true;
-        return equipmentRepository.findAvailableEquipments(available, PageRequest.of(pageNo, pageSize));
-    }
-
-    public Page<Equipment> getUnavailableEquipments(int pageNo, int pageSize) {
-        boolean unavailable = true;
-        return equipmentRepository.findUnavailableEquipments(unavailable, PageRequest.of(pageNo, pageSize));
-    }
+//    public Page<Equipment> getAvailableEquipments(int pageNo, int pageSize) {
+//        boolean available = true;
+//        return equipmentRepository.findAvailableEquipments(available, PageRequest.of(pageNo, pageSize));
+//    }
+//
+//    public Page<Equipment> getUnavailableEquipments(int pageNo, int pageSize) {
+//        boolean unavailable = true;
+//        return equipmentRepository.findUnavailableEquipments(unavailable, PageRequest.of(pageNo, pageSize));
+//    }
 
 }

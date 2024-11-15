@@ -1,9 +1,12 @@
 package com.it43.equicktrack.transaction;
 
 
+import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
+import com.it43.equicktrack.dto.transaction.SendNotificationRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
+import com.it43.equicktrack.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -19,6 +22,7 @@ import java.util.List;
 @RequestMapping(path = "/api/v1/transactions")
 public class TransactionController {
 
+    private final NotificationService notificationService;
     private final TransactionService transactionService;
 
     @GetMapping
@@ -57,6 +61,17 @@ public class TransactionController {
     public ResponseEntity<List<TransactionDTO>> getOnUsedEquipment() {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.getOnUsedEquipments());
+    }
+
+    @PostMapping(path = "/{transactionId}/notify")
+    public ResponseEntity<Response> notifyUser(@RequestBody SendNotificationRequest sendNotificationRequest) {
+        notificationService.notifyUser(sendNotificationRequest.getUserId(), sendNotificationRequest.getMessage());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.builder()
+                        .code(200)
+                        .message("Successfully notified the user")
+                        .build()
+                );
     }
 
 }

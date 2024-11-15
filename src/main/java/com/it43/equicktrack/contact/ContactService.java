@@ -17,22 +17,39 @@ public class ContactService {
 
     private final VonageClient client;
 
-    public void sendVerificationCode(String phone, String otp) throws MessageResponseException {
-
-        String message = String.format(Constant.SMS_VERIFICATION_MESSAGE, otp);
+    public void notifyUser(String phone, String message) {
         TextMessage textMessage = new TextMessage(
                 "Equicktrack",
-                phone,
+                parseContactNumber(phone),
                 message
         );
 
         SmsSubmissionResponse response = client.getSmsClient().submitMessage(textMessage);
         if(response.getMessages().getFirst().getStatus() != MessageStatus.OK) {
-            log.error("Sms Exception", response.getMessages().getFirst().getErrorText());
+            log.error("Sms Notification {}", response.getMessages().getFirst().getErrorText());
             return;
         }
 
-        log.info("Sms Status ", response.getMessages().getFirst().getStatus());
+        log.info("Sms Notification Status {}", response.getMessages().getFirst().getStatus());
+    }
+
+
+    public void sendVerificationCode(String phone, String otp) throws MessageResponseException {
+
+        String message = String.format(Constant.SMS_VERIFICATION_MESSAGE, otp);
+        TextMessage textMessage = new TextMessage(
+                "Equicktrack",
+                parseContactNumber(phone),
+                message
+        );
+
+        SmsSubmissionResponse response = client.getSmsClient().submitMessage(textMessage);
+        if(response.getMessages().getFirst().getStatus() != MessageStatus.OK) {
+            log.error("Sms Verification Exception {}", response.getMessages().getFirst().getErrorText());
+            return;
+        }
+
+        log.info("Sms Verification Status {}", response.getMessages().getFirst().getStatus());
     }
 
     public boolean isValidContactNumber(String contactNumber) {
