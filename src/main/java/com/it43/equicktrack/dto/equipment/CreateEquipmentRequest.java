@@ -17,7 +17,6 @@ public class CreateEquipmentRequest {
     @NotNull
     private String name;
     private String description = null;
-    private String serialNumber = null;
     @NotNull
     private MultipartFile equipmentImage = null;
 }

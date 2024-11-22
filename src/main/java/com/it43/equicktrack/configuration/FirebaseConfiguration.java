@@ -3,6 +3,7 @@ package com.it43.equicktrack.configuration;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,13 +32,17 @@ public class FirebaseConfiguration {
     public FirebaseApp firebaseApp() throws IOException {
 //        InputStream fileInputStream = resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
         InputStream fileInputStream = getFirebaseCredentialsStream();
-        log.info("Bucket url: {}", BUCKET_URL);
         FirebaseOptions firebaseOptions = new FirebaseOptions.Builder()
                 .setCredentials(GoogleCredentials.fromStream(fileInputStream))
                 .setStorageBucket(BUCKET_URL)
                 .build();
 
         return FirebaseApp.initializeApp(firebaseOptions);
+    }
+
+    @Bean
+    public FirebaseMessaging firebaseMessaging() throws IOException {
+        return FirebaseMessaging.getInstance(firebaseApp());
     }
 
     public InputStream getFirebaseCredentialsStream() throws IOException {
@@ -54,4 +59,18 @@ public class FirebaseConfiguration {
 //        throw new FileNotFoundException("Firebase credentials file not found");
         return resourceLoader.getResource("classpath:firebase_credentials.json").getInputStream();
     }
+
+//    public InputStream getFirebaseMessagingCredentialsStream() throws IOException {
+//        String firebaseCredentials = environment.getProperty("firebase_messaging_credentials");
+//        String systemEnvironment = System.getenv("firebase_messaging_credentials");
+//        if(firebaseCredentials != null) {
+//            return new ByteArrayInputStream(firebaseCredentials.getBytes(StandardCharsets.UTF_8));
+//        } else if(systemEnvironment != null) {
+//            return new ByteArrayInputStream(systemEnvironment.getBytes(StandardCharsets.UTF_8));
+//        }
+//
+//        log.error("Unable to load the firebase_credentials");
+////        throw new FileNotFoundException("Firebase credentials file not found");
+//        return resourceLoader.getResource("classpath:google_services.json").getInputStream();
+//    }
 }

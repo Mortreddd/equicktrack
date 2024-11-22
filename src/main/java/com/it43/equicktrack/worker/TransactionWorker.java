@@ -1,6 +1,7 @@
 package com.it43.equicktrack.worker;
 
 
+import com.it43.equicktrack.contact.ContactService;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
@@ -23,18 +24,26 @@ import java.util.stream.Collectors;
 public class TransactionWorker {
 
     private final TransactionRepository transactionRepository;
-    private static final long TEST_TIME_CHECK = 5_000L;
+    private final ContactService contactService;
 
-    @Scheduled(fixedRate = TEST_TIME_CHECK)
-//    @Scheduled(fixedRate = Constant.TIME_CHECK)
+    @Scheduled(fixedRate = Constant.TIME_CHECK)
     public void checkLateReturnEquipments(){
         List<Transaction> lateReturnees = transactionRepository.findAll()
                 .stream()
-                .filter(transaction -> DateUtilities.isLate(transaction.getReturnDate()) && transaction.getReturnedAt() == null)
+                .filter(transaction ->
+                        DateUtilities.isPast(transaction.getReturnDate()) &&
+                                transaction.getReturnedAt() == null &&
+                        transaction.getNotifiedAt() == null)
                 .toList();
 
-        log.info("Executed at {}", DateUtilities.now());
-        // TODO : block code of push notification for the mobile application
+        String message = String.format(Constant.RETURN_NOTIFICATION_MESSAGE, "This is a reminder to return the equipment you borrowed.");
+        for(Transaction transaction : lateReturnees) {
+            log.info("Executed at {}", DateUtilities.now());
+            log.info("Message {}", message);
+            contactService.notifyUser(transaction.getUser().getContactNumber(), message);
+        }
+
+
 
 
     }

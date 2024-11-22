@@ -22,7 +22,7 @@ public class WebConfiguration {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/api/v1/**")
-                        .allowedOrigins(frontendUrl)
+                        .allowedOrigins(frontendUrl, "http://localhost:5173")
                         .allowedHeaders("*")
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                         .allowCredentials(true);

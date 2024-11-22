@@ -1,10 +1,13 @@
 package com.it43.equicktrack.user;
 
-import com.it43.equicktrack.auth.JwtRegisterRequestDTO;
+import com.it43.equicktrack.dto.auth.JwtRegisterRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
-import com.it43.equicktrack.dto.user.UpdateUserDTO;
-import com.it43.equicktrack.exception.EmailExistsException;
+import com.it43.equicktrack.dto.user.UpdateProfilePasswordRequest;
+import com.it43.equicktrack.dto.user.UpdateUserRequest;
+import com.it43.equicktrack.dto.user.UserDTO;
+import com.it43.equicktrack.exception.auth.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.contact.ContactService;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +33,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TransactionRepository transactionRepository;
+    private final ContactService contactService;
 
     public Page<User> getUsers(String search, int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -51,7 +55,7 @@ public class UserService {
         return userRepository.findByGoogleUid(_uuid);
     }
 
-    public User createUser(JwtRegisterRequestDTO _user) throws Exception{
+    public User createUser(JwtRegisterRequest _user) throws Exception{
         Role userRole = roleRepository.findById(_user.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Role user not found"));
 
@@ -59,18 +63,6 @@ public class UserService {
             throw new EmailExistsException("Email already exists");
         }
 //        TODO: Uncomment this line of code after presentation
-//        User user = User.builder()
-//                .fullName(_user.getFullName())
-//                .googleUid(null)
-//                .email(_user.getEmail())
-//                .roles(Set.of(userRole))
-//                .contactNumber(_user.getContactNumber())
-//                .password(passwordEncoder.encode(_user.getPassword()))
-//                .emailVerifiedAt(null)
-//                .createdAt(DateUtilities.now())
-//                .build();
-
-
         User user = User.builder()
                 .fullName(_user.getFullName())
                 .googleUid(null)
@@ -78,9 +70,12 @@ public class UserService {
                 .roles(Set.of(userRole))
                 .contactNumber(_user.getContactNumber())
                 .password(passwordEncoder.encode(_user.getPassword()))
-                .emailVerifiedAt(DateUtilities.now())
+                .emailVerifiedAt(null)
+                .contactNumberVerifiedAt(null)
                 .createdAt(DateUtilities.now())
+                .token(null)
                 .build();
+
         userRepository.save(user);
         return user;
     }
@@ -98,16 +93,6 @@ public class UserService {
         return users;
     }
 
-    public User updateUser(Long userId, UpdateUserDTO updateUserDTO){
-        User _user = userRepository.findById(userId)
-                        .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        _user.setFullName(updateUserDTO.getFullName());
-        _user.setGoogleUid(updateUserDTO.getGoogleUuid());
-        _user.setPassword(new BCryptPasswordEncoder().encode(updateUserDTO.getPassword()));
-        userRepository.save(_user);
-        return _user;
-    }
-
 
     public List<TransactionDTO> getUserTransactionsById(Long _id){
         User user = userRepository.findById(_id)
@@ -122,6 +107,44 @@ public class UserService {
         return transactions;
     }
 
+    public UserDTO updateUserProfile(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unable to make update"));
 
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setEmailVerifiedAt(DateUtilities.now());
+        user.setContactNumber(request.getContactNumber());
+        user.setContactNumberVerifiedAt(DateUtilities.now());
+        user.setUpdatedAt(DateUtilities.now());
+        User updatedUser = userRepository.save(user);
+
+        return UserDTO.builder()
+                .id(updatedUser.getId())
+                .fullName(updatedUser.getFullName())
+                .email(updatedUser.getEmail())
+                .contactNumber(updatedUser.getContactNumber())
+                .contactNumberVerifiedAt(updatedUser.getContactNumberVerifiedAt())
+                .emailVerifiedAt(updatedUser.getEmailVerifiedAt())
+                .roles(updatedUser.getRoles())
+                .photoUrl(updatedUser.getPhotoUrl())
+                .createdAt(updatedUser.getCreatedAt())
+                .updatedAt(updatedUser.getUpdatedAt())
+                .transactions(updatedUser.getTransactions())
+                .token(updatedUser.getToken())
+                .googleUid(updatedUser.getGoogleUid())
+                .notifications(updatedUser.getNotifications())
+                .build();
+    }
+
+    public void updateProfilePassword(Long userId, UpdateProfilePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Unable to make update"));
+
+        user.setPassword(request.getPassword());
+        user.setUpdatedAt(DateUtilities.now());
+
+        userRepository.save(user);
+    }
 
 }

@@ -3,23 +3,21 @@ package com.it43.equicktrack.transaction;
 import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
 import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
-import com.it43.equicktrack.dto.user.UserTransactionDTO;
 import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.EquipmentRepository;
-import com.it43.equicktrack.equipment.Remark;
-import com.it43.equicktrack.exception.AlreadyExistsException;
-import com.it43.equicktrack.exception.EquipmentNotAvailableException;
+import com.it43.equicktrack.exception.transaction.TransactionAlreadyExistsException;
+import com.it43.equicktrack.exception.equipment.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -54,45 +52,67 @@ public class TransactionService {
 
     }
 
-    @Transactional
-    public Transaction createTransaction(CreateTransactionRequest createTransactionRequest) throws EquipmentNotAvailableException {
+    public TransactionDTO createTransaction(CreateTransactionRequest createTransactionRequest) throws EquipmentNotAvailableException {
+//        Get the user and the equipment based on the id
         User user = userRepository.findById(createTransactionRequest.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         Equipment equipment = equipmentRepository.findById(createTransactionRequest.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
-        Optional<Transaction> transaction = transactionRepository.findAll()
+//        Check the transaction records if the equipment nor user have currently transaction going
+        Optional<TransactionDTO> transaction = getOnUsedEquipments()
                 .stream()
                 .filter((_transaction) -> Objects.equals(_transaction.getUser(), user) && Objects.equals(_transaction.getEquipment(), equipment))
                 .findFirst();
 
-        if(!equipment.isAvailable() && transaction.isPresent()) {
+        if(transaction.isPresent()) {
             throw new EquipmentNotAvailableException("Equipment is already used by " + transaction.get().getUser().getFullName());
         }
+
+        String purpose = createTransactionRequest.getPurpose().isBlank() ? null : createTransactionRequest.getPurpose();
 
         equipment.setAvailable(false);
         equipmentRepository.save(equipment);
 
-        return transactionRepository.save(
+        Transaction _t = transactionRepository.save(
                 Transaction.builder()
-                .purpose(createTransactionRequest.getPurpose())
+                .purpose(purpose)
                 .user(user)
                 .equipment(equipment)
                 .borrowDate(LocalDateTime.parse(createTransactionRequest.getBorrowDate()))
                 .returnDate(LocalDateTime.parse(createTransactionRequest.getReturnDate()))
-                        .remark(Remark.GOOD_CONDITION)
-                        .notifiedAt(null)
+                .remark(equipment.getRemark())
+                .notifiedAt(null)
                 .returnedAt(null)
                 .createdAt(DateUtilities.now())
+                .conditionImage(null)
+                .approved(false)
+                .updatedAt(DateUtilities.now())
                 .build()
         );
+
+        return TransactionDTO.builder()
+                .id(_t.getId())
+                .user(_t.getUser())
+                .equipment(_t.getEquipment())
+                .purpose(_t.getPurpose())
+                .conditionImage(_t.getConditionImage())
+                .remark(_t.getRemark())
+                .createdAt(_t.getCreatedAt())
+                .updatedAt(_t.getUpdatedAt())
+                .borrowDate(_t.getBorrowDate())
+                .returnDate(_t.getReturnDate())
+                .approved(_t.getApproved())
+                .returnedAt(_t.getReturnedAt())
+                .notifiedAt(_t.getNotifiedAt())
+                .build();
     }
 
 
 
 
-    public UserTransactionDTO getTransactionsByUser(Long userId){
+    public List<TransactionDTO> getTransactionsByUser(Long userId){
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -100,30 +120,33 @@ public class TransactionService {
         List<TransactionDTO> transactions = transactionRepository.findAll()
                 .stream()
                 .filter((_transaction) -> Objects.equals(_transaction.getUser(), user))
-                .map((_transaction) -> {
-                    return new TransactionDTO(
-                        _transaction.getId(),
-                        _transaction.getUser(),
-                        _transaction.getEquipment(),
-                        _transaction.getPurpose(),
-                        _transaction.getBorrowDate(),
-                        _transaction.getReturnDate(),
-                        null,
-                        _transaction.getCreatedAt(),
-                        _transaction.getUpdatedAt(),
-                            _transaction.getNotifiedAt(),
-                            _transaction.getRemark(),
-                            _transaction.getConditionImage()
-                    );
-                })
+                .map((_transaction) -> new TransactionDTO(
+                    _transaction.getId(),
+                    _transaction.getUser(),
+                    _transaction.getEquipment(),
+                    _transaction.getPurpose(),
+                    _transaction.getBorrowDate(),
+                    _transaction.getReturnDate(),
+                    null,
+                    _transaction.getCreatedAt(),
+                    _transaction.getUpdatedAt(),
+                    _transaction.getNotifiedAt(),
+                    _transaction.getRemark(),
+                    _transaction.getConditionImage(),
+                    _transaction.getApproved()
+                ))
                 .toList();
 
-        return new UserTransactionDTO(transactions);
+        return transactions;
     }
 
     public TransactionDTO createReturnTransaction(CreateReturnTransactionRequest createReturnTransactionRequest) throws IOException {
         Equipment equipment = equipmentRepository.findById(createReturnTransactionRequest.getEquipmentId())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        if(equipment.getAvailable()) {
+            throw new TransactionAlreadyExistsException("The equipment is currently available");
+        }
 
         TransactionDTO transaction = getOnUsedEquipments()
                 .stream()
@@ -132,11 +155,9 @@ public class TransactionService {
                         Objects.equals(_t.getEquipment().getId(), equipment.getId())
                 )
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("User didn't borrow an equipment"));
-
-        if(transaction.getReturnedAt() != null) {
-            throw new AlreadyExistsException("The equipment is already returned");
-        }
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Borrow and equipment doesn't match")
+                );
 
         User userReturnee = userRepository.findById(createReturnTransactionRequest.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User returnee not found"));
@@ -148,13 +169,15 @@ public class TransactionService {
         if(createReturnTransactionRequest.getConditionImage() != null) {
             String conditionImagePath = firebaseService.uploadMultipartFile(createReturnTransactionRequest.getConditionImage(), FirebaseFolder.CONDITION);
             transaction.setConditionImage(conditionImagePath);
+            equipment.setAvailable(false);
+        } else {
+            equipment.setAvailable(true);
         }
 
         transaction.setRemark(createReturnTransactionRequest.getRemark());
         transaction.setReturnedAt(DateUtilities.now());
         transaction.setUpdatedAt(DateUtilities.now());
         equipment.setRemark(transaction.getRemark());
-        equipment.setAvailable(true);
         equipmentRepository.save(equipment);
         transactionRepository.save(transaction.toTransaction(transaction));
         return new TransactionDTO(
@@ -169,20 +192,42 @@ public class TransactionService {
                 transaction.getUpdatedAt(),
                 transaction.getNotifiedAt(),
                 transaction.getRemark(),
-                transaction.getConditionImage()
+                transaction.getConditionImage(),
+                transaction.getApproved()
         );
     }
 
-    public Equipment getTransactionsByEquipment(Long equipmentId){
-        return equipmentRepository.findById(equipmentId)
+    public List<TransactionDTO> getTransactionsByEquipment(Long equipmentId){
+        Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        List<TransactionDTO> transactions = equipment.getTransactions()
+                .stream()
+                .map((_transaction) -> new TransactionDTO(
+                        _transaction.getId(),
+                        _transaction.getUser(),
+                        _transaction.getEquipment(),
+                        _transaction.getPurpose(),
+                        _transaction.getBorrowDate(),
+                        _transaction.getReturnDate(),
+                        null,
+                        _transaction.getCreatedAt(),
+                        _transaction.getUpdatedAt(),
+                        _transaction.getNotifiedAt(),
+                        _transaction.getRemark(),
+                        _transaction.getConditionImage(),
+                        _transaction.getApproved()
+                    ))
+                .toList();
+
+        return transactions;
     }
 
     public List<TransactionDTO> getOnUsedEquipments() {
 
-        return transactionRepository.findAll()
+        return getLatestTransactions()
                 .stream()
-                .filter((transaction) -> transaction.getReturnedAt() == null && !transaction.getEquipment().isAvailable())
+                .filter((transaction) -> transaction.getReturnedAt() == null && !transaction.getEquipment().getAvailable())
                 .map(TransactionDTO::new)
                 .toList();
 
@@ -196,6 +241,7 @@ public class TransactionService {
                 .filter((transactionDTO) -> Objects.equals(transactionDTO.getEquipment().getId(), equipmentId))
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("The equipment is not currently on used"));
+
         return onUsedEquipment;
     }
 
@@ -207,6 +253,10 @@ public class TransactionService {
                 .orElseThrow(() -> new ResourceNotFoundException("The user didn't borrow any equipment yet"));
 
         return transaction;
+    }
+
+    public List<Transaction> getLatestTransactions() {
+        return transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
     }
 
     public void deleteTransactionById(Long _id) {

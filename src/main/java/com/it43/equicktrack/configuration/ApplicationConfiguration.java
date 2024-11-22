@@ -96,12 +96,14 @@ public class ApplicationConfiguration {
             if(!hasSuperAdmin) {
                 User superAdmin = User.builder()
                         .fullName("Emmanuel Male")
+                        .photoUrl(null)
                         .googleUid(null)
                         .email("emmanmale@gmail.com")
                         .roles(Set.of(superAdminRole))
-                        .contactNumber("09670778658")
+                        .contactNumber("639670778658")
                         .password(new BCryptPasswordEncoder().encode("12345678"))
                         .emailVerifiedAt(DateUtilities.now())
+                        .contactNumberVerifiedAt(DateUtilities.now())
                         .createdAt(DateUtilities.now())
                         .build();
 

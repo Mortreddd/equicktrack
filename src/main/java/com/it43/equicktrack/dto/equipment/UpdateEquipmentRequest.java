@@ -20,8 +20,5 @@ public class UpdateEquipmentRequest {
     private String name;
     private String description;
     private MultipartFile equipmentImage;
-    private String serialNumber;
-    private boolean available;
-    private Remark remark;
 
 }

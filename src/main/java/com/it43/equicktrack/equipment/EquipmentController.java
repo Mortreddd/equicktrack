@@ -1,11 +1,15 @@
 package com.it43.equicktrack.equipment;
 
-import com.google.api.Http;
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
-import com.it43.equicktrack.exception.FirebaseFileUploadException;
+import com.it43.equicktrack.dto.response.Response;
+import com.it43.equicktrack.dto.transaction.TransactionDTO;
+import com.it43.equicktrack.exception.EmailMessageException;
+import com.it43.equicktrack.exception.auth.EmailExistsException;
+import com.it43.equicktrack.exception.firebase.FirebaseFileUploadException;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.QuickResponseCode;
 import lombok.RequiredArgsConstructor;
@@ -38,13 +42,11 @@ public class EquipmentController {
 
     @GetMapping
     public ResponseEntity<Page<Equipment>> getEquipments(
-            @RequestParam(name = "search", required = false, defaultValue = "") String search,
             @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-
-    ){
+    ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getEquipments(search, pageNo, pageSize));
+                .body(equipmentService.getEquipments(pageNo, pageSize));
     }
 
     @GetMapping(path = "/{equipment_id}")
@@ -54,8 +56,8 @@ public class EquipmentController {
     }
 
     @GetMapping(path = "/qrcode/{qrcode}")
-    public ResponseEntity<Equipment> findEquipmentByQrcodeData(@PathVariable("qrcode") String _qrcode){
-        Equipment equipment = equipmentService.getEquipmentByQrcodeData(_qrcode);
+    public ResponseEntity<EquipmentDTO> findEquipmentByQrcodeData(@PathVariable("qrcode") String _qrcode){
+        EquipmentDTO equipment = equipmentService.getEquipmentByQrcodeData(_qrcode);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(equipment);
     }
@@ -88,11 +90,12 @@ public class EquipmentController {
     }
 
     @GetMapping(path = "/{equipmentId}/transactions")
-    public ResponseEntity<Equipment> getTransactionsByEquipment(@PathVariable("equipmentId") Long equipmentId){
+    public ResponseEntity<List<TransactionDTO>> getTransactionsByEquipment(@PathVariable("equipmentId") Long equipmentId){
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.getTransactionsByEquipment(equipmentId));
     }
 
+//    Modifying the equipment
     @PatchMapping(path = "/{equipmentId}/update")
     public ResponseEntity<Equipment> updateEquipmentById(
             @PathVariable("equipmentId") Long equipmentId,
@@ -102,10 +105,24 @@ public class EquipmentController {
                 .body(equipmentService.updateEquipment(equipmentId, updateEquipmentRequest));
     }
 
+//    Modifying the status of equipment
+    @PatchMapping(path = "/{equipmentId}/update/status")
+    public ResponseEntity<Equipment> updateEquipmentStatusById(
+            @PathVariable("equipmentId") Long equipmentId,
+            @RequestBody EditInventoryRequest editInventoryRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(equipmentService.updateEquipmentStatus(equipmentId, editInventoryRequest));
+    }
     @DeleteMapping(path = "/{equipmentId}/delete")
-    public ResponseEntity deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
+    public ResponseEntity<Response> deleteEquipmentById(@PathVariable("equipmentId") Long equipmentId) throws FirebaseFileUploadException, IOException {
         if(equipmentService.deleteEquipmentById(equipmentId)){
-            return ResponseEntity.status(HttpStatus.OK).build();
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(Response.builder()
+                            .code(200)
+                            .message("Successfully deleted equipment")
+                            .build()
+                    );
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
@@ -118,21 +135,21 @@ public class EquipmentController {
                 .body(equipmentService.getOccupiedEquipmentById(equipmentId));
     }
 
-    @GetMapping(path = "/available")
-    public ResponseEntity<Page<Equipment>> getAvailableEquipments(
-            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-    ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getAvailableEquipments(pageNo, pageSize));
-    }
-
-    @GetMapping(path = "/unavailable")
-    public ResponseEntity<Page<Equipment>> getUnavailableEquipments(
-            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
-            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-    ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getUnavailableEquipments(pageNo, pageSize));
-    }
+//    @GetMapping(path = "/available")
+//    public ResponseEntity<Page<Equipment>> getAvailableEquipments(
+//            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+//            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+//    ) {
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(equipmentService.getAvailableEquipments(pageNo, pageSize));
+//    }
+//
+//    @GetMapping(path = "/unavailable")
+//    public ResponseEntity<Page<Equipment>> getUnavailableEquipments(
+//            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
+//            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
+//    ) {
+//        return ResponseEntity.status(HttpStatus.OK)
+//                .body(equipmentService.getUnavailableEquipments(pageNo, pageSize));
+//    }
 }

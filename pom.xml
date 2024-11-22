@@ -166,6 +166,12 @@
 			<artifactId>tika-parsers-standard-package</artifactId>
 			<version>3.0.0-BETA2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.vonage</groupId>
+			<artifactId>server-sdk</artifactId>
+			<version>8.13.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>

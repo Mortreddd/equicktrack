@@ -7,11 +7,11 @@ import java.time.format.DateTimeFormatter;
 public class DateUtilities {
 
     public static boolean isLate(LocalDateTime localDateTime){
-        return now().isAfter(localDateTime.plusMinutes(Constant.LATE_RETURN_MINUTES));
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
     public static boolean isPast(LocalDateTime localDateTime){
-        return now().isAfter(localDateTime);
+        return now().plusMinutes(Constant.LATE_RETURN_MINUTES).isAfter(localDateTime);
     }
 
 //    Date string to format: 9/21/2024, 9:35 PM
@@ -23,6 +23,10 @@ public class DateUtilities {
     public static LocalDateTime now() {
         ZoneId manilaZoneId = ZoneId.of("Asia/Manila");
         return LocalDateTime.now(manilaZoneId);
+    }
+
+    public static boolean isExpired(LocalDateTime localDateTime) {
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
 }

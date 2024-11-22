@@ -1,32 +1,37 @@
 package com.it43.equicktrack.auth;
 
-import com.it43.equicktrack.dto.request.ForgotPasswordRequest;
-import com.it43.equicktrack.dto.request.GoogleAuthenticationRequest;
-import com.it43.equicktrack.dto.request.OtpEmailRequest;
-import com.it43.equicktrack.dto.request.ResetPasswordRequest;
+import com.it43.equicktrack.dto.auth.JwtLoginRequest;
+import com.it43.equicktrack.dto.auth.JwtRegisterRequest;
+import com.it43.equicktrack.dto.auth.JwtToken;
+import com.it43.equicktrack.dto.request.auth.ForgotPasswordRequest;
+import com.it43.equicktrack.dto.request.VerifyEmailRequest;
+import com.it43.equicktrack.dto.request.auth.ResetPasswordRequest;
+import com.it43.equicktrack.dto.request.auth.SmsVerificationRequest;
+import com.it43.equicktrack.dto.request.auth.VerifyPhoneOtpRequest;
+import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.exception.EmailMessageException;
-import com.it43.equicktrack.exception.InvalidOtpException;
+import com.it43.equicktrack.exception.auth.InvalidOtpException;
 import com.it43.equicktrack.otp.OtpService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.user.UserService;
 import com.it43.equicktrack.jwt.JwtService;
-import com.it43.equicktrack.util.DateUtilities;
+import com.it43.equicktrack.util.Constant;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-import java.time.LocalDateTime;
+import java.util.Date;
+
+import static com.it43.equicktrack.util.Constant.JWT_EXPIRATION_TIME;
 
 @RequestMapping(path = "/api/v1/auth")
 @RestController
@@ -41,7 +46,7 @@ public class AuthenticationController {
     private final OtpService otpService;
 
     @PostMapping(path = "/login", consumes = {"application/json"})
-    public ResponseEntity<String> authenticateAndGenerateToken(@Validated @RequestBody JwtLoginRequestDTO jwtRequest){
+    public ResponseEntity<JwtToken> authenticateAndGenerateToken(@Validated @RequestBody JwtLoginRequest jwtRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -49,102 +54,141 @@ public class AuthenticationController {
                         jwtRequest.getPassword()
                 )
         );
-        
-        if(authentication.isAuthenticated()){
-            log.info("Logged in: {}", authentication.getDetails());
-            return ResponseEntity.ok(jwtService.generateToken(jwtRequest.getEmail()));
-        }
-        else {
+
+        log.info(jwtRequest.toString());
+
+        if (authentication.isAuthenticated()) {
+            String accessToken = jwtService.generateToken(jwtRequest.getEmail());
+
+            JwtToken jwtToken = JwtToken
+                    .builder()
+                    .accessToken(accessToken)
+                    .iat(new Date(System.currentTimeMillis()).getTime())
+                    .iss(Constant.BASE_URL)
+                    .exp(new Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME).getTime())
+                    .build();
+
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(jwtToken);
+        } else {
             log.error("Login failed: {}", authentication.getDetails());
             throw new UsernameNotFoundException("Credentials not found");
         }
     }
 
     @PostMapping(path = "/register", consumes = {"application/json", "application/x-www-form-urlencoded"})
-    public ResponseEntity<String> createBorrower(@Validated @RequestBody JwtRegisterRequestDTO requestUser) throws Exception {
+    public ResponseEntity<JwtToken> createBorrower(@Validated @RequestBody JwtRegisterRequest requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
-//        TODO: Uncomment this line of code after presentation
-//        otpService.sendVerificationEmail(requestUser.getEmail());
-//        return ResponseEntity.status(HttpStatus.CREATED)
-//                .body("Verification otp code has been sent to the email");
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(jwtService.generateToken(newUser.getEmail()));
-    }
+        otpService.sendEmailVerification(requestUser.getEmail());
+        String accessToken = jwtService.generateToken(newUser.getEmail());
+        JwtToken jwtToken = JwtToken.builder()
+                .iss(Constant.BASE_URL)
+                .iat(new Date(System.currentTimeMillis()).getTime())
+                .exp(new Date(System.currentTimeMillis() + JWT_EXPIRATION_TIME).getTime())
+                .accessToken(accessToken)
+                .build();
 
-    @PutMapping(path = "/forgot-password/resend")
-    public ResponseEntity<String> resendOtp(
-            @RequestBody ForgotPasswordRequest forgotPasswordRequest
-    ) throws EmailMessageException {
-        otpService.resendForgotPassword(forgotPasswordRequest.getEmail());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body("Verification otp code has been resent to the email");
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(jwtToken);
     }
 
     @PostMapping(path = "/verify-email", consumes = "application/json")
-    public ResponseEntity<String> verifyEmail(@Validated @RequestBody OtpEmailRequest otpEmailRequest) throws InvalidOtpException {
-        String email = otpService.verifyEmailByCode(otpEmailRequest.getCode());
-        return ResponseEntity.ok().body(jwtService.generateToken(email));
+    public ResponseEntity<Response> verifyEmail(@Validated @RequestBody VerifyEmailRequest verifyEmailRequest) throws InvalidOtpException, EmailMessageException {
+        otpService.sendChangeEmailVerification(verifyEmailRequest.getOldEmail(), verifyEmailRequest.getNewEmail());
+        return ResponseEntity.ok()
+                .body(Response.builder()
+                        .code(200)
+                        .message(String.format("Email verification %s has been sent", verifyEmailRequest.getNewEmail()))
+                        .build()
+                );
     }
 
-    @PostMapping(path = "/forgot-password")
-    public ResponseEntity<String> forgotPassword(@Validated @RequestBody ForgotPasswordRequest forgotPasswordRequest) throws EmailMessageException {
+    @PostMapping(path = "/forgot-password", consumes = "application/json")
+    public ResponseEntity<Response> forgotPassword(
+            @Validated @RequestBody ForgotPasswordRequest forgotPasswordRequest
+    ) throws EmailMessageException {
 
         otpService.forgotPassword(forgotPasswordRequest.getEmail());
         return ResponseEntity.status(HttpStatus.OK)
-                .body("Verification email is sent");
+                .body(Response.builder()
+                        .code(200)
+                        .message("Reset password request was sent")
+                        .build()
+                );
+    }
+
+    @GetMapping(path = "/forgot-password/{uuid}")
+    public ResponseEntity<Response> verifyForgotPassword(
+            @PathVariable("uuid") String uuid
+    ) {
+
+        otpService.verifyForgotPasswordByUuid(uuid);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.builder()
+                        .code(200)
+                        .message("Successfully verified the reset password url")
+                        .build()
+                );
+    }
+
+    @PatchMapping(path = "/reset-password/{uuid}", consumes = "application/json")
+    public ResponseEntity<Response> forgotPasswordVerify(
+            @PathVariable("uuid") String uuid,
+            @Validated @RequestBody ResetPasswordRequest resetPasswordRequest
+    ) {
+        otpService.resetPassword(uuid, resetPasswordRequest);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.builder()
+                        .code(200)
+                        .message("Successfully reset password")
+                        .build()
+                );
     }
 
     @GetMapping(path = "/verify-email/{uuid}")
-    public ResponseEntity verifyEmailWithLink(
+    public ResponseEntity<Response> verifyEmailWithLink(
             @PathVariable("uuid") String uuid
-    ) throws EmailMessageException, InvalidOtpException {
-        if(otpService.verifyById(uuid)) {
-            return ResponseEntity.ok().build();
-        };
-
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).build();
+    ) throws EmailMessageException {
+        otpService.verifyByUuid(uuid);
+        return ResponseEntity.ok()
+                .body(Response.builder()
+                        .code(200)
+                        .message("Successfully verified")
+                        .build()
+                );
     }
 
-    @PatchMapping(path = "/reset-password/{otpUuid}")
-    public ResponseEntity resetPassword(
-            @PathVariable("otpUuid") String otpUuid,
-            @Validated @RequestBody ResetPasswordRequest resetPasswordRequest
+    @PostMapping(path = "/verify-phone", consumes = {"application/json"})
+    public ResponseEntity<Response> verifyPhone(
+            @Validated @RequestBody SmsVerificationRequest smsVerificationRequest
     ) {
-
-        return ResponseEntity.ok().build();
+        otpService.sendSmsVerification(smsVerificationRequest.getUserId(), smsVerificationRequest.getContactNumber());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.builder()
+                        .code(200)
+                        .message("Sms verification has been sent")
+                        .build()
+                );
     }
 
-/** TODO: Configure the generated User if the user chooses the google to authenticate
- *  TODO: Make a ModelRequest for the required attributes example, contactNumber, Role for the new user
- *
- * @param GoogleAuthenticationRequest
- * @return googleUid
- */
-//    @PostMapping(path = "/google")
-//    public ResponseEntity<String> authenticateUsingGoogle(@Validated @RequestBody GoogleAuthenticationRequest googleAuthenticationRequest) {
-//        Optional<User> user = userService.getUserByUid(googleAuthenticationRequest.getUid());
-//
-//        if(user.isPresent()) {
-//            return ResponseEntity.status(HttpStatus.OK)
-//                    .body(jwtService.generateToken(user.get().getEmail()));
-//        }
-//
-//        String randomPassword = RandomStringUtils.randomAlphabetic(10);
-//
-//        User newUser = User.builder()
-//                .email(googleAuthenticationRequest.getEmail())
-//                .googleUid(googleAuthenticationRequest.getUid())
-//                .photoUrl(googleAuthenticationRequest.getPhotoUrl())
-//                .fullName(googleAuthenticationRequest.getDisplayName())
-//                .password(new BCryptPasswordEncoder().encode(randomPassword))
-//                .contactNumber()
-//                .emailVerifiedAt(DateUtilities.now())
-//                .build();
-//
-//        userRepository.save(newUser);
-//
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(jwtService.generateToken(newUser.getEmail()));
-//    }
+    @PostMapping(path = "/verify-otp", consumes = {"application/json"})
+    public ResponseEntity<Response> verifyOtp(
+            @Validated @RequestBody VerifyPhoneOtpRequest otpRequest
+    ) {
+        otpService.verifyPhoneByOtp(otpRequest.getOtpCode());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(Response.builder()
+                        .code(200)
+                        .message("Phone number is successfully verified")
+                        .build()
+                );
+    }
 
+
+    @GetMapping(path = "/me")
+    public ResponseEntity<Object> verifyJwtToken() {    
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+
+    }
 }

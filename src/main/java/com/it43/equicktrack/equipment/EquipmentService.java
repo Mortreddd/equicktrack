@@ -2,10 +2,11 @@ package com.it43.equicktrack.equipment;
 
 import com.google.zxing.WriterException;
 import com.it43.equicktrack.dto.equipment.CreateEquipmentRequest;
+import com.it43.equicktrack.dto.equipment.EditInventoryRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.equipment.UpdateEquipmentRequest;
-import com.it43.equicktrack.exception.ConvertMultipartFileException;
-import com.it43.equicktrack.exception.FirebaseFileUploadException;
+import com.it43.equicktrack.exception.firebase.ConvertMultipartFileException;
+import com.it43.equicktrack.exception.firebase.FirebaseFileUploadException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
@@ -44,23 +45,34 @@ public class EquipmentService {
     private final FirebaseService firebaseService;
     private final FileUtil fileUtil;
 
-    public Page<Equipment> getEquipments(String search, int pageNo, int pageSize) {
+    public Page<Equipment> getEquipments(int pageNo, int pageSize) {
         Pageable pageable = PageRequest.of(pageNo, pageSize);
-        if(search.isEmpty() || search.isBlank()) {
-            return equipmentRepository.findAll(pageable);
-        }
-
-        return equipmentRepository.findEquipmentByName(search, pageable);
+        return equipmentRepository.findAll(pageable);
     }
+
 
     public Equipment getEquipmentById(Long _id) {
         return equipmentRepository.findById(_id)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
-    public Equipment getEquipmentByQrcodeData(String qrcodeData) {
-        return equipmentRepository.findByQrcodeData(qrcodeData.trim())
+    public EquipmentDTO getEquipmentByQrcodeData(String qrcodeData) {
+        Equipment equipment = equipmentRepository.findByQrcodeData(qrcodeData.trim())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        return EquipmentDTO.builder()
+                .id(equipment.getId())
+                .available(equipment.getAvailable())
+                .name(equipment.getName())
+                .description(equipment.getDescription())
+                .remark(equipment.getRemark())
+                .equipmentImage(equipment.getEquipmentImage())
+                .qrcodeData(equipment.getQrcodeData())
+                .qrcodeImage(equipment.getQrcodeImage())
+                .createdAt(equipment.getCreatedAt())
+                .updatedAt(equipment.getUpdatedAt())
+                .transactions(equipment.getTransactions())
+                .build();
     }
 
     public Equipment createEquipment(CreateEquipmentRequest createEquipmentRequest) throws IOException {
@@ -77,7 +89,6 @@ public class EquipmentService {
                     .available(true)
                     .qrcodeImage(qrcodeDownloadUrl)
                     .description(createEquipmentRequest.getDescription())
-                    .serialNumber(createEquipmentRequest.getSerialNumber())
                     .equipmentImage(equipmentDownloadUrl)
                     .remark(Remark.GOOD_CONDITION)
                     .createdAt(DateUtilities.now())
@@ -129,25 +140,18 @@ public class EquipmentService {
             equipment.setEquipmentImage(newEquipmentImage);
         }
 
-        if(updateEquipmentRequest.getSerialNumber() != null) {
-            equipment.setSerialNumber(updateEquipmentRequest.getSerialNumber());
-        }
-
-        if(updateEquipmentRequest.getRemark() != null) {
-            equipment.setRemark(updateEquipmentRequest.getRemark());
-        } else {
-            equipment.setRemark(Remark.GOOD_CONDITION);
-        }
-
-        equipment.setAvailable(updateEquipmentRequest.isAvailable());
         equipment.setUpdatedAt(DateUtilities.now());
         return equipmentRepository.save(equipment);
     }
 
-
-    public Equipment getBySerialNumber(String serialNumber) {
-        return equipmentRepository.findBySerialNumber(serialNumber)
+    public Equipment updateEquipmentStatus(Long equipmentId, EditInventoryRequest editInventoryRequest) {
+        Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        equipment.setAvailable(editInventoryRequest.isAvailable());
+        equipment.setRemark(editInventoryRequest.getRemark());
+
+        return equipmentRepository.save(equipment);
     }
 
     public String generateQrcode() throws IOException, WriterException {
@@ -180,10 +184,9 @@ public class EquipmentService {
                         _equipment.getDescription(),
                         _equipment.getQrcodeData(),
                         _equipment.getQrcodeImage(),
-                        _equipment.getSerialNumber(),
                         _equipment.getEquipmentImage(),
                         _equipment.getRemark(),
-                        _equipment.isAvailable(),
+                        _equipment.getAvailable(),
                         _equipment.getCreatedAt(),
                         _equipment.getUpdatedAt(),
                         _equipment.getTransactions()
@@ -199,19 +202,30 @@ public class EquipmentService {
                         _equipment.getTransactions()
                                 .stream()
                                 .anyMatch((transaction) -> transaction.getReturnedAt() == null)
-                        && !_equipment.isAvailable()
+                        && !_equipment.getAvailable()
                 ).toList();
 
     }
 
-    public Page<Equipment> getAvailableEquipments(int pageNo, int pageSize) {
-        boolean available = true;
-        return equipmentRepository.findAvailableEquipments(available, PageRequest.of(pageNo, pageSize));
+    public List<Equipment> getEquipmentsByAvailability(Boolean availability) {
+
+        List<Equipment> availableEquipments = equipmentRepository.findAll()
+                .stream()
+                .filter((_e) -> _e.getAvailable() == availability)
+                .toList();
+
+        return availableEquipments;
+
     }
 
-    public Page<Equipment> getUnavailableEquipments(int pageNo, int pageSize) {
-        boolean unavailable = true;
-        return equipmentRepository.findUnavailableEquipments(unavailable, PageRequest.of(pageNo, pageSize));
-    }
+//    public Page<Equipment> getAvailableEquipments(int pageNo, int pageSize) {
+//        boolean available = true;
+//        return equipmentRepository.findAvailableEquipments(available, PageRequest.of(pageNo, pageSize));
+//    }
+//
+//    public Page<Equipment> getUnavailableEquipments(int pageNo, int pageSize) {
+//        boolean unavailable = true;
+//        return equipmentRepository.findUnavailableEquipments(unavailable, PageRequest.of(pageNo, pageSize));
+//    }
 
 }

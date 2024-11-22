@@ -1,6 +1,7 @@
 package com.it43.equicktrack.configuration;
 
 
+import com.it43.equicktrack.contact.ContactVerifiedFilter;
 import com.it43.equicktrack.email.VerifiedEmailFilter;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.jwt.JwtAuthenticationFilter;
@@ -24,6 +25,7 @@ public class SecurityConfiguration {
     private final ApplicationConfiguration applicationConfiguration;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final VerifiedEmailFilter verifiedEmailFilter;
+    private final ContactVerifiedFilter contactVerifiedFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -46,7 +48,8 @@ public class SecurityConfiguration {
                 )
                 .authenticationProvider(applicationConfiguration.authenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(verifiedEmailFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(verifiedEmailFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(contactVerifiedFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 }

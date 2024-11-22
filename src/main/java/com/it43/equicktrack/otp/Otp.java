@@ -1,5 +1,6 @@
 package com.it43.equicktrack.otp;
 
+import com.it43.equicktrack.util.DateUtilities;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,4 +42,5 @@ public class Otp {
     @UpdateTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
+
 }
