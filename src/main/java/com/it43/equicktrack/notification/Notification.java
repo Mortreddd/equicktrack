@@ -27,6 +27,7 @@ public class Notification {
     @JoinColumn(name = "user_id")
     private User user;
 
+    private String title;
     private String message;
 
     @CreationTimestamp
@@ -37,4 +38,11 @@ public class Notification {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime readAt;
+
+    @Column(nullable = true)
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime receivedAt;
 }

@@ -29,6 +29,7 @@ public class TransactionDTO {
     private LocalDateTime notifiedAt;
     private Remark remark;
     private String conditionImage;
+    private Boolean approved;
 
     public TransactionDTO(
             Transaction transaction
@@ -45,6 +46,7 @@ public class TransactionDTO {
         this.remark = transaction.getRemark();
         this.notifiedAt = transaction.getNotifiedAt();
         this.conditionImage = transaction.getConditionImage();
+        this.approved = transaction.getApproved();
     }
 
     public Transaction toTransaction(TransactionDTO transaction) {
@@ -56,7 +58,8 @@ public class TransactionDTO {
                 .borrowDate(transaction.getBorrowDate())
                 .returnDate(transaction.getReturnDate())
                 .returnedAt(transaction.getReturnedAt())
-                .notifiedAt(transaction.notifiedAt)
+                .notifiedAt(transaction.getNotifiedAt())
+                .approved(transaction.getApproved())
                 .remark(transaction.getRemark())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())

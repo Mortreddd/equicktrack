@@ -3,3 +3,4 @@ application-prod.properties
 firebase_credentials.json
 application-dev.properties
 initialize.sql
+google_services.json

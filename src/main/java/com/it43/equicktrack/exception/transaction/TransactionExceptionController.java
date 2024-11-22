@@ -22,9 +22,6 @@ public class TransactionExceptionController extends ResponseEntityExceptionHandl
                 .details(request.getDescription(false))
                 .build();
 
-
-//        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-//                .body(details);
         return new ResponseEntity<>(details, HttpStatus.BAD_REQUEST);
     }
 }

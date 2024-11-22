@@ -12,12 +12,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UpdateUserDTO {
+public class UpdateUserRequest {
 
     @NotNull
     private String fullName;
-    private String googleUuid;
-    private String password;
+    @NotNull
     private String email;
-    private String photoUrl;
+    @NotNull
+    private String contactNumber;
+
 }

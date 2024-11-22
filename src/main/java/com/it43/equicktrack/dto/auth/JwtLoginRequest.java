@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class JwtLoginRequest {
     @NotNull
-    @Email
     private String email;
 
     @NotNull

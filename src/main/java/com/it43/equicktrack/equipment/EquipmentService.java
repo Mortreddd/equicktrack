@@ -56,9 +56,23 @@ public class EquipmentService {
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
     }
 
-    public Equipment getEquipmentByQrcodeData(String qrcodeData) {
-        return equipmentRepository.findByQrcodeData(qrcodeData.trim())
+    public EquipmentDTO getEquipmentByQrcodeData(String qrcodeData) {
+        Equipment equipment = equipmentRepository.findByQrcodeData(qrcodeData.trim())
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
+
+        return EquipmentDTO.builder()
+                .id(equipment.getId())
+                .available(equipment.getAvailable())
+                .name(equipment.getName())
+                .description(equipment.getDescription())
+                .remark(equipment.getRemark())
+                .equipmentImage(equipment.getEquipmentImage())
+                .qrcodeData(equipment.getQrcodeData())
+                .qrcodeImage(equipment.getQrcodeImage())
+                .createdAt(equipment.getCreatedAt())
+                .updatedAt(equipment.getUpdatedAt())
+                .transactions(equipment.getTransactions())
+                .build();
     }
 
     public Equipment createEquipment(CreateEquipmentRequest createEquipmentRequest) throws IOException {
@@ -172,7 +186,7 @@ public class EquipmentService {
                         _equipment.getQrcodeImage(),
                         _equipment.getEquipmentImage(),
                         _equipment.getRemark(),
-                        _equipment.isAvailable(),
+                        _equipment.getAvailable(),
                         _equipment.getCreatedAt(),
                         _equipment.getUpdatedAt(),
                         _equipment.getTransactions()
@@ -188,8 +202,19 @@ public class EquipmentService {
                         _equipment.getTransactions()
                                 .stream()
                                 .anyMatch((transaction) -> transaction.getReturnedAt() == null)
-                        && !_equipment.isAvailable()
+                        && !_equipment.getAvailable()
                 ).toList();
+
+    }
+
+    public List<Equipment> getEquipmentsByAvailability(Boolean availability) {
+
+        List<Equipment> availableEquipments = equipmentRepository.findAll()
+                .stream()
+                .filter((_e) -> _e.getAvailable() == availability)
+                .toList();
+
+        return availableEquipments;
 
     }
 

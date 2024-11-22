@@ -2,7 +2,6 @@ package com.it43.equicktrack.transaction;
 
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.Remark;
 import com.it43.equicktrack.user.User;
@@ -56,6 +55,8 @@ public class Transaction {
 
     @Column(nullable = true)
     private String conditionImage;
+
+    private Boolean approved;
 
     @Column(nullable = true)
     private LocalDateTime notifiedAt;

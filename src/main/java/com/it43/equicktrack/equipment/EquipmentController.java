@@ -56,8 +56,8 @@ public class EquipmentController {
     }
 
     @GetMapping(path = "/qrcode/{qrcode}")
-    public ResponseEntity<Equipment> findEquipmentByQrcodeData(@PathVariable("qrcode") String _qrcode){
-        Equipment equipment = equipmentService.getEquipmentByQrcodeData(_qrcode);
+    public ResponseEntity<EquipmentDTO> findEquipmentByQrcodeData(@PathVariable("qrcode") String _qrcode){
+        EquipmentDTO equipment = equipmentService.getEquipmentByQrcodeData(_qrcode);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(equipment);
     }

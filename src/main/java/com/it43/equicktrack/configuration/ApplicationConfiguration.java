@@ -96,6 +96,7 @@ public class ApplicationConfiguration {
             if(!hasSuperAdmin) {
                 User superAdmin = User.builder()
                         .fullName("Emmanuel Male")
+                        .photoUrl(null)
                         .googleUid(null)
                         .email("emmanmale@gmail.com")
                         .roles(Set.of(superAdminRole))

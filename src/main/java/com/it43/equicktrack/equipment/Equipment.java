@@ -36,27 +36,25 @@ public class Equipment {
     @Column(nullable = true)
     private String description;
 
-    @NotBlank
     @NotNull(message = "Qrcode data is required")
     @Column(nullable = false, unique = true)
     @JsonIgnore
     private String qrcodeData;
 
-    @NotBlank
     @NotNull(message = "Qr image is required")
     @Column(nullable = false)
     private String qrcodeImage;
 
     @NotNull(message = "Image of equipment is required")
     @Column(nullable = true)
-    @NotBlank
+
     private String equipmentImage;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, columnDefinition = "varchar(255) default 'GOOD_CONDITION'")
     private Remark remark = Remark.GOOD_CONDITION;
 
-    private boolean available = true;
+    private Boolean available;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

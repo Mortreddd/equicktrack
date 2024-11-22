@@ -34,7 +34,7 @@ public class TransactionController {
     }
     //    This endpoint is for creating new transactions for equipments
     @PostMapping(path = "/borrow", consumes = {"application/json"})
-    public ResponseEntity<Transaction> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequest createTransactionRequestDTO) {
+    public ResponseEntity<TransactionDTO> createBorrowTransaction(@Validated @RequestBody CreateTransactionRequest createTransactionRequestDTO) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
@@ -50,11 +50,15 @@ public class TransactionController {
     }
 
     @DeleteMapping(path = "/{transactionId}/delete")
-    public ResponseEntity<String> deleteTransaction(@RequestParam("transactionId") Long transactionId) {
+    public ResponseEntity<Response> deleteTransaction(@PathVariable("transactionId") Long transactionId) {
         transactionService.deleteTransactionById(transactionId);
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body("Transaction has been deleted");
+                .body(Response.builder()
+                        .code(200)
+                        .message("Successfully deleted the transactions")
+                        .build()
+                );
     }
 
     @GetMapping(path = "/occupied")
@@ -64,8 +68,8 @@ public class TransactionController {
     }
 
     @PostMapping(path = "/{transactionId}/notify")
-    public ResponseEntity<Response> notifyUser(@RequestBody SendNotificationRequest sendNotificationRequest) {
-        notificationService.notifyUser(sendNotificationRequest.getUserId(), sendNotificationRequest.getMessage());
+    public ResponseEntity<Response> notifyUser(@PathVariable("transactionId") Long transactionId, @RequestBody SendNotificationRequest sendNotificationRequest) {
+        notificationService.notifyUser(transactionId, sendNotificationRequest.getMessage());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.builder()
                         .code(200)
@@ -73,6 +77,8 @@ public class TransactionController {
                         .build()
                 );
     }
+
+
 
 }
 

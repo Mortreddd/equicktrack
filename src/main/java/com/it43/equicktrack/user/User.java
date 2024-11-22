@@ -1,22 +1,16 @@
 package com.it43.equicktrack.user;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.it43.equicktrack.notification.Notification;
 import com.it43.equicktrack.transaction.Transaction;
-import com.it43.equicktrack.validations.ContactNumber;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -42,11 +36,8 @@ public class User implements UserDetails{
     private Long id;
     @Column(nullable = true, name="google_uuid")
     private String googleUid;
-    @NotEmpty(message = "Full Name is required")
     private String fullName;
-    @Email(message = "Email must be valid")
     @Column(name = "email", unique = true)
-    @NotNull(message = "Email is required")
     private String email;
     @Column(nullable = true)
     @JsonIgnore
@@ -68,6 +59,9 @@ public class User implements UserDetails{
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime emailVerifiedAt = null;
+
+    @Column(nullable = true)
+    private String token;
 
     @Column(nullable = true)
     @Temporal(TemporalType.TIMESTAMP)

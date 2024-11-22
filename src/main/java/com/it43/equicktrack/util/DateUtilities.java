@@ -11,7 +11,7 @@ public class DateUtilities {
     }
 
     public static boolean isPast(LocalDateTime localDateTime){
-        return now().isAfter(localDateTime);
+        return now().plusMinutes(Constant.LATE_RETURN_MINUTES).isAfter(localDateTime);
     }
 
 //    Date string to format: 9/21/2024, 9:35 PM

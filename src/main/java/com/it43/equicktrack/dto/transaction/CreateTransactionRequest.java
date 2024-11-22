@@ -7,8 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -19,8 +17,7 @@ public class CreateTransactionRequest {
     private Long userId;
     @NotNull
     private Long equipmentId;
-
-    private String purpose = null;
+    private String purpose;
     @NotNull
     private String borrowDate;
     @NotNull

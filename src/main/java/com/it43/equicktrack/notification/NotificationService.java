@@ -21,9 +21,12 @@ public class NotificationService {
 
         notificationRepository.save(Notification.builder()
                 .user(transaction.getUser())
+                .title("Notice")
                 .message(message)
                 .createdAt(DateUtilities.now())
                 .updatedAt(DateUtilities.now())
+                .readAt(null)
+                .receivedAt(null)
                 .build()
         );
 

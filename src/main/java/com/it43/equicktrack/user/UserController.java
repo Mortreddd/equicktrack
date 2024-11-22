@@ -1,8 +1,6 @@
 package com.it43.equicktrack.user;
 
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
-import com.it43.equicktrack.dto.user.UpdateUserDTO;
-import com.it43.equicktrack.dto.user.UserTransactionDTO;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -55,9 +53,5 @@ public class UserController {
                 .body(transactionsService.getTransactionsByUser(userId));
     }
 
-    @PatchMapping(path = "/{userId}/update")
-    public ResponseEntity<User> updateUser(@PathVariable("userId") Long userId, @RequestBody UpdateUserDTO updateUser) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(userService.updateUser(userId, updateUser));
-    }
+
 }

@@ -186,7 +186,7 @@ public class AuthenticationController {
 
 
     @GetMapping(path = "/me")
-    public ResponseEntity<Object> verifyJwtToken() {
+    public ResponseEntity<Object> verifyJwtToken() {    
         return ResponseEntity.status(HttpStatus.OK)
                 .body(SecurityContextHolder.getContext().getAuthentication().getPrincipal());
 
