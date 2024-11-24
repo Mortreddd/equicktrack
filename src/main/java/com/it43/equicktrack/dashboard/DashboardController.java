@@ -7,7 +7,10 @@ import com.it43.equicktrack.dto.dashboard.NotifyUserRequest;
 import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.firebase.FirebaseMessagingService;
+import com.it43.equicktrack.notification.Notification;
+import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.user.User;
+import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,7 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
     private final FirebaseMessagingService firebaseMessagingService;
+    private final NotificationService notificationService;
 
     @GetMapping
     public ResponseEntity<DashboardDTO> getDashboardData() {
@@ -49,14 +53,13 @@ public class DashboardController {
                 );
     }
 
-    @GetMapping(path = "/notify")
-    public ResponseEntity<Response> notifyUser(@RequestBody NotifyUserRequest notifyUserRequest) throws FirebaseMessagingException {
+    @PostMapping(path = "/transactions/{transactionId}/notify")
+    public ResponseEntity<Response> notifyUser(
+            @PathVariable("transactionId") Long transactionId,
+            @RequestBody NotifyUserRequest notifyUserRequest
+    ) throws FirebaseMessagingException {
 
-        firebaseMessagingService.sendNotification(
-                notifyUserRequest.getUserId(),
-                notifyUserRequest.getTitle(),
-                notifyUserRequest.getMessage()
-        );
+        dashboardService.notifyUser(transactionId, notifyUserRequest.getMessage());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.builder()
                         .code(200)

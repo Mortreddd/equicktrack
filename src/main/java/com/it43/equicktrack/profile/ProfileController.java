@@ -58,4 +58,11 @@ public class ProfileController {
                         .build()
                 );
     }
+
+//    @PostMapping(path = "/logout")
+//    public ResponseEntity<Response> logoutProfile(
+//            @PathVariable("userId") Long userId
+//    ) {
+//        return
+//    }
 }

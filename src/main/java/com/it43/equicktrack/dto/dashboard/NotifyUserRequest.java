@@ -13,8 +13,6 @@ import lombok.NoArgsConstructor;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NotifyUserRequest {
 
-    private Long userId;
-    private String title;
     private String message;
 
 }
