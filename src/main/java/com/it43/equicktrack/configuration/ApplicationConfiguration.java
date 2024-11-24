@@ -175,15 +175,12 @@ public class ApplicationConfiguration {
                             .createdAt(DateUtilities.now())
                             .build()
             );
-            ArrayList<String> emails = new ArrayList<>();
-            emails.add("roselleannmanalansan@gmail.com");
-            emails.add("beamangulabnan05@gmail.com");
-            emails.add("jaexdbusiness@gmail.com");
-            emails.add("ellamacaspac81@gmail.com");
-            emails.add("harleymallari3@gmail.com");
-
+            List<String> existingStudentEmails = userRepository.findAll()
+                    .stream()
+                    .map(User::getEmail)
+                    .toList();
             List<User> missingStudents = userStudents.stream()
-                    .filter(student -> !emails.contains(student.getEmail()))
+                    .filter(student -> !existingStudentEmails.contains(student.getEmail()))
                     .toList();
 
             userRepository.saveAll(missingStudents);
