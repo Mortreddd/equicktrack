@@ -69,12 +69,13 @@ public class TransactionController {
 
     @PostMapping(path = "/{transactionId}/notify")
     public ResponseEntity<Response> notifyUser(@PathVariable("transactionId") Long transactionId, @RequestBody SendNotificationRequest sendNotificationRequest) {
-        notificationService.notifyUser(transactionId, sendNotificationRequest.getMessage());
+
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.builder()
                         .code(200)
                         .message("Successfully notified the user")
                         .build()
+
                 );
     }
 

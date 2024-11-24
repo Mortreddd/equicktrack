@@ -1,6 +1,7 @@
 package com.it43.equicktrack.dashboard;
 
 import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.it43.equicktrack.contact.ContactService;
 import com.it43.equicktrack.dto.dashboard.DashboardDTO;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
@@ -8,6 +9,9 @@ import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UserDTO;
 import com.it43.equicktrack.equipment.EquipmentRepository;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.firebase.FirebaseMessagingService;
+import com.it43.equicktrack.notification.Notification;
+import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.user.UserRepository;
@@ -27,8 +31,8 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final TransactionRepository transactionRepository;
-    private final ContactService contactService;
-    private final FirebaseMessaging firebaseMessaging;
+    private final FirebaseMessagingService firebaseMessagingService;
+//    private final NotificationService notificationService;
 
 
     public DashboardDTO getDashboardData() {
@@ -128,11 +132,35 @@ public class DashboardService {
 
         if(!message.isBlank()) {
             String reminderMessage = String.format(Constant.RETURN_NOTIFICATION_MESSAGE, message);
-            contactService.notifyUser(transaction.getUser().getContactNumber(), reminderMessage);
-            transaction.setNotifiedAt(DateUtilities.now());
+//            contactService.notifyUser(transaction.getUser().getContactNumber(), reminderMessage);
+//            transaction.setNotifiedAt(DateUtilities.now());
         }
 
         transaction.setUpdatedAt(DateUtilities.now());
         transactionRepository.save(transaction);
+    }
+
+    public void notifyUser(Long transactionId, String body) throws FirebaseMessagingException {
+        Transaction transaction = Transaction.builder()
+                .id(transactionId)
+                .build();
+
+        String title = "You were notified";
+
+        firebaseMessagingService.sendNotification(
+                transactionId,
+                title,
+                body
+        );
+
+//        notificationService.notifyUser(transactionId, title, body);
+
+        Notification userNotification = Notification.builder()
+                .title(title)
+                .message(body)
+                .user(transaction.getUser())
+                .createdAt(DateUtilities.now())
+                .receivedAt(DateUtilities.now())
+                .build();
     }
 }

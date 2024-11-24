@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -93,6 +94,7 @@ public class ApplicationConfiguration {
                             .anyMatch( (r) -> Objects.equals(r, superAdminRole))
                     );
 
+
             if(!hasSuperAdmin) {
                 User superAdmin = User.builder()
                         .fullName("Emmanuel Male")
@@ -100,7 +102,7 @@ public class ApplicationConfiguration {
                         .googleUid(null)
                         .email("emmanmale@gmail.com")
                         .roles(Set.of(superAdminRole))
-                        .contactNumber("639670778658")
+                        .contactNumber("09670778658")
                         .password(new BCryptPasswordEncoder().encode("12345678"))
                         .emailVerifiedAt(DateUtilities.now())
                         .contactNumberVerifiedAt(DateUtilities.now())
@@ -109,6 +111,82 @@ public class ApplicationConfiguration {
 
                 userRepository.save(superAdmin);
             }
+            Role studentRole = roleRepository.findByName(RoleName.STUDENT)
+                    .orElseThrow(() -> new RuntimeException("Student role is not yet created"));
+            List<User> userStudents = List.of(
+                    User.builder()
+                            .fullName("Roselle Manalansan")
+                            .photoUrl(null)
+                            .googleUid(null)
+                            .email("roselleannmanalansan@gmail.com")
+                            .roles(Set.of(studentRole))
+                            .contactNumber("09673483180")
+                            .password(new BCryptPasswordEncoder().encode("12345678"))
+                            .emailVerifiedAt(DateUtilities.now())
+                            .contactNumberVerifiedAt(DateUtilities.now())
+                            .createdAt(DateUtilities.now())
+                            .build(),
+                    User.builder()
+                            .fullName("Bea Mangulabnan")
+                            .photoUrl(null)
+                            .googleUid(null)
+                            .email("beamangulabnan05@gmail.com")
+                            .roles(Set.of(studentRole))
+                            .contactNumber("09557069891")
+                            .password(new BCryptPasswordEncoder().encode("12345678"))
+                            .emailVerifiedAt(DateUtilities.now())
+                            .contactNumberVerifiedAt(DateUtilities.now())
+                            .createdAt(DateUtilities.now())
+                            .build(),
+                    User.builder()
+                            .fullName("Jenny Macoto")
+                            .photoUrl(null)
+                            .googleUid(null)
+                            .email("jaexdbusiness@gmail.com")
+                            .roles(Set.of(studentRole))
+                            .contactNumber("09158808973")
+                            .password(new BCryptPasswordEncoder().encode("12345678"))
+                            .emailVerifiedAt(DateUtilities.now())
+                            .contactNumberVerifiedAt(DateUtilities.now())
+                            .createdAt(DateUtilities.now())
+                            .build(),
+                    User.builder()
+                            .fullName("Ella Macaspac")
+                            .photoUrl(null)
+                            .googleUid(null)
+                            .email("ellamacaspac81@gmail.com")
+                            .roles(Set.of(studentRole))
+                            .contactNumber("09916830595")
+                            .password(new BCryptPasswordEncoder().encode("12345678"))
+                            .emailVerifiedAt(DateUtilities.now())
+                            .contactNumberVerifiedAt(DateUtilities.now())
+                            .createdAt(DateUtilities.now())
+                            .build(),
+                    User.builder()
+                            .fullName("Harley Mallari")
+                            .photoUrl(null)
+                            .googleUid(null)
+                            .email("harleymallari3@gmail.com")
+                            .roles(Set.of(studentRole))
+                            .contactNumber("09503862258")
+                            .password(new BCryptPasswordEncoder().encode("12345678"))
+                            .emailVerifiedAt(DateUtilities.now())
+                            .contactNumberVerifiedAt(DateUtilities.now())
+                            .createdAt(DateUtilities.now())
+                            .build()
+            );
+            ArrayList<String> emails = new ArrayList<>();
+            emails.add("roselleannmanalansan@gmail.com");
+            emails.add("beamangulabnan05@gmail.com");
+            emails.add("jaexdbusiness@gmail.com");
+            emails.add("ellamacaspac81@gmail.com");
+            emails.add("harleymallari3@gmail.com");
+
+            List<User> missingStudents = userStudents.stream()
+                    .filter(student -> !emails.contains(student.getEmail()))
+                    .toList();
+
+            userRepository.saveAll(missingStudents);
         };
     }
 

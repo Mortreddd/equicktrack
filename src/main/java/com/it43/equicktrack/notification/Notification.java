@@ -1,5 +1,6 @@
 package com.it43.equicktrack.notification;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.it43.equicktrack.user.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,7 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinColumn(name = "user_id")
     private User user;
