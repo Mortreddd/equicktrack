@@ -10,6 +10,9 @@ import com.it43.equicktrack.exception.equipment.EquipmentNotAvailableException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
+import com.it43.equicktrack.notification.Notification;
+import com.it43.equicktrack.notification.NotificationRepository;
+import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
@@ -35,6 +38,8 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final FirebaseService firebaseService;
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
 
     public Page<TransactionDTO> getTransactions(int pageNo, int pageSize){
 
@@ -172,6 +177,7 @@ public class TransactionService {
             equipment.setAvailable(false);
         } else {
             equipment.setAvailable(true);
+            transaction.setConditionImage(null);
         }
 
         transaction.setRemark(createReturnTransactionRequest.getRemark());
@@ -257,6 +263,47 @@ public class TransactionService {
 
     public List<Transaction> getLatestTransactions() {
         return transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
+    }
+
+    public TransactionDTO approveReturn(Long transactionId, String message)  {
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Not found"));
+
+        if(!message.isBlank()) {
+            String title = "You were notified";
+            notificationService.notifyUser(transaction.getId(), title, message);
+            Notification notification = Notification.builder()
+                    .user(transaction.getUser())
+                    .message(message)
+                    .title("You were notified")
+                    .readAt(null)
+                    .createdAt(DateUtilities.now())
+                    .updatedAt(DateUtilities.now())
+                    .build();
+
+            notificationRepository.save(notification);
+        }
+
+        transaction.setApproved(true);
+        transaction.setUpdatedAt(DateUtilities.now());
+        transactionRepository.save(transaction);
+
+
+        return TransactionDTO.builder()
+                .id(transactionId)
+                .user(transaction.getUser())
+                .createdAt(transaction.getCreatedAt())
+                .returnedAt(transaction.getReturnedAt())
+                .conditionImage(transaction.getConditionImage())
+                .remark(transaction.getRemark())
+                .purpose(transaction.getPurpose())
+                .equipment(transaction.getEquipment())
+                .notifiedAt(transaction.getNotifiedAt())
+                .borrowDate(transaction.getBorrowDate())
+                .approved(transaction.getApproved())
+                .returnedAt(transaction.getReturnedAt())
+                .build();
+
     }
 
     public void deleteTransactionById(Long _id) {
