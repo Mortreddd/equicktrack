@@ -2,10 +2,7 @@ package com.it43.equicktrack.transaction;
 
 
 import com.it43.equicktrack.dto.response.Response;
-import com.it43.equicktrack.dto.transaction.CreateReturnTransactionRequest;
-import com.it43.equicktrack.dto.transaction.CreateTransactionRequest;
-import com.it43.equicktrack.dto.transaction.SendNotificationRequest;
-import com.it43.equicktrack.dto.transaction.TransactionDTO;
+import com.it43.equicktrack.dto.transaction.*;
 import com.it43.equicktrack.notification.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -77,6 +74,15 @@ public class TransactionController {
                         .build()
 
                 );
+    }
+
+    @PutMapping(path = "/{transactionId}/approve")
+    public ResponseEntity<TransactionDTO> approvedReturnTransaction(
+            @PathVariable("transactionId") Long transactionId,
+            @RequestBody ApproveReturnRequest approveReturnRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(transactionService.approveReturn(transactionId, approveReturnRequest.getMessage()));
     }
 
 
