@@ -63,6 +63,7 @@ public class TransactionDTO {
                 .remark(transaction.getRemark())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
+                .conditionImage(transaction.getConditionImage())
                 .build();
 
     }

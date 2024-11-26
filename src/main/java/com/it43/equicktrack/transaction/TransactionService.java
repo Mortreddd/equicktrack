@@ -17,6 +17,7 @@ import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,7 @@ import java.util.function.Function;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionService {
 
     private final TransactionRepository transactionRepository;
@@ -171,8 +173,9 @@ public class TransactionService {
             throw new ResourceNotFoundException("The scanned user and borrower does not match");
         }
 
-        if(createReturnTransactionRequest.getConditionImage() != null) {
+        if(!createReturnTransactionRequest.getConditionImage().isEmpty()) {
             String conditionImagePath = firebaseService.uploadMultipartFile(createReturnTransactionRequest.getConditionImage(), FirebaseFolder.CONDITION);
+            log.info("Return Image {}", conditionImagePath);
             transaction.setConditionImage(conditionImagePath);
             equipment.setAvailable(false);
         } else {
