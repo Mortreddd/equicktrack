@@ -37,7 +37,7 @@ public class FileUtil {
                 .formatted(
                         new SimpleDateFormat("MM-dd-yyyy_HHmmss").format(new Date()),
                         RandomStringUtils.randomNumeric(10),
-                        fileName);
+                        fileName.trim());
     }
 
     public String generateRandomFileName(String fileName, String fileExtension) {
@@ -46,7 +46,7 @@ public class FileUtil {
                 .formatted(
                         new SimpleDateFormat("MM-dd-yyyy_HHmmss").format(new Date()),
                         RandomStringUtils.randomNumeric(10),
-                        fileName,
+                        fileName.trim(),
                         fileExtension);
     }
 

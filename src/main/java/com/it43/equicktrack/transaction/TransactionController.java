@@ -36,7 +36,7 @@ public class TransactionController {
                 .body(transactionService.createTransaction(createTransactionRequestDTO));
     }
 
-    @PatchMapping(path = "/return", consumes = {"application/json", "multipart/form-data"})
+    @PatchMapping(path = "/return", consumes = {"multipart/form-data"})
     public ResponseEntity<TransactionDTO> createReturnTransaction(
             @Validated @ModelAttribute CreateReturnTransactionRequest createReturnTransactionRequest
     ) throws IOException {
