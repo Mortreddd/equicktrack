@@ -12,7 +12,6 @@ import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
 import com.it43.equicktrack.notification.Notification;
 import com.it43.equicktrack.notification.NotificationRepository;
-import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -40,24 +40,24 @@ public class TransactionService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final FirebaseService firebaseService;
-    private final NotificationService notificationService;
     private final NotificationRepository notificationRepository;
 
-    public Page<TransactionDTO> getTransactions(int pageNo, int pageSize){
+    public Page<TransactionDTO> getTransactions(int pageNo, int pageSize) {
+        // Define the pageable with sorting applied directly in the query
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by( Sort.Direction.DESC, "createdAt"));
 
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+        // Fetch the paginated and sorted result from the repository
+        Page<Transaction> transactions = transactionRepository.findAll(pageable);
 
-
-        Page<Transaction> transactionEntities = transactionRepository.findAll(pageable);
-        return transactionEntities
+        return transactions
                 .map(new Function<Transaction, TransactionDTO>() {
                     @Override
                     public TransactionDTO apply(Transaction transaction) {
                         return new TransactionDTO(transaction);
                     }
                 });
-
     }
+
 
     public TransactionDTO createTransaction(CreateTransactionRequest createTransactionRequest) throws EquipmentNotAvailableException {
 //        Get the user and the equipment based on the id
@@ -92,6 +92,7 @@ public class TransactionService {
                 .remark(equipment.getRemark())
                 .notifiedAt(null)
                 .returnedAt(null)
+                .returnProofImage(null)
                 .createdAt(DateUtilities.now())
                 .conditionImage(null)
                 .approved(false)
@@ -110,6 +111,7 @@ public class TransactionService {
                 .updatedAt(_t.getUpdatedAt())
                 .borrowDate(_t.getBorrowDate())
                 .returnDate(_t.getReturnDate())
+                .returnProofImage(_t.getReturnProofImage())
                 .approved(_t.getApproved())
                 .returnedAt(_t.getReturnedAt())
                 .notifiedAt(_t.getNotifiedAt())
@@ -139,6 +141,7 @@ public class TransactionService {
                     _transaction.getUpdatedAt(),
                     _transaction.getNotifiedAt(),
                     _transaction.getRemark(),
+                    _transaction.getReturnProofImage(),
                     _transaction.getConditionImage(),
                     _transaction.getApproved()
                 ))
@@ -201,6 +204,7 @@ public class TransactionService {
                 transaction.getUpdatedAt(),
                 transaction.getNotifiedAt(),
                 transaction.getRemark(),
+                transaction.getReturnProofImage(),
                 transaction.getConditionImage(),
                 transaction.getApproved()
         );
@@ -224,6 +228,7 @@ public class TransactionService {
                         _transaction.getUpdatedAt(),
                         _transaction.getNotifiedAt(),
                         _transaction.getRemark(),
+                        _transaction.getReturnProofImage(),
                         _transaction.getConditionImage(),
                         _transaction.getApproved()
                     ))
@@ -274,7 +279,7 @@ public class TransactionService {
 
         if(!message.isBlank()) {
             String title = "You were notified";
-            notificationService.notifyUser(transaction.getId(), title, message);
+
             Notification notification = Notification.builder()
                     .user(transaction.getUser())
                     .message(message)

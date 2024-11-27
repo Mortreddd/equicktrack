@@ -54,6 +54,8 @@ public class Transaction {
     private Remark remark = Remark.GOOD_CONDITION;
 
     @Column(nullable = true)
+    private String returnProofImage;
+    @Column(nullable = true)
     private String conditionImage;
 
     private Boolean approved;

@@ -10,6 +10,7 @@ import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.EquipmentRepository;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseMessagingService;
+import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.user.UserRepository;
@@ -19,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,19 +33,17 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final TransactionRepository transactionRepository;
-    private final FirebaseMessagingService firebaseMessagingService;
-//    private final NotificationService notificationService;
+    private final NotificationService notificationService;
 
 
     public DashboardDTO getDashboardData() {
-        List<UserDTO> users = userRepository.findAll()
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        List<UserDTO> users = userRepository.findAll(sort)
                 .stream()
                 .map(user -> UserDTO.builder()
                     .id(user.getId())
                     .fullName(user.getFullName())
                     .email(user.getEmail())
-                    .contactNumber(user.getContactNumber())
-                    .contactNumberVerifiedAt(user.getContactNumberVerifiedAt())
                     .emailVerifiedAt(user.getEmailVerifiedAt())
                     .roles(user.getRoles())
                     .photoUrl(user.getPhotoUrl())
@@ -57,7 +57,7 @@ public class DashboardService {
                 .toList();
 
 
-        List<EquipmentDTO> equipments = equipmentRepository.findAll()
+        List<EquipmentDTO> equipments = equipmentRepository.findAll(sort)
                 .stream()
                 .map(equipment -> EquipmentDTO.builder()
                     .id(equipment.getId())
@@ -75,7 +75,7 @@ public class DashboardService {
                 )
                 .toList();
 
-        List<TransactionDTO> transactions = transactionRepository.findAll()
+        List<TransactionDTO> transactions = transactionRepository.findAll(sort)
                 .stream()
                 .map(TransactionDTO::new)
                 .toList();
@@ -131,14 +131,13 @@ public class DashboardService {
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction is not found"));
         log.info("ApprovedTransactionRequest Remark: {}", approvedTransactionRequest.getRemark());
         Equipment equipment = transaction.getEquipment();
+
         if(approvedTransactionRequest.getMessage() != null) {
             String title = "Notice";
             String reminderMessage = String.format(Constant.RETURN_NOTIFICATION_MESSAGE, approvedTransactionRequest.getMessage());
-//            contactService.notifyUser(transaction.getUser().getContactNumber(), reminderMessage);
-            firebaseMessagingService.sendNotification(transaction.getId(), title, reminderMessage);
+            notificationService.notifyUser(transaction.getId(), reminderMessage, title);
             transaction.setNotifiedAt(DateUtilities.now());
         }
-
 
         equipment.setAvailable(approvedTransactionRequest.getAvailable());
         equipment.setUpdatedAt(DateUtilities.now());
@@ -150,26 +149,7 @@ public class DashboardService {
         transactionRepository.save(transaction);
     }
 
-    public void notifyUser(Long transactionId, String body) throws FirebaseMessagingException {
-
-        String title = "You were notified";
-
-        firebaseMessagingService.sendNotification(
-                transactionId,
-                title,
-                body
-        );
-
-//        notificationService.notifyUser(transactionId, title, body);
-//
-//        Notification userNotification = Notification.builder()
-//                .title(title)
-//                .message(body)
-//                .user(transaction.getUser())
-//                .createdAt(DateUtilities.now())
-//                .receivedAt(DateUtilities.now())
-//                .build();
-
-
+    public void sendNotificationToUser(Long transactionId, String body) throws FirebaseMessagingException {
+        notificationService.notifyUser(transactionId, body);
     }
 }

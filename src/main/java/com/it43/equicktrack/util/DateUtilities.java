@@ -29,4 +29,8 @@ public class DateUtilities {
         return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
+    public static boolean isEnding(LocalDateTime localDateTime) {
+        return now().isAfter(localDateTime.minusMinutes(Constant.BEFORE_RETURN_MINUTES));
+    }
+
 }

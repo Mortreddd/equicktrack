@@ -7,7 +7,6 @@ import com.it43.equicktrack.dto.user.UpdateUserRequest;
 import com.it43.equicktrack.dto.user.UserDTO;
 import com.it43.equicktrack.exception.auth.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
-import com.it43.equicktrack.contact.ContactService;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +14,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +31,6 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final TransactionRepository transactionRepository;
-    private final ContactService contactService;
 
     public Page<User> getUsers(String search, int pageNo, int pageSize){
         Pageable pageable = PageRequest.of(pageNo, pageSize);
@@ -68,10 +65,9 @@ public class UserService {
                 .googleUid(null)
                 .email(_user.getEmail())
                 .roles(Set.of(userRole))
-                .contactNumber(_user.getContactNumber())
+                .idNumber(_user.getIdNumber())
                 .password(passwordEncoder.encode(_user.getPassword()))
                 .emailVerifiedAt(null)
-                .contactNumberVerifiedAt(null)
                 .createdAt(DateUtilities.now())
                 .token(null)
                 .build();
@@ -114,8 +110,6 @@ public class UserService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setEmailVerifiedAt(DateUtilities.now());
-        user.setContactNumber(request.getContactNumber());
-        user.setContactNumberVerifiedAt(DateUtilities.now());
         user.setUpdatedAt(DateUtilities.now());
         User updatedUser = userRepository.save(user);
 
@@ -123,8 +117,7 @@ public class UserService {
                 .id(updatedUser.getId())
                 .fullName(updatedUser.getFullName())
                 .email(updatedUser.getEmail())
-                .contactNumber(updatedUser.getContactNumber())
-                .contactNumberVerifiedAt(updatedUser.getContactNumberVerifiedAt())
+                .idNumber(updatedUser.getIdNumber())
                 .emailVerifiedAt(updatedUser.getEmailVerifiedAt())
                 .roles(updatedUser.getRoles())
                 .photoUrl(updatedUser.getPhotoUrl())

@@ -44,7 +44,7 @@ public class User implements UserDetails{
     private String password;
 
     @Column(nullable = true)
-    private String contactNumber;
+    private String idNumber;
 
     @Column(nullable = true)
     private String photoUrl;
@@ -62,10 +62,6 @@ public class User implements UserDetails{
 
     @Column(nullable = true)
     private String token;
-
-    @Column(nullable = true)
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime contactNumberVerifiedAt = null;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

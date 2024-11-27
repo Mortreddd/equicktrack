@@ -1,7 +1,6 @@
 package com.it43.equicktrack.exception.auth;
 
 import com.it43.equicktrack.exception.ErrorDetails;
-import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -55,33 +54,4 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(details, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(ImproperContactNumberException.class)
-    public ResponseEntity<Object> expiredJwt(ImproperContactNumberException exception, WebRequest request) {
-        ErrorDetails details = ErrorDetails
-                .builder()
-                .details(request.getDescription(false))
-                .date(new Date())
-                .message(exception.getMessage())
-                .build();
-
-
-//        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
-//                .body(details);
-        return new ResponseEntity<>(details, HttpStatus.UNPROCESSABLE_ENTITY);
-    }
-
-    @ExceptionHandler(ContactNumberNotVerifiedException.class)
-    public ResponseEntity<Object> contactNumberNotVerified(
-            ContactNumberNotVerifiedException exception,
-            WebRequest request) {
-        ErrorDetails details = ErrorDetails
-                .builder()
-                .details(request.getDescription(false))
-                .date(new Date())
-                .message(exception.getMessage())
-                .build();
-
-
-        return new ResponseEntity<>(details, HttpStatus.UNAUTHORIZED);
-    }
 }
