@@ -173,7 +173,7 @@ public class TransactionService {
             throw new ResourceNotFoundException("The scanned user and borrower does not match");
         }
 
-        if(!createReturnTransactionRequest.getConditionImage().isEmpty()) {
+        if(createReturnTransactionRequest.getConditionImage() != null) {
             String conditionImagePath = firebaseService.uploadMultipartFile(createReturnTransactionRequest.getConditionImage(), FirebaseFolder.CONDITION);
             log.info("Return Image {}", conditionImagePath);
             transaction.setConditionImage(conditionImagePath);

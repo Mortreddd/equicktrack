@@ -43,8 +43,8 @@ public class DashboardController {
     public ResponseEntity<Response> approvedTransaction(
             @PathVariable("transactionId") Long transactionId,
             @RequestBody ApprovedTransactionRequest approvedTransactionRequest
-    ) {
-        dashboardService.approvedTransaction(transactionId, approvedTransactionRequest.getMessage());
+    ) throws FirebaseMessagingException {
+        dashboardService.approvedTransaction(transactionId, approvedTransactionRequest);
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.builder()
                         .code(200)
