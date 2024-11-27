@@ -28,6 +28,7 @@ public class TransactionDTO {
     private LocalDateTime updatedAt;
     private LocalDateTime notifiedAt;
     private Remark remark;
+    private String returnProofImage;
     private String conditionImage;
     private Boolean approved;
 
@@ -44,6 +45,7 @@ public class TransactionDTO {
         this.createdAt = transaction.getCreatedAt();
         this.updatedAt = transaction.getUpdatedAt();
         this.remark = transaction.getRemark();
+        this.returnProofImage = transaction.getReturnProofImage();
         this.notifiedAt = transaction.getNotifiedAt();
         this.conditionImage = transaction.getConditionImage();
         this.approved = transaction.getApproved();
@@ -61,6 +63,7 @@ public class TransactionDTO {
                 .notifiedAt(transaction.getNotifiedAt())
                 .approved(transaction.getApproved())
                 .remark(transaction.getRemark())
+                .returnProofImage(transaction.getReturnProofImage())
                 .createdAt(transaction.getCreatedAt())
                 .updatedAt(transaction.getUpdatedAt())
                 .conditionImage(transaction.getConditionImage())

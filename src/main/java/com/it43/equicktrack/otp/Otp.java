@@ -29,12 +29,6 @@ public class Otp {
     @Column(nullable = true)
     private String email;
 
-    @Column(nullable = true)
-    private String contactNumber;
-
-    @Column(unique = true)
-    private String code;
-
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;

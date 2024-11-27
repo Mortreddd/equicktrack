@@ -24,8 +24,6 @@ import java.util.List;
 public class DashboardController {
 
     private final DashboardService dashboardService;
-    private final FirebaseMessagingService firebaseMessagingService;
-    private final NotificationService notificationService;
 
     @GetMapping
     public ResponseEntity<DashboardDTO> getDashboardData() {
@@ -59,7 +57,7 @@ public class DashboardController {
             @RequestBody NotifyUserRequest notifyUserRequest
     ) throws FirebaseMessagingException {
 
-        dashboardService.notifyUser(transactionId, notifyUserRequest.getMessage());
+        dashboardService.sendNotificationToUser(transactionId, notifyUserRequest.getMessage());
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.builder()
                         .code(200)

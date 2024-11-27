@@ -6,8 +6,6 @@ import com.it43.equicktrack.dto.auth.JwtToken;
 import com.it43.equicktrack.dto.request.auth.ForgotPasswordRequest;
 import com.it43.equicktrack.dto.request.VerifyEmailRequest;
 import com.it43.equicktrack.dto.request.auth.ResetPasswordRequest;
-import com.it43.equicktrack.dto.request.auth.SmsVerificationRequest;
-import com.it43.equicktrack.dto.request.auth.VerifyPhoneOtpRequest;
 import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.exception.EmailMessageException;
 import com.it43.equicktrack.exception.auth.InvalidOtpException;
@@ -79,7 +77,7 @@ public class AuthenticationController {
     @PostMapping(path = "/register", consumes = {"application/json", "application/x-www-form-urlencoded"})
     public ResponseEntity<JwtToken> createBorrower(@Validated @RequestBody JwtRegisterRequest requestUser) throws Exception {
         User newUser = userService.createUser(requestUser);
-        otpService.sendEmailVerification(requestUser.getEmail());
+        otpService.sendEmailVerification(newUser.getEmail());
         String accessToken = jwtService.generateToken(newUser.getEmail());
         JwtToken jwtToken = JwtToken.builder()
                 .iss(Constant.BASE_URL)
@@ -157,33 +155,6 @@ public class AuthenticationController {
                         .build()
                 );
     }
-
-    @PostMapping(path = "/verify-phone", consumes = {"application/json"})
-    public ResponseEntity<Response> verifyPhone(
-            @Validated @RequestBody SmsVerificationRequest smsVerificationRequest
-    ) {
-        otpService.sendSmsVerification(smsVerificationRequest.getUserId(), smsVerificationRequest.getContactNumber());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.builder()
-                        .code(200)
-                        .message("Sms verification has been sent")
-                        .build()
-                );
-    }
-
-    @PostMapping(path = "/verify-otp", consumes = {"application/json"})
-    public ResponseEntity<Response> verifyOtp(
-            @Validated @RequestBody VerifyPhoneOtpRequest otpRequest
-    ) {
-        otpService.verifyPhoneByOtp(otpRequest.getOtpCode());
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(Response.builder()
-                        .code(200)
-                        .message("Phone number is successfully verified")
-                        .build()
-                );
-    }
-
 
     @GetMapping(path = "/me")
     public ResponseEntity<Object> verifyJwtToken() {    

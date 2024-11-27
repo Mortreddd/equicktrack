@@ -37,8 +37,6 @@ public class VerifiedEmailFilter extends OncePerRequestFilter {
         List<String> allowedPaths = List.of(
                 "/api/v1/auth/me",
                 "/api/v1/auth/verify-email",
-                "/api/v1/auth/verify-phone",
-                "/api/v1/auth/verify-otp",
                 "/api/v1/auth/verify-email/{uuid}",
                 "/api/v1/auth/forgot-password",
                 "/api/v1/auth/forgot-password/{uuid}",

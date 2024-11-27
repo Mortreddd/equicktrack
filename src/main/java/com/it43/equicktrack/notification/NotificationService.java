@@ -1,13 +1,14 @@
 package com.it43.equicktrack.notification;
 
-import com.it43.equicktrack.contact.ContactService;
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.it43.equicktrack.dto.notification.NotificationDTO;
-import com.it43.equicktrack.exception.ResourceNotFoundException;
-import com.it43.equicktrack.transaction.Transaction;
+import com.it43.equicktrack.firebase.FirebaseMessagingService;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,12 +18,14 @@ public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final TransactionRepository transactionRepository;
-    private final ContactService contactService;
+    private final FirebaseMessagingService firebaseMessagingService;
 
     public List<NotificationDTO> getNotifications(Long userId) {
-        return notificationRepository.findAll()
+        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt");
+        return notificationRepository.findAll(sort)
                 .stream()
-                .filter(notif -> Objects.equals(notif.getUser().getId(), userId) )
+                .filter(notif -> Objects.equals(notif.getUser().getId(), userId))
+                .sorted(Comparator.comparing(Notification::getCreatedAt).reversed())
                 .map(notif -> NotificationDTO.builder()
                         .id(notif.getId())
                         .title(notif.getTitle())
@@ -35,12 +38,24 @@ public class NotificationService {
                 )
                 .toList();
     }
-    public void notifyUser(Long transactionId, String title, String message) {
-        Transaction transaction = transactionRepository.findById(transactionId)
-                .orElseThrow(() -> new ResourceNotFoundException("The transaction can't be found"));
 
-        String formattedMessage = String.format("%s, %s", title, message);
-        String phoneNumber = transaction.getUser().getContactNumber();
-//        contactService.notifyUser(phoneNumber, formattedMessage);
+    public void notifyUser(Long transactionId, String body, String title) throws FirebaseMessagingException {
+
+        firebaseMessagingService.sendNotification(
+                transactionId,
+                title,
+                body
+        );
+    }
+
+    public void notifyUser(Long transactionId, String body) throws FirebaseMessagingException {
+
+        String title = "You were notified";
+
+        firebaseMessagingService.sendNotification(
+                transactionId,
+                title,
+                body
+        );
     }
 }

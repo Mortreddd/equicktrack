@@ -19,6 +19,7 @@ public class UpdateUserRequest {
     @NotNull
     private String email;
     @NotNull
-    private String contactNumber;
+    private String idNumber;
+
 
 }

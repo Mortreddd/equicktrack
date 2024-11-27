@@ -28,4 +28,6 @@ public class CreateReturnTransactionRequest {
 
     private MultipartFile conditionImage;
 
+    private MultipartFile  returnProofImage;
+
 }

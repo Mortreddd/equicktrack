@@ -1,7 +1,6 @@
 package com.it43.equicktrack.dto.auth;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.it43.equicktrack.validations.ContactNumber;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,13 +20,10 @@ public class JwtRegisterRequest {
     @NotNull(message = "Email is required")
     @Email
     private String email;
+    private String idNumber;
     @NotNull
     @Size(min = 8, message = "Password must have 8 characters")
     private String password;
-
-    @ContactNumber
-    private String contactNumber;
-
     private Integer roleId = 3;
 
 }

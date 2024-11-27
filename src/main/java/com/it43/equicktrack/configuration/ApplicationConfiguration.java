@@ -102,10 +102,8 @@ public class ApplicationConfiguration {
                         .googleUid(null)
                         .email("emmanmale@gmail.com")
                         .roles(Set.of(superAdminRole))
-                        .contactNumber("09670778658")
                         .password(new BCryptPasswordEncoder().encode("12345678"))
                         .emailVerifiedAt(DateUtilities.now())
-                        .contactNumberVerifiedAt(DateUtilities.now())
                         .createdAt(DateUtilities.now())
                         .build();
 
@@ -120,10 +118,8 @@ public class ApplicationConfiguration {
                             .googleUid(null)
                             .email("roselleannmanalansan@gmail.com")
                             .roles(Set.of(studentRole))
-                            .contactNumber("09673483180")
                             .password(new BCryptPasswordEncoder().encode("12345678"))
                             .emailVerifiedAt(DateUtilities.now())
-                            .contactNumberVerifiedAt(DateUtilities.now())
                             .createdAt(DateUtilities.now())
                             .build(),
                     User.builder()
@@ -132,10 +128,8 @@ public class ApplicationConfiguration {
                             .googleUid(null)
                             .email("beamangulabnan05@gmail.com")
                             .roles(Set.of(studentRole))
-                            .contactNumber("09557069891")
                             .password(new BCryptPasswordEncoder().encode("12345678"))
                             .emailVerifiedAt(DateUtilities.now())
-                            .contactNumberVerifiedAt(DateUtilities.now())
                             .createdAt(DateUtilities.now())
                             .build(),
                     User.builder()
@@ -144,10 +138,8 @@ public class ApplicationConfiguration {
                             .googleUid(null)
                             .email("jaexdbusiness@gmail.com")
                             .roles(Set.of(studentRole))
-                            .contactNumber("09158808973")
                             .password(new BCryptPasswordEncoder().encode("12345678"))
                             .emailVerifiedAt(DateUtilities.now())
-                            .contactNumberVerifiedAt(DateUtilities.now())
                             .createdAt(DateUtilities.now())
                             .build(),
                     User.builder()
@@ -156,10 +148,8 @@ public class ApplicationConfiguration {
                             .googleUid(null)
                             .email("ellamacaspac81@gmail.com")
                             .roles(Set.of(studentRole))
-                            .contactNumber("09916830595")
                             .password(new BCryptPasswordEncoder().encode("12345678"))
                             .emailVerifiedAt(DateUtilities.now())
-                            .contactNumberVerifiedAt(DateUtilities.now())
                             .createdAt(DateUtilities.now())
                             .build(),
                     User.builder()
@@ -168,10 +158,8 @@ public class ApplicationConfiguration {
                             .googleUid(null)
                             .email("harleymallari3@gmail.com")
                             .roles(Set.of(studentRole))
-                            .contactNumber("09503862258")
                             .password(new BCryptPasswordEncoder().encode("12345678"))
                             .emailVerifiedAt(DateUtilities.now())
-                            .contactNumberVerifiedAt(DateUtilities.now())
                             .createdAt(DateUtilities.now())
                             .build()
             );
