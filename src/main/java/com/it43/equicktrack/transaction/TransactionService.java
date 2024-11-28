@@ -186,6 +186,14 @@ public class TransactionService {
             transaction.setConditionImage(null);
         }
 
+        if(createReturnTransactionRequest.getReturnProofImage() != null) {
+            String returnProofImagePath = firebaseService.uploadMultipartFile(createReturnTransactionRequest.getReturnProofImage(), FirebaseFolder.PROOF);
+            log.info("Proof Image url {}", returnProofImagePath);
+            transaction.setReturnProofImage(returnProofImagePath);
+        } else {
+            transaction.setReturnProofImage(null);
+        }
+
         transaction.setRemark(createReturnTransactionRequest.getRemark());
         transaction.setReturnedAt(DateUtilities.now());
         transaction.setUpdatedAt(DateUtilities.now());
@@ -314,8 +322,18 @@ public class TransactionService {
 
     }
 
-    public void deleteTransactionById(Long _id) {
+    public boolean deleteTransactionById(Long _id) throws IOException {
+        Optional<Transaction> transactionOptional = transactionRepository.findById(_id);
+
+        if(transactionOptional.isEmpty()) {
+            return false;
+        }
+
+        Transaction transaction = transactionOptional.get();
+        firebaseService.delete(transaction.getReturnProofImage());
+        firebaseService.delete(transaction.getConditionImage());
         transactionRepository.deleteById(_id);
 
+        return true;
     }
 }

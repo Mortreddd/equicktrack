@@ -49,13 +49,13 @@ public class NotificationService {
     }
 
     public void notifyUser(Long transactionId, String body) throws FirebaseMessagingException {
-
         String title = "You were notified";
-
-        firebaseMessagingService.sendNotification(
-                transactionId,
-                title,
-                body
-        );
+        firebaseMessagingService.sendNotification(transactionId, title, body);
     }
+
+    public void notifyUsers(List<Long> transactionsIds, String title, String body) throws FirebaseMessagingException{
+        firebaseMessagingService.sendMultipleNotifications(transactionsIds, title, body);
+    }
+
+
 }

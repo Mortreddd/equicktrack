@@ -3,16 +3,20 @@ package com.it43.equicktrack.firebase;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MulticastMessage;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.notification.NotificationRepository;
 import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
+import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import com.it43.equicktrack.notification.Notification;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -49,6 +53,34 @@ public class FirebaseMessagingService {
         notificationRepository.save(userNotification);
         firebaseMessaging.send(message);
 
+    }
+
+    public void sendMultipleNotifications(List<Long> transactionIds, String title, String body) throws FirebaseMessagingException {
+        List<Transaction> transactions = transactionRepository.findAllById(transactionIds)
+                .stream()
+                .peek((transaction) -> transaction.setNotifiedAt(DateUtilities.now()))
+                .toList();
+
+        List<User> users = transactions.stream()
+                .map(Transaction::getUser)
+                .toList();
+
+        List<String> tokens = users.stream()
+                .map(User::getToken)
+                .toList();
+
+        com.google.firebase.messaging.Notification notification = com.google.firebase.messaging.Notification.builder()
+                .setTitle(title)
+                .setBody(body)
+                .build();
+
+        MulticastMessage multicastMessage = MulticastMessage.builder()
+                .addAllTokens(tokens)
+                .setNotification(notification)
+                .build();
+
+        firebaseMessaging.sendEachForMulticast(multicastMessage);
+        transactionRepository.saveAll(transactions);
     }
 
 

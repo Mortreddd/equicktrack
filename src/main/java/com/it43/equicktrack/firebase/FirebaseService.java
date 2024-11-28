@@ -91,6 +91,7 @@ public class FirebaseService {
 
 
     public boolean delete(String filePath) throws IOException, FirebaseFileUploadException {
+        if(filePath == null) return false;
         try {
             Bucket bucket = StorageClient.getInstance().bucket(BUCKET_URL);
             String extractedFile = extractFileFromFirebaseUrl(filePath);
@@ -118,6 +119,7 @@ public class FirebaseService {
             case EQUIPMENT -> "equipments";
             case QR_IMAGE -> "qr-images";
             case CONDITION -> "conditions";
+            case PROOF -> "proofs";
         };
     }
 

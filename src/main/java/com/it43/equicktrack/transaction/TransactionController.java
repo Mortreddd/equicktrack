@@ -47,8 +47,14 @@ public class TransactionController {
     }
 
     @DeleteMapping(path = "/{transactionId}/delete")
-    public ResponseEntity<Response> deleteTransaction(@PathVariable("transactionId") Long transactionId) {
-        transactionService.deleteTransactionById(transactionId);
+    public ResponseEntity<Response> deleteTransaction(@PathVariable("transactionId") Long transactionId) throws IOException {
+        if(!transactionService.deleteTransactionById(transactionId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.builder()
+                            .code(404)
+                            .message("Transaction not found")
+                            .build());
+        }
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(Response.builder()
