@@ -13,12 +13,14 @@ import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.it43.equicktrack.notification.Notification;
 
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class FirebaseMessagingService {
 
@@ -58,7 +60,7 @@ public class FirebaseMessagingService {
     public void sendMultipleNotifications(List<Long> transactionIds, String title, String body) throws FirebaseMessagingException {
         List<Transaction> transactions = transactionRepository.findAllById(transactionIds)
                 .stream()
-                .peek((transaction) -> transaction.setNotifiedAt(DateUtilities.now()))
+                .peek(transaction -> transaction.setNotifiedAt(DateUtilities.now()))
                 .toList();
 
         List<User> users = transactions.stream()
@@ -67,7 +69,15 @@ public class FirebaseMessagingService {
 
         List<String> tokens = users.stream()
                 .map(User::getToken)
+                .filter(token -> token != null && !token.isEmpty())
                 .toList();
+
+        log.info("Tokens to notify: {}", tokens);
+
+        if (tokens.isEmpty()) {
+            log.warn("No valid tokens found for the given transactions.");
+            return;
+        }
 
         com.google.firebase.messaging.Notification notification = com.google.firebase.messaging.Notification.builder()
                 .setTitle(title)

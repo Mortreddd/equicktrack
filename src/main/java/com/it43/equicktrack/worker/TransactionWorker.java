@@ -36,6 +36,7 @@ public class TransactionWorker {
                         transaction.getNotifiedAt() == null
                 ).toList();
 
+
         List<Long> transactionIds = lateReturnees.stream()
                         .map(Transaction::getId)
                         .toList();
