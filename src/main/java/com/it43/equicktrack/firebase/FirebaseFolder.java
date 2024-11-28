@@ -4,6 +4,7 @@ public enum FirebaseFolder {
     AVATAR,
     QR_IMAGE,
     EQUIPMENT,
-    CONDITION
+    CONDITION,
+    PROOF
 
 }

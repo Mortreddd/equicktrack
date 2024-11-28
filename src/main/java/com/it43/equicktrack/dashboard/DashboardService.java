@@ -132,7 +132,7 @@ public class DashboardService {
         log.info("ApprovedTransactionRequest Remark: {}", approvedTransactionRequest.getRemark());
         Equipment equipment = transaction.getEquipment();
 
-        if(approvedTransactionRequest.getMessage() != null) {
+        if(!approvedTransactionRequest.getMessage().isBlank()) {
             String title = "Notice";
             String reminderMessage = String.format(Constant.RETURN_NOTIFICATION_MESSAGE, approvedTransactionRequest.getMessage());
             notificationService.notifyUser(transaction.getId(), reminderMessage, title);

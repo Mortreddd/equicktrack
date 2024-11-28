@@ -110,6 +110,7 @@ public class UserService {
         user.setFullName(request.getFullName());
         user.setEmail(request.getEmail());
         user.setEmailVerifiedAt(DateUtilities.now());
+        user.setIdNumber(request.getIdNumber());
         user.setUpdatedAt(DateUtilities.now());
         User updatedUser = userRepository.save(user);
 
@@ -134,7 +135,7 @@ public class UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Unable to make update"));
 
-        user.setPassword(request.getPassword());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setUpdatedAt(DateUtilities.now());
 
         userRepository.save(user);

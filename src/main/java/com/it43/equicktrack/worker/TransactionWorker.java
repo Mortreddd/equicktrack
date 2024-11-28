@@ -1,6 +1,7 @@
 package com.it43.equicktrack.worker;
 
 
+import com.google.firebase.messaging.FirebaseMessagingException;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.transaction.Transaction;
@@ -24,20 +25,22 @@ public class TransactionWorker {
     private final NotificationService notificationService;
 
     @Scheduled(fixedRate = Constant.TIME_CHECK)
-    public void checkLateReturnEquipments(){
+    public void checkLateReturnEquipments() throws FirebaseMessagingException {
+        String titleMessage = "Notice";
+        String message = String.format(Constant.RETURN_NOTIFICATION_MESSAGE, "This is a reminder for the equipment you borrowed.");
         List<Transaction> lateReturnees = transactionRepository.findAll()
                 .stream()
                 .filter(transaction ->
                         DateUtilities.isEnding(transaction.getReturnDate()) &&
                         transaction.getReturnedAt() == null &&
-                        transaction.getNotifiedAt() == null)
-                .toList();
+                        transaction.getNotifiedAt() == null
+                ).toList();
 
-        String message = String.format(Constant.RETURN_NOTIFICATION_MESSAGE, "This is a reminder to return the equipment you borrowed.");
-        for(Transaction transaction : lateReturnees) {
-            log.info("Executed at {}", DateUtilities.now());
-            log.info("Message {}", message);
-        }
+        List<Long> transactionIds = lateReturnees.stream()
+                        .map(Transaction::getId)
+                        .toList();
+
+        notificationService.notifyUsers(transactionIds, titleMessage, message);
 
     }
 
