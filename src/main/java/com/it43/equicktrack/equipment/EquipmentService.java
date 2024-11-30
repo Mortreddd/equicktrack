@@ -110,13 +110,9 @@ public class EquipmentService {
         String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
         fileUtil.deleteFile("storage/images" , qrcodeImage);
 
-        if(!firebaseService.delete(equipment.getEquipmentImage())) {
-            return false;
-        }
+        firebaseService.delete(equipment.getEquipmentImage());
+        firebaseService.delete(equipment.getQrcodeImage());
 
-        if(!firebaseService.delete(equipment.getQrcodeImage())){
-            return false;
-        }
         equipmentRepository.deleteById(equipmentId);
 
         return true;
