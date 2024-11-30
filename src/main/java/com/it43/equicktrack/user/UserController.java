@@ -1,6 +1,8 @@
 package com.it43.equicktrack.user;
 
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
+import com.it43.equicktrack.dto.user.UpdateUserRoleRequest;
+import com.it43.equicktrack.dto.user.UserDTO;
 import com.it43.equicktrack.transaction.TransactionService;
 import com.it43.equicktrack.util.AuthenticatedUser;
 import lombok.RequiredArgsConstructor;
@@ -23,17 +25,25 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<Page<User>> getUsers(
-            @RequestParam(name = "search", required = false, defaultValue = "") String search,
             @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
             @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
     ){
-        return ResponseEntity.ok().body(userService.getUsers(search, pageNo, pageSize));
+        return ResponseEntity.ok().body(userService.getUsers(pageNo, pageSize));
     }
 
     @GetMapping(path = "/{userId}")
     public ResponseEntity<User> getUserById(@PathVariable("userId") Long _id){
         User user = userService.getUserById(_id);
         return ResponseEntity.ok().body(user);
+    }
+
+    @PutMapping(path = "/{userId}/update")
+    public ResponseEntity<User> updateUser(
+            @PathVariable("userId") Long userId,
+            @RequestBody UpdateUserRoleRequest updateUserRoleRequest
+    ) {
+        return ResponseEntity.ok()
+                .body(userService.updateUser(userId, updateUserRoleRequest));
     }
 
     @DeleteMapping(path = "/{userId}/delete")

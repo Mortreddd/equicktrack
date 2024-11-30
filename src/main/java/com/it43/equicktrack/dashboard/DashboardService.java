@@ -3,16 +3,19 @@ package com.it43.equicktrack.dashboard;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.it43.equicktrack.dto.dashboard.ApprovedTransactionRequest;
 import com.it43.equicktrack.dto.dashboard.DashboardDTO;
+import com.it43.equicktrack.dto.dashboard.EditUserRoleRequest;
 import com.it43.equicktrack.dto.equipment.EquipmentDTO;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UserDTO;
 import com.it43.equicktrack.equipment.Equipment;
 import com.it43.equicktrack.equipment.EquipmentRepository;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
-import com.it43.equicktrack.firebase.FirebaseMessagingService;
 import com.it43.equicktrack.notification.NotificationService;
 import com.it43.equicktrack.transaction.Transaction;
 import com.it43.equicktrack.transaction.TransactionRepository;
+import com.it43.equicktrack.user.Role;
+import com.it43.equicktrack.user.RoleRepository;
+import com.it43.equicktrack.user.User;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.Constant;
 import com.it43.equicktrack.util.DateUtilities;
@@ -23,7 +26,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +38,7 @@ public class DashboardService {
     private final UserRepository userRepository;
     private final EquipmentRepository equipmentRepository;
     private final TransactionRepository transactionRepository;
+    private final RoleRepository roleRepository;
     private final NotificationService notificationService;
 
 
@@ -65,6 +71,7 @@ public class DashboardService {
                     .name(equipment.getName())
                     .description(equipment.getDescription())
                     .remark(equipment.getRemark())
+                    .qrcodeData(equipment.getQrcodeData())
                     .equipmentImage(equipment.getEquipmentImage())
                     .qrcodeData(equipment.getQrcodeData())
                     .qrcodeImage(equipment.getQrcodeImage())
@@ -151,5 +158,19 @@ public class DashboardService {
 
     public void sendNotificationToUser(Long transactionId, String body) throws FirebaseMessagingException {
         notificationService.notifyUser(transactionId, body);
+    }
+
+    public User editUserRole(Long userId, EditUserRoleRequest editUserRoleRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        log.debug("Role Submitted {}", editUserRoleRequest.getRole().name());
+        Role role = roleRepository.findByName(editUserRoleRequest.getRole())
+                .orElseThrow(() -> new ResourceNotFoundException("Role is not role"));
+
+        Set<Role> newRole = new HashSet<>();
+        newRole.add(role);
+
+        user.setRoles(newRole);
+        return userRepository.save(user);
     }
 }

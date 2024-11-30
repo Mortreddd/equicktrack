@@ -3,6 +3,7 @@ package com.it43.equicktrack.dashboard;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.it43.equicktrack.dto.dashboard.ApprovedTransactionRequest;
 import com.it43.equicktrack.dto.dashboard.DashboardDTO;
+import com.it43.equicktrack.dto.dashboard.EditUserRoleRequest;
 import com.it43.equicktrack.dto.dashboard.NotifyUserRequest;
 import com.it43.equicktrack.dto.response.Response;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
@@ -64,5 +65,15 @@ public class DashboardController {
                         .message("Notification has been sent")
                         .build()
                 );
+    }
+
+
+    @PutMapping(path = "/users/{userId}/edit")
+    public ResponseEntity<User> editUser(
+            @PathVariable("userId") Long userId,
+            @RequestBody EditUserRoleRequest editUserRoleRequest
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(dashboardService.editUserRole(userId, editUserRoleRequest));
     }
 }
