@@ -23,6 +23,7 @@ public interface UserRepository extends JpaRepository<User, Long>, CrudRepositor
 //    @Query(value = "SELECT * FROM `users` WHERE LOWER(full_name) LIKE LOWER(CONCAT('%', :fullName, '%'))", nativeQuery = true)
 //    Page<User> findBySearchFullName(@Param("fullName") String fullName, Pageable pageable);
     Optional<User> findByEmail(String email);
+    Optional<User> findByIdNumber(String idNumber);
     Optional<User> findByGoogleUid(String uuid);
     Optional<User> findByToken(String token);
     default boolean emailExists(String email){

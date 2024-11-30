@@ -4,9 +4,11 @@ import com.it43.equicktrack.dto.auth.JwtRegisterRequest;
 import com.it43.equicktrack.dto.transaction.TransactionDTO;
 import com.it43.equicktrack.dto.user.UpdateProfilePasswordRequest;
 import com.it43.equicktrack.dto.user.UpdateUserRequest;
+import com.it43.equicktrack.dto.user.UpdateUserRoleRequest;
 import com.it43.equicktrack.dto.user.UserDTO;
 import com.it43.equicktrack.exception.auth.EmailExistsException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
+import com.it43.equicktrack.exception.auth.IdNumberAlreadyExistsException;
 import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,15 +35,11 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final TransactionRepository transactionRepository;
 
-    public Page<User> getUsers(String search, int pageNo, int pageSize){
-        Pageable pageable = PageRequest.of(pageNo, pageSize);
+    public Page<User> getUsers(int pageNo, int pageSize){
+        Pageable pageable = PageRequest.of(pageNo, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-        if(search.isBlank() || search.isEmpty()) {
-            return userRepository
-                    .findAll(pageable);
-        }
-
-        return userRepository.findByFullName(search, pageable);
+        return userRepository
+                .findAll(pageable);
     }
 
     public User getUserById(Long id){
@@ -53,12 +52,17 @@ public class UserService {
     }
 
     public User createUser(JwtRegisterRequest _user) throws Exception{
-        Role userRole = roleRepository.findById(_user.getRoleId())
+        Role userRole = roleRepository.findByName(_user.getRole())
                 .orElseThrow(() -> new ResourceNotFoundException("Role user not found"));
+
+        if(userRepository.findByIdNumber(_user.getIdNumber()).isPresent()) {
+            throw new IdNumberAlreadyExistsException("Id number already taken");
+        }
 
         if(userRepository.findByEmail(_user.getEmail()).isPresent()){
             throw new EmailExistsException("Email already exists");
         }
+
 //        TODO: Uncomment this line of code after presentation
         User user = User.builder()
                 .fullName(_user.getFullName())
@@ -139,6 +143,17 @@ public class UserService {
         user.setUpdatedAt(DateUtilities.now());
 
         userRepository.save(user);
+    }
+
+    public User updateUser(Long userId, UpdateUserRoleRequest updateUserRoleRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        Role role = roleRepository.findByName(updateUserRoleRequest.getRoleName())
+                .orElseThrow(() -> new ResourceNotFoundException("Authority is not found"));
+
+
+        user.setRoles(Set.of(role));
+        return userRepository.save(user);
     }
 
 }

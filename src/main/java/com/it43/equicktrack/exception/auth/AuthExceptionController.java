@@ -54,4 +54,17 @@ public class AuthExceptionController extends ResponseEntityExceptionHandler {
         return new ResponseEntity<>(details, HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(IdNumberAlreadyExistsException.class)
+    public ResponseEntity<Object> emailNotVerified(IdNumberAlreadyExistsException exception, WebRequest request) {
+        ErrorDetails details = ErrorDetails.builder()
+                .details(request.getDescription(false))
+                .message(exception.getMessage())
+                .date(new Date())
+                .build();
+
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+//                .body(errorDetails);
+        return new ResponseEntity<>(details, HttpStatus.UNPROCESSABLE_ENTITY);
+    }
+
 }
