@@ -8,10 +8,7 @@ import java.time.format.DateTimeFormatter;
 public class DateUtilities {
 
     public static boolean isLate(LocalDateTime localDateTime){
-        ZonedDateTime manilaZoned = localDateTime.atZone(ZoneId.of("Asia/Manila"));
-        ZonedDateTime currentUtcZoned = DateUtilities.now().atZone(ZoneId.of("UTC"));
-        return currentUtcZoned.isAfter(manilaZoned.plusMinutes(Constant.OTP_EXPIRATION));
-//        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
     public static boolean isPast(LocalDateTime localDateTime){

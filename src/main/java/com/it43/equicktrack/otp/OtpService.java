@@ -80,11 +80,11 @@ public class OtpService {
 
         Otp otp = currentOtp.get();
 
-        if(DateUtilities.isExpired(otp.getCreatedAt())) {
-            log.info("Created At {}", otp.getCreatedAt().toString());
-            log.info("Date Now {}", DateUtilities.now());
-            throw new InvalidOtpException("Url verification is expired");
-        }
+//        if(DateUtilities.isExpired(otp.getCreatedAt())) {
+//            log.info("Created At {}", otp.getCreatedAt().toString());
+//            log.info("Date Now {}", DateUtilities.now());
+//            throw new InvalidOtpException("Url verification is expired");
+//        }
 
         User user = userRepository.findById(otp.getUserId())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
@@ -121,9 +121,9 @@ public class OtpService {
         Otp otp = otpRepository.findById(uuid)
                 .orElseThrow(() -> new ResourceNotFoundException("Invalid otp url"));
 
-        if(DateUtilities.isLate(otp.getCreatedAt())) {
-            throw new InvalidOtpException("Reset password url is expired");
-        }
+//        if(DateUtilities.isLate(otp.getCreatedAt())) {
+//            throw new InvalidOtpException("Reset password url is expired");
+//        }
     }
 
     public void sendForgotPassword(String email) throws EmailMessageException {
