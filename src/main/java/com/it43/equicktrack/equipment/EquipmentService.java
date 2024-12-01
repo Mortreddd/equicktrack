@@ -107,11 +107,11 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
-        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
-        fileUtil.deleteFile("storage/images" , qrcodeImage);
+//        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
+//        fileUtil.deleteFile("storage/images" , qrcodeImage);
 
-        firebaseService.delete(equipment.getEquipmentImage());
-        firebaseService.delete(equipment.getQrcodeImage());
+//        firebaseService.delete(equipment.getEquipmentImage());
+//        firebaseService.delete(equipment.getQrcodeImage());
 
         equipmentRepository.deleteById(equipmentId);
 
@@ -132,7 +132,7 @@ public class EquipmentService {
         }
 
         if (updateEquipmentRequest.getEquipmentImage() != null) {
-            firebaseService.delete(equipment.getEquipmentImage());
+//            firebaseService.delete(equipment.getEquipmentImage());
             String newEquipmentImage = firebaseService.uploadMultipartFile(updateEquipmentRequest.getEquipmentImage(), FirebaseFolder.EQUIPMENT);
             equipment.setEquipmentImage(newEquipmentImage);
         }

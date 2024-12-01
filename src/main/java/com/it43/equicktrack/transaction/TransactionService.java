@@ -330,8 +330,8 @@ public class TransactionService {
         }
 
         Transaction transaction = transactionOptional.get();
-        firebaseService.delete(transaction.getReturnProofImage());
-        firebaseService.delete(transaction.getConditionImage());
+//        firebaseService.delete(transaction.getReturnProofImage());
+//        firebaseService.delete(transaction.getConditionImage());
         transactionRepository.deleteById(_id);
 
         return true;
