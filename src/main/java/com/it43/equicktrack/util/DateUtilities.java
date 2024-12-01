@@ -2,20 +2,12 @@ package com.it43.equicktrack.util;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.Instant;
-import java.time.ZonedDateTime;
-import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class DateUtilities {
 
     public static boolean isLate(LocalDateTime localDateTime){
-        Instant expirationTime = localDateTime
-                .plusMinutes(Constant.OTP_EXPIRATION)
-                .atZone(ZoneId.of("Asia/Manila"))
-                .toInstant();
-
-        return Instant.now().isAfter(expirationTime);
-//        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
     public static boolean isPast(LocalDateTime localDateTime){
@@ -28,13 +20,7 @@ public class DateUtilities {
     }
 
     public static boolean isExpired(LocalDateTime localDateTime) {
-
-        Instant expirationTime = localDateTime
-                .plusMinutes(Constant.OTP_EXPIRATION)
-                .atZone(ZoneId.of("Asia/Manila"))
-                .toInstant();
-        return Instant.now().isAfter(expirationTime);
-//        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
+        return now().isAfter(localDateTime.plusMinutes(Constant.OTP_EXPIRATION));
     }
 
     public static boolean isEnding(LocalDateTime localDateTime) {
