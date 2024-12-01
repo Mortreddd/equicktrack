@@ -4,6 +4,9 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
+import javax.annotation.PostConstruct;
+import java.util.TimeZone;
+
 /**
  * I always overthink why doing this project feel so lonely and unhappy
  * is it because I can only rely on myself? My thoughts are filling my head
@@ -21,5 +24,10 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 public class EquicktrackApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EquicktrackApplication.class, args);
+	}
+
+	@PostConstruct
+	public void init() {
+		TimeZone.setDefault(TimeZone.getTimeZone("Asia/Manila"));
 	}
 }
