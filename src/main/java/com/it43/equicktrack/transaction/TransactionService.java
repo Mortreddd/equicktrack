@@ -126,7 +126,7 @@ public class TransactionService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        List<TransactionDTO> transactions = transactionRepository.findAll()
+        List<TransactionDTO> transactions = transactionRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
                 .stream()
                 .filter((_transaction) -> Objects.equals(_transaction.getUser(), user))
                 .map((_transaction) -> new TransactionDTO(
