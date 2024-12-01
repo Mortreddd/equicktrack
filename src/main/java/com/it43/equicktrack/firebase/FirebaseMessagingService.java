@@ -63,6 +63,16 @@ public class FirebaseMessagingService {
                 .peek(transaction -> transaction.setNotifiedAt(DateUtilities.now()))
                 .toList();
 
+        List<Notification> notifications = transactions.stream()
+                .map((transaction) -> Notification.builder()
+                        .title(title)
+                        .message(body)
+                        .user(transaction.getUser())
+                        .receivedAt(DateUtilities.now())
+                        .createdAt(DateUtilities.now())
+                        .build()
+                ).toList();
+
         List<User> users = transactions.stream()
                 .map(Transaction::getUser)
                 .toList();
@@ -89,8 +99,10 @@ public class FirebaseMessagingService {
                 .setNotification(notification)
                 .build();
 
+
         firebaseMessaging.sendEachForMulticast(multicastMessage);
         transactionRepository.saveAll(transactions);
+        notificationRepository.saveAll(notifications);
     }
 
 

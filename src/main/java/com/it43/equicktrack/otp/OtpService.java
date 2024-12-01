@@ -26,7 +26,6 @@ public class OtpService {
 
 
     public void sendEmailVerification(String email) throws EmailMessageException {
-        final String OTP_CODE = generateRandomOtpCode();
         final String RANDOM_ID = UUID.randomUUID().toString();
         User existingUser = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User email not found"));
