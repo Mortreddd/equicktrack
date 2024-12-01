@@ -81,6 +81,8 @@ public class OtpService {
         Otp otp = currentOtp.get();
 
         if(DateUtilities.isExpired(otp.getCreatedAt())) {
+            log.info("Created At {}", otp.getCreatedAt().toString());
+            log.info("Date Now {}", DateUtilities.now());
             throw new InvalidOtpException("Url verification is expired");
         }
 
