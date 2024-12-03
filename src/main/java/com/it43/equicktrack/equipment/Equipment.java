@@ -63,7 +63,7 @@ public class Equipment {
     @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "equipment", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "equipment", fetch = FetchType.EAGER)
     @JsonManagedReference
     private List<Transaction> transactions;
 }

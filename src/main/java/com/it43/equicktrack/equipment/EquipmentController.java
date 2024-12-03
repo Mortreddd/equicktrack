@@ -126,30 +126,4 @@ public class EquipmentController {
         }
         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
-
-    @GetMapping(path = "/{equipmentId}/occupied")
-    public ResponseEntity<EquipmentDTO> getOccupiedEquipment(
-            @PathVariable("equipmentId") Long equipmentId
-    ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(equipmentService.getOccupiedEquipmentById(equipmentId));
-    }
-
-//    @GetMapping(path = "/available")
-//    public ResponseEntity<Page<Equipment>> getAvailableEquipments(
-//            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
-//            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-//    ) {
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(equipmentService.getAvailableEquipments(pageNo, pageSize));
-//    }
-//
-//    @GetMapping(path = "/unavailable")
-//    public ResponseEntity<Page<Equipment>> getUnavailableEquipments(
-//            @RequestParam(name = "pageNo", required = false, defaultValue = "0") int pageNo,
-//            @RequestParam(name = "pageSize", required = false, defaultValue = "10") int pageSize
-//    ) {
-//        return ResponseEntity.status(HttpStatus.OK)
-//                .body(equipmentService.getUnavailableEquipments(pageNo, pageSize));
-//    }
 }

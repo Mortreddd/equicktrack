@@ -72,7 +72,7 @@ public class User implements UserDetails{
     @Column(nullable = true)
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER, orphanRemoval = true)
     @JsonManagedReference
     private List<Notification> notifications = List.of();
 
