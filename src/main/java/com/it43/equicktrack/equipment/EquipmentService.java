@@ -10,6 +10,7 @@ import com.it43.equicktrack.exception.firebase.FirebaseFileUploadException;
 import com.it43.equicktrack.exception.ResourceNotFoundException;
 import com.it43.equicktrack.firebase.FirebaseFolder;
 import com.it43.equicktrack.firebase.FirebaseService;
+import com.it43.equicktrack.transaction.TransactionRepository;
 import com.it43.equicktrack.user.UserRepository;
 import com.it43.equicktrack.util.DateUtilities;
 import com.it43.equicktrack.util.FileUtil;
@@ -41,6 +42,7 @@ import java.util.Objects;
 public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
+    private final TransactionRepository transactionRepository;
     private final UserRepository userRepository;
     private final QuickResponseCode quickResponseCode;
     private final FirebaseService firebaseService;
@@ -112,6 +114,15 @@ public class EquipmentService {
 
 //        firebaseService.delete(equipment.getEquipmentImage());
 //        firebaseService.delete(equipment.getQrcodeImage());
+
+        if(!equipment.getTransactions().isEmpty()) {
+            var affectedTransactions = equipment.getTransactions()
+                    .stream()
+                    .peek((transaction) -> transaction.setEquipment(null))
+                    .toList();
+
+            transactionRepository.saveAll(affectedTransactions);
+        }
 
         equipmentRepository.deleteById(equipmentId);
 

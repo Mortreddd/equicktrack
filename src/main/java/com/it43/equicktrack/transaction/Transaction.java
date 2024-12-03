@@ -32,7 +32,7 @@ public class Transaction {
     private User user;
 
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinColumn(name = "equipment_id")
+    @JoinColumn(name = "equipment_id", nullable = true)
     @JsonBackReference
     private Equipment equipment;
 
