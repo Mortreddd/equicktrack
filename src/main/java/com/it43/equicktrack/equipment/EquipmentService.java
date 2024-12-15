@@ -109,8 +109,8 @@ public class EquipmentService {
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Equipment not found"));
 
-//        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
-//        fileUtil.deleteFile("storage/images" , qrcodeImage);
+        String qrcodeImage = firebaseService.extractFileFromFirebaseUrl(equipment.getQrcodeImage());
+        fileUtil.deleteFile("storage/images" , qrcodeImage);
 
 //        firebaseService.delete(equipment.getEquipmentImage());
 //        firebaseService.delete(equipment.getQrcodeImage());
