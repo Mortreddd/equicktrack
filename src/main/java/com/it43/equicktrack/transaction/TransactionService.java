@@ -136,7 +136,7 @@ public class TransactionService {
                     _transaction.getPurpose(),
                     _transaction.getBorrowDate(),
                     _transaction.getReturnDate(),
-                    null,
+                    _transaction.getReturnedAt(),
                     _transaction.getCreatedAt(),
                     _transaction.getUpdatedAt(),
                     _transaction.getNotifiedAt(),
